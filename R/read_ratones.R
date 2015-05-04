@@ -22,7 +22,14 @@ raw.data$strain    <- gsub('hp', 'h', raw.data$strain)
 raw.data$strain    <- gsub('sp', 's', raw.data$strain)
 
 #Remove fat fucks
-raw.data %<>% filter(P49 < 50)
+raw.data %<>% filter(P49 < 50) %>%
+              filter(ID != 270160) %>% #outlier in biplot prcomp - control
+              filter(ID != 270493) %>% #outlier in biplot prcomp - increase.S
+              filter(ID != 270200) %>% #outlier in biplot prcomp - reduce.h
+              filter(ID != 270556) %>% #outlier in biplot prcomp - reduce.h
+              filter(ID != 270190)     #outlier in biplot prcomp - reduce.s
+  
+
 
 ggplot(raw.data, aes(P49, group = strain, color = interaction(treatment, strain))) + geom_histogram() + facet_grid(strain~treatment)
 ggplot(filter(raw.data, strain == 'control'), aes(SEX, P49, color= SEX)) + geom_violin() + geom_jitter()
@@ -43,7 +50,8 @@ makeMainData <- function (current.data) {
   x[[6]] <- lm(as.matrix(x$ed) ~ x$info$SEX)
   x[[7]] <- CalculateMatrix(x[[6]])
   x[[8]] <- colMeans(x$ed)
-  names(x)[6:8] <- c('model', 'cov.matrix', 'ed.means')
+  x[[9]] <- tbl_df(cbind(x$info, x$ed))
+  names(x)[6:9] <- c('model', 'cov.matrix', 'ed.means', 'full')
   return(x)
 }
 main.data <- llply(raw.main.data, makeMainData)
