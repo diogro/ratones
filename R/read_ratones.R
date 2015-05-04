@@ -28,25 +28,23 @@ raw.data %<>% filter(P49 < 50) %>%
               filter(ID != 270200) %>% #outlier in biplot prcomp - reduce.h
               filter(ID != 270556) %>% #outlier in biplot prcomp - reduce.h
               filter(ID != 270190)     #outlier in biplot prcomp - reduce.s
-  
-
 
 ggplot(raw.data, aes(P49, group = strain, color = interaction(treatment, strain))) + geom_histogram() + facet_grid(strain~treatment)
 ggplot(filter(raw.data, strain == 'control'), aes(SEX, P49, color= SEX)) + geom_violin() + geom_jitter()
 
 raw.main.data <- dlply(raw.data, .(treatment, strain), tbl_df)
 
-current.data <- raw.main.data[[1]] 
 makeMainData <- function (current.data) {
   x = vector("list", 8)
   x[[1]] <- select(current.data, c(ID:TAKE, strain, treatment))
-  x[[2]] <- select(current.data, IS_PM:BA_OPI)
+  x[[2]] <- select(current.data, c(P49, IS_PM:BA_OPI))
   x[[3]] <- unique(select(current.data, c(ID:P49, strain, treatment)))
-  x[[4]] <- ddply(select(current.data, c(ID, IS_PM:BA_OPI)), .(ID), numcolwise(mean))[,-1]
+  x[[4]] <- ddply(select(current.data, c(ID, P49, IS_PM:BA_OPI)), .(ID), numcolwise(mean))[,-1]
   rownames(x[[4]]) <- x[[3]]$ID
   names(x)[1:4] <- c('info.raw', 'ed.raw', 'info', 'ed')
-  x[[5]] <- CalcRepeatability(current.data$ID, ind.data = x$ed.raw)
+  x[[5]] <- CalcRepeatability(current.data$ID, ind.data = x$ed.raw[,-1])
   names(x)[5] <- 'reps'
+  x$ed$P49 %<>% log
   x[[6]] <- lm(as.matrix(x$ed) ~ x$info$SEX)
   x[[7]] <- CalculateMatrix(x[[6]])
   x[[8]] <- colMeans(x$ed)
@@ -55,3 +53,4 @@ makeMainData <- function (current.data) {
   return(x)
 }
 main.data <- llply(raw.main.data, makeMainData)
+
