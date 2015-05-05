@@ -1,13 +1,16 @@
-library(plyr)
-library(dplyr)
-library(magrittr)
-library(lme4)
-library(ggplot2)
-library(tidyr)
-library(evolqg)
-library(readr)
+if(!require(plyr)) {install.packages('plyr'); library(plyr)}
+if(!require(dplyr)) {install.packages('dplyr'); library(dplyr)}
+if(!require(magrittr)) {install.packages('magrittr'); library(magrittr)}
+if(!require(lme4)) {install.packages('lme4'); library(lme4)}
+if(!require(ggplot2)) {install.packages('ggplot2'); library(ggplot2)}
+if(!require(tidyr)) {install.packages('tidyr'); library(tidyr)}
+if(!require(MCMCglmm)) {install.packages('MCMCglmm'); library(MCMCglmm)}
+if(!require(reshape2)) {install.packages('reshape2'); library(reshape2)}
+if(!require(evolqg)) {devtools::install_github('lem-usp/evolqg'); library(evolqg)}
+if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
 
-raw.data <- tbl_df(read_csv("~/Dropbox/Ratones (1)//RRatones/Análises/Ratabase_Main.csv"))
+
+raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
 raw.data %<>% mutate(treatment = LIN, strain = LIN)
 
 # Change weird labels
