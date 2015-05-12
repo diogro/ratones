@@ -37,6 +37,7 @@ ggplot(filter(raw.data, strain == 'control'), aes(SEX, P49, color= SEX)) + geom_
 
 raw.main.data <- dlply(raw.data, .(treatment, strain), tbl_df)
 
+current.data <- raw.main.data[[1]]
 makeMainData <- function (current.data) {
   x = vector("list", 8)
   x[[1]] <- select(current.data, c(ID:TAKE, strain, treatment))
