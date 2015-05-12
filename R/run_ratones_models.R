@@ -12,7 +12,7 @@ names(r2.df)[1] <- 'strain'
 r2.df %>% group_by(strain) %>% summarise_each(funs(mean, sd), value) %>%
   ggplot(., aes(strain, mean)) + geom_point() + geom_errorbar(aes(ymin = mean - 2*sd,
                                                                   ymax = mean + 2*sd)) + 
-  theme_classic()
+  theme_classic() + labs(y = expression(R^2))
 
 MatrixCompare(cov2cor(main.data[[1]]$cov.matrix), 
               cov2cor(main.data[[3]]$cov.matrix))
