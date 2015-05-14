@@ -17,5 +17,5 @@ vignettes/*.html
 vignettes/*.pdf
 
 data/*
-Rdata/*
-Rdata
+Rdatas/*
+Rdatas
