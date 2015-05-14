@@ -48,6 +48,6 @@ runMCMCmodelsRatones <- function (x) {
               mvar = ratones_model_var))
 }
 
-# runMCMCmodelsRatones(main.data[[3]])
-r_models = llply(main.data, runMCMCmodelsRatones, .parallel = TRUE)
+#r_models = llply(main.data, runMCMCmodelsRatones, .parallel = TRUE)
+load("Rdatas/ratonesMCMCmodels.RData")
 
