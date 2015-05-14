@@ -37,9 +37,10 @@ ggplot(filter(raw.data, strain == 'control'), aes(SEX, P49, color= SEX)) + geom_
 
 raw.main.data <- dlply(raw.data, .(treatment, strain), tbl_df)
 
-current.data <- raw.main.data[[1]]
+current.data <- raw.main.data[[4]]
 makeMainData <- function (current.data) {
   x = vector("list", 9)
+  current.data$AGE[is.na(current.data$AGE)] <- mean(current.data$AGE, na.rm = TRUE)
   x[[1]] <- select(current.data, c(ID:TAKE, strain, treatment))
   x[[2]] <- select(current.data, c(P49, IS_PM:BA_OPI))
   x[[3]] <- unique(select(current.data, c(ID:P49, strain, treatment)))

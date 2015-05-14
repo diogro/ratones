@@ -1,60 +1,53 @@
 source('./R/read_ratones.R')
-
+library(doMC)
+registerDoMC(5)
 num.traits = 36
 
-x <- main.data[[1]]
-x$ed.raw$P49 %<>% log
-full_data <- cbind(x$info[,-8], scale(x$ed))
+x = main.data[[4]]
+runMCMCmodelsRatones <- function (x) {
+  x$ed.raw$P49 %<>% log
+  full_data_scaled <- cbind(x$info[,-8], scale(x$ed))
+  
+  value = paste("cbind(",
+                paste(names(select(full_data_scaled, P49:BA_OPI)), collapse = ', '),
+                ")", sep = '')
+  
+  fixed_effects = "trait:SEX + trait:AGE - 1"
+  
+  mcmc_formula = as.formula(paste(value, fixed_effects, sep = " ~ "))
+  
+  prior <- list(R = list(V = diag(num.traits), n = 2))
+  ratones_model_corr <- MCMCglmm(mcmc_formula, 
+                            data = full_data_scaled,
+                            rcov = ~us(trait):units,
+                            family = rep("gaussian", num.traits),
+                            nitt=13000, thin = 100, burnin = 3000,
+                            prior = prior,
+                            verbose = TRUE)
+  corrPs = array(ratones_model_corr$VCV, dim = c(100, num.traits, num.traits))
+  corrPs = aaply(corrPs, 1, cov2cor)
+  corrP = apply(corrPs, 2:3, mean)
+  
+  full_data <- cbind(x$info[,-8], x$ed)
+  prior <- list(R = list(V = diag(num.traits), n = 0.01))
+  ratones_model_var <- MCMCglmm(mcmc_formula, 
+                            data = full_data,
+                            rcov = ~idh(trait):units,
+                            family = rep("gaussian", num.traits),
+                            nitt=13000, thin = 100, burnin = 3000,
+                            prior = prior,
+                            verbose = TRUE)
+  varPs = aaply(ratones_model_var$VCV, 1, function(x) outer(sqrt(x), sqrt(x)))
+  Ps = corrPs * varPs
+  P = apply(Ps, 2:3, mean)
+  return(list(Ps = Ps,
+              corrPs = corrPs, 
+              P = P,
+              corrP = corrP,
+              mcor = ratones_model_corr,
+              mvar = ratones_model_var))
+}
 
-value = paste("cbind(",
-              paste(names(select(full_data, P49:BA_OPI)), collapse = ', '),
-              ")", sep = '')
+# runMCMCmodelsRatones(main.data[[3]])
+r_models = llply(main.data, runMCMCmodelsRatones, .parallel = TRUE)
 
-fixed_effects = "trait:SEX - 1"
-
-mcmc_formula = as.formula(paste(value, fixed_effects, sep = " ~ "))
- 
-# prior <- list(R = list(V = diag(num.traits), 
-#                        n = 0.002),
-#               G = list(G1 = list(V = diag(num.traits) * 0.1, 
-#                                  n = num.traits + 1)))
-
-prior1 <- list(R = list(V = diag(num.traits), n = 0.1))
-ratones_model_1 <- MCMCglmm(mcmc_formula, 
-#                           random = ~idh(trait):ID,
-                          data = full_data,
-                          rcov = ~us(trait):units,
-                          family = rep("gaussian", num.traits),
-                          nitt=100000, thin = 100, burnin = 10000,
-                          prior = prior1,
-                          verbose = TRUE)
-prior2 <- list(R = list(V = diag(num.traits), n = num.traits + 1))
-ratones_model_2 <- MCMCglmm(mcmc_formula, 
-                          #                           random = ~idh(trait):ID,
-                          data = full_data,
-                          rcov = ~us(trait):units,
-                          family = rep("gaussian", num.traits),
-                          nitt=100000, thin = 100, burnin = 10000,
-                          prior = prior2,
-                          verbose = TRUE)
-
-dim(ratones_model_1$Sol)
-
-Ps_1 = array(ratones_model_1$VCV, dim = c(900, num.traits, num.traits))
-Ps_1 = aaply(Ps_1, 1, cov2cor)
-P1 = apply(Ps_1, 2:3, mean)
-
-Ps_2 = array(ratones_model_2$VCV, dim = c(900, num.traits, num.traits))
-Ps_2 = aaply(Ps_2, 1, cov2cor)
-P2 = apply(Ps_2, 2:3, mean)
-
-CalcR2(P1)
-CalcR2(P2)
-CalcR2(x$cov.matrix)
-MatrixCompare(P1, P2)
-MatrixCompare(P1, cov2cor(x$cov.matrix))
-MatrixCompare(P2, cov2cor(x$cov.matrix))
-ggplot(melt(data.frame(montecarlo = MonteCarloR2(x$cov.matrix, 36, iterations = 900),
-                       weak = apply(Ps_1, 1, CalcR2), 
-                       strong = apply(Ps_2, 1, CalcR2))), 
-       aes(variable, value)) + geom_boxplot()
