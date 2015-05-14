@@ -10,6 +10,7 @@ if(!require(evolqg)) {devtools::install_github('lem-usp/evolqg'); library(evolqg
 if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
 
 
+
 raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
 raw.data %<>% mutate(treatment = LIN, strain = LIN)
 

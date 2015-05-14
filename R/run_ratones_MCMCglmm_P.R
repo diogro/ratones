@@ -3,7 +3,50 @@ library(doMC)
 registerDoMC(5)
 num.traits = 36
 
-x = main.data[[4]]
+find_CI = function(x, prob = 0.95){
+  n = length(x)
+  xs = sort(x)
+  nint = floor(prob*n)
+  lowest_int = abs(xs[n] - xs[1])
+  for(i in 1:(n-nint)){
+    current_int = abs(xs[i] - xs[i+nint])
+    if(current_int <= lowest_int){
+      lowest_int = current_int
+      pos = i
+    }
+  }
+  return(c(xs[pos], xs[pos+nint]))
+}
+
+find_CI_upper = function(x, prob = 0.95){
+  n = length(x)
+  xs = sort(x)
+  nint = floor(prob*n)
+  lowest_int = abs(xs[n] - xs[1])
+  for(i in 1:(n-nint)){
+    current_int = abs(xs[i] - xs[i+nint])
+    if(current_int <= lowest_int){
+      lowest_int = current_int
+      pos = i
+    }
+  }
+  return(c(upper = xs[pos+nint]))
+}
+
+find_CI_lower = function(x, prob = 0.95){
+  n = length(x)
+  xs = sort(x)
+  nint = floor(prob*n)
+  lowest_int = abs(xs[n] - xs[1])
+  for(i in 1:(n-nint)){
+    current_int = abs(xs[i] - xs[i+nint])
+    if(current_int <= lowest_int){
+      lowest_int = current_int
+      pos = i
+    }
+  }
+  return(c(lower = xs[pos]))
+}
 runMCMCmodelsRatones <- function (x) {
   x$ed.raw$P49 %<>% log
   full_data_scaled <- cbind(x$info[,-8], scale(x$ed))

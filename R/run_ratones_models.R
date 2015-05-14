@@ -7,7 +7,7 @@ ggplot(stats, aes(MeanSquaredCorrelation, flexibility)) + geom_text(aes(label = 
 
 ddply(raw.data, .(strain, treatment), function(x) sd(x$P49)/mean(x$P49))
 
-r2.df <- llply(main.data, function(x) x$cov.matrix) %>% ldply(MonteCarloR2, 100) %>% gather(.id)
+r2.df <- llply(main.data, function(x) x$cov.matrix) %>% ldply(MonteCarloR2, 50) %>% gather(.id)
 names(r2.df)[1] <- 'strain'
 r2.df %>% group_by(strain) %>% summarise_each(funs(mean, sd), value) %>%
   ggplot(., aes(strain, mean)) + geom_point() + geom_errorbar(aes(ymin = mean - 2*sd,
