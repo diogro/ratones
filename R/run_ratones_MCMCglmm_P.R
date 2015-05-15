@@ -1,5 +1,6 @@
 source('./R/read_ratones.R')
-library(doMC)
+if(!require(doMC)) {install.packages('doMC'); library(doMC)}
+
 registerDoMC(5)
 num.traits = 36
 
@@ -92,5 +93,6 @@ runMCMCmodelsRatones <- function (x) {
 }
 
 #r_models = llply(main.data, runMCMCmodelsRatones, .parallel = TRUE)
+#save(r_models, file = "Rdatas/ratonesMCMCmodels.RData")
 load("Rdatas/ratonesMCMCmodels.RData")
 
