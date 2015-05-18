@@ -9,7 +9,7 @@ r_models %>% llply(function(x) x$Ps) %>% ldply(function(x) adply(x, 1, CalcR2)) 
 
 #mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics), .parallel = TRUE))
 mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, evolvability) %>% melt %>%
-  separate(.id, c( 'strain', 'treatment')) %>% 
+  separate(.id, c( 'treatment', 'strain')) %>% 
   ggplot(aes(treatment, value, group = interaction(treatment, strain, variable), color = strain)) + geom_boxplot() +
   facet_wrap(~variable, scale = 'free') + theme_bw()
 
