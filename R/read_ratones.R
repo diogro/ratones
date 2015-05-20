@@ -8,6 +8,7 @@ if(!require(MCMCglmm)) {install.packages('MCMCglmm'); library(MCMCglmm)}
 if(!require(reshape2)) {install.packages('reshape2'); library(reshape2)}
 if(!require(evolqg)) {devtools::install_github('lem-usp/evolqg'); library(evolqg)}
 if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
+library(plsdepot)
 
 
 
@@ -39,8 +40,11 @@ ggplot(filter(raw.data, strain == 'control'), aes(SEX, P49, color= SEX)) + geom_
 raw.main.data <- dlply(raw.data, .(treatment, strain), tbl_df)
 
 current.data <- raw.main.data[[4]]
+
+
+
 makeMainData <- function (current.data) {
-  x = vector("list", 9)
+  x = vector("list", 10)
   current.data$AGE[is.na(current.data$AGE)] <- mean(current.data$AGE, na.rm = TRUE)
   x[[1]] <- select(current.data, c(ID:TAKE, strain, treatment))
   x[[2]] <- select(current.data, c(P49, IS_PM:BA_OPI))
@@ -55,8 +59,13 @@ makeMainData <- function (current.data) {
   x[[7]] <- CalculateMatrix(x[[6]])
   x[[8]] <- colMeans(x$ed)
   x[[9]] <- tbl_df(cbind(x$info, x$ed))
-  names(x)[6:9] <- c('model', 'cov.matrix', 'ed.means', 'full')
+  sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
+  sex_age_res <- residuals(sex_age_lm)
+  p49_traits_pls <- plsreg1(sex_age_res[,2:36], sex_age_res[,1])
+  x[[10]] <- Normalize(p49_traits_pls$reg.coefs[-1])
+  names(x)[6:10] <- c('model', 'cov.matrix', 'ed.means', 'full', 'plsr')
   return(x)
 }
 main.data <- llply(raw.main.data, makeMainData)
 
+main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}

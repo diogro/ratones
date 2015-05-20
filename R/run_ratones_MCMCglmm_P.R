@@ -1,7 +1,7 @@
 source('./R/read_ratones.R')
 if(!require(doMC)) {install.packages('doMC'); library(doMC)}
 
-registerDoMC(5)
+registerDoMC(10)
 num.traits = 36
 
 find_CI = function(x, prob = 0.95){
@@ -93,6 +93,7 @@ runMCMCmodelsRatones <- function (x) {
 }
 
 #r_models = llply(main.data, runMCMCmodelsRatones, .parallel = TRUE)
+#for(i in 1:length(r_models)) r_models[[i]]$strain <- names(r_models)[[i]]
 #save(r_models, file = "Rdatas/ratonesMCMCmodels.RData")
 load("Rdatas/ratonesMCMCmodels.RData")
 

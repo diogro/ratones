@@ -9,9 +9,9 @@ ddply(raw.data, .(strain, treatment), function(x) sd(x$P49)/mean(x$P49))
 
 r2.df <- llply(main.data, function(x) x$cov.matrix) %>% ldply(MonteCarloR2, 50) %>% gather(.id)
 names(r2.df)[1] <- 'strain'
-r2.df %>% group_by(strain) %>% summarise_each(funs(mean, sd), value) %>%
-  ggplot(., aes(strain, mean)) + geom_point() + geom_errorbar(aes(ymin = mean - 2*sd,
-                                                                  ymax = mean + 2*sd)) + 
+r2.df %>% separate(strain, c( 'treatment', 'strain')) %>%
+  ggplot(., aes(treatment, value, group = interaction(treatment, strain), color = strain)) +
+  geom_boxplot() + 
   theme_classic() + labs(y = expression(R^2))
 
 MatrixCompare(cov2cor(main.data[[1]]$cov.matrix), 
@@ -39,3 +39,5 @@ delta_beta_cor <- function(x){
 }
 ldply(main.data, delta_beta_cor)
 select(stats, .id, flexibility, evolvability)
+
+
