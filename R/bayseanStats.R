@@ -29,21 +29,21 @@ directionalVariation <- function(cov.matrix, strain){
   #eval1_ <- (eigen(cov.matrix[-1, -1])$value)
   #mat.stat <- MeanMatrixStatistics(cov.matrix, parallel = TRUE)
   data.frame(corDZDZ = vectorCor(cov.matrix %*% beta, delta_Z),
-             flex_DZ = Flexibility(Normalize(delta_Z), cov.matrix),#/mat.stat['flexibility'],
-             flex_beta = Flexibility(Normalize(beta), cov.matrix),#/mat.stat['flexibility'], 
-             flex_plsr_strain = Flexibility(Normalize(plsr_strain), cov.matrix[-1,-1]),#/mat.stat['flexibility'], 
-             flex_plsr_control = Flexibility(Normalize(plsr_control), cov.matrix[-1,-1]),#/mat.stat['flexibility'], 
-             Evol_DZ = Evolvability(Normalize(delta_Z), cov.matrix),#/eval1,
+             flex_DZ = Flexibility(cov.matrix, Normalize(delta_Z)),#/mat.stat['flexibility'],
+             flex_beta = Flexibility(cov.matrix, Normalize(beta)),#/mat.stat['flexibility'], 
+             flex_plsr_strain = Flexibility(cov.matrix[-1,-1], Normalize(plsr_strain)),#/mat.stat['flexibility'], 
+             flex_plsr_control = Flexibility(cov.matrix[-1,-1], Normalize(plsr_control)),#/mat.stat['flexibility'], 
+             Evol_DZ = Evolvability(cov.matrix, Normalize(delta_Z)),#/eval1,
              #DZpc1 = abs(vectorCor(delta_Z,
              #                       eigen(cov.matrix)$vector[,1])),
              #corBetaBetaS = vectorCor(beta, beta_s),
              #corBetaBetaNN = vectorCor(beta, beta_NN),
              #corDZbetaS = vectorCor(delta_Z, beta_s),            
-             Evol_beta = Evolvability(Normalize(beta), cov.matrix),#/eval1, 
+             Evol_beta = Evolvability(cov.matrix, Normalize(beta)),#/eval1, 
              
-             Evol_plsr_strain = Evolvability(Normalize(plsr_strain), cov.matrix[-1, -1]),#/eval1_, 
+             Evol_plsr_strain = Evolvability(cov.matrix[-1, -1], Normalize(plsr_strain)),#/eval1_, 
              
-             Evol_plsr_control = Evolvability(Normalize(plsr_control), cov.matrix[-1, -1]),#/eval1_, 
+             Evol_plsr_control = Evolvability(cov.matrix[-1, -1], Normalize(plsr_control)),#/eval1_, 
              normDZ = Norm(delta_Z))
 }
 
