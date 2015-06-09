@@ -23,8 +23,8 @@ delta_beta_cor <- function(x){
   beta_NN <- solve(ExtendMatrix(x$cov.matrix, ret.dim = 13)[[1]], delta_Z)  
   beta = c(1, rep(0, 35))
   data.frame(corDZDZ = vectorCor(x$cov.matrix %*% beta, delta_Z),
-             flex_DZ = Flexibility(Normalize(delta_Z), x$cov.matrix),
-             Evol_DZ = Evolvability(Normalize(delta_Z), x$cov.matrix),
+             flex_DZ = Flexibility(x$cov.matrix, Normalize(delta_Z)),
+             Evol_DZ = Evolvability(x$cov.matrix, Normalize(delta_Z)),
              DZpc1_I = abs(vectorCor(eigen(main.data[[1]]$cov.matrix)$vectors[,1],
                                 delta_Z)),
              DZpc1 = abs(vectorCor(delta_Z,
@@ -32,9 +32,9 @@ delta_beta_cor <- function(x){
              #corBetaBetaS = vectorCor(beta, beta_s),
              #corBetaBetaNN = vectorCor(beta, beta_NN),
              #corDZbetaS = vectorCor(delta_Z, beta_s),
-             flex_beta = Flexibility(Normalize(beta), x$cov.matrix), 
-             Evol_beta = Evolvability(Normalize(beta), x$cov.matrix), 
-             pc1_DZ = Evolvability(Normalize(delta_Z), x$cov.matrix),
+             flex_beta = Flexibility(x$cov.matrix, Normalize(beta)), 
+             Evol_beta = Evolvability(x$cov.matrix, Normalize(beta)), 
+             pc1_DZ = Evolvability(x$cov.matrix, Normalize(delta_Z)),
              normDZ = Norm(delta_Z))
 }
 ldply(main.data, delta_beta_cor)
