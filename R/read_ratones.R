@@ -49,8 +49,9 @@ makeMainData <- function (current.data) {
   x[[1]] <- select(current.data, c(ID:TAKE, strain, treatment))
   x[[2]] <- select(current.data, c(P49, IS_PM:BA_OPI))
   x[[3]] <- unique(select(current.data, c(ID:P49, strain, treatment)))
-  x[[4]] <- ddply(select(current.data, c(ID, P49, IS_PM:BA_OPI)), .(ID), numcolwise(mean))[,-1]
-  rownames(x[[4]]) <- x[[3]]$ID
+  x[[4]] <- ddply(select(current.data, c(ID, P49, IS_PM:BA_OPI)), .(ID), numcolwise(mean))
+  set_row <- function(x) {rownames(x) <- x$ID; x[,-1]}
+  x[[4]] <- set_row(x[[4]])
   names(x)[1:4] <- c('info.raw', 'ed.raw', 'info', 'ed')
   x[[5]] <- CalcRepeatability(current.data$ID, ind.data = x$ed.raw[,-1])
   names(x)[5] <- 'reps'
