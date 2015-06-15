@@ -48,8 +48,8 @@ trace = function(x) c(trace = sum(diag(x)))
 ldply(r_models, function(x) adply(x$Ps, 1, trace)) %>%
   separate(.id, c( 'treatment', 'strain')) %>% 
   ggplot(aes(treatment, trace/35, group = interaction(treatment, strain), fill = strain)) + geom_boxplot() + theme_bw()
-#stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'DZpc1') %>% filter(type == "treatment") %>% 
-#  ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() + theme_bw()
+stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'DZpc1') %>% filter(type == "treatment") %>% 
+  ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() + theme_bw()
 ```
 
 ## Variation in specific directions
