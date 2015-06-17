@@ -8,6 +8,7 @@ if(!require(MCMCglmm)) {install.packages('MCMCglmm'); library(MCMCglmm)}
 if(!require(reshape2)) {install.packages('reshape2'); library(reshape2)}
 if(!require(evolqg)) {devtools::install_github('lem-usp/evolqg'); library(evolqg)}
 if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
+if(!require(cowplot)) {install.packages('cowplot'); library(cowplot)}
 library(plsdepot)
 
 raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
@@ -68,7 +69,7 @@ makeMainData <- function (current.data) {
 }
 main.data <- llply(raw.main.data, makeMainData)
 
-full_data = ldply(main.data, function(x) x$ed)
+full_data = ldply(main.data, function(x) x$full)
 Wmat <- CalculateMatrix(lm(as.matrix(select(full_data, IS_PM:BA_OPI)) ~ full_data$SEX*full_data$LIN))
 
 main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}

@@ -1,5 +1,5 @@
 source("./R/bayseanStats.R")
-library(cowplot)
+
 
 #m.data = gather(raw.data, trait, value, IS_PM:BA_OPI)
 #lmer(value ~ trait:SEX:LIN + (0 + trait|ID), m.data)
