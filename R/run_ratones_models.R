@@ -40,4 +40,3 @@ delta_beta_cor <- function(x){
 ldply(main.data, delta_beta_cor)
 select(stats, .id, flexibility, evolvability)
 
-

@@ -10,8 +10,6 @@ if(!require(evolqg)) {devtools::install_github('lem-usp/evolqg'); library(evolqg
 if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
 library(plsdepot)
 
-
-
 raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
 raw.data %<>% mutate(treatment = LIN, strain = LIN)
 
@@ -33,6 +31,7 @@ raw.data %<>% filter(P49 < 50) %>%
               filter(ID != 270200) %>% #outlier in biplot prcomp - reduce.h
               filter(ID != 270556) %>% #outlier in biplot prcomp - reduce.h
               filter(ID != 270190)     #outlier in biplot prcomp - reduce.s
+
 
 ggplot(raw.data, aes(P49, group = strain, color = interaction(treatment, strain))) + geom_histogram() + facet_grid(strain~treatment)
 ggplot(filter(raw.data, strain == 'control'), aes(SEX, P49, color= SEX)) + geom_violin() + geom_jitter()
@@ -68,5 +67,8 @@ makeMainData <- function (current.data) {
   return(x)
 }
 main.data <- llply(raw.main.data, makeMainData)
+
+full_data = ldply(main.data, function(x) x$ed)
+Wmat <- CalculateMatrix(lm(as.matrix(select(full_data, IS_PM:BA_OPI)) ~ full_data$SEX*full_data$LIN))
 
 main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}

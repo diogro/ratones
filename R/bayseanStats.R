@@ -68,8 +68,8 @@ stats$fe = '0'
 stats$fe[grep('flex', as.character(stats$variable))] <- 'flex'
 stats$fe[grep('Evol', as.character(stats$variable))] <- 'Evol'
 
-stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'DZpc1') %>% filter(type == "treatment") %>% head
-  ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() + theme_bw()
+DzPC1 <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'DZpc1') %>% filter(type == "treatment") %>% 
+  ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() + theme_bw() + ggtitle("Correlation of mean change and PC1")
 
 testplsrHip <- function (x) {
   hips = matrix(c(as.numeric(x$ed.means - main.data[[1]]$ed.means > 0), 
@@ -77,3 +77,4 @@ testplsrHip <- function (x) {
   TestModularity(cov2cor(x$cov.matrix), hips)
 }
 ldply(main.data, testplsrHip)
+LModularity((main.data[[1]]$cov.matrix))
