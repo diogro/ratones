@@ -19,3 +19,7 @@ vignettes/*.pdf
 data/*
 Rdatas/*
 Rdatas
+
+*.png
+*.jpg
+*.html
