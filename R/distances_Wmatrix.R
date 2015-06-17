@@ -35,6 +35,10 @@ p49_plot <- lin_data %>% separate(.id, c('treatment', 'strain')) %>%
   facet_wrap(~SEX) + theme_bw() + ggtitle("Weigth at 49 days")
  
 plot_grid(p49_plot, pc_plot, labels = c("A", "B"))
+ggsave("~/Dropbox/Ratones (1)/peso_pc.png")
 plot_grid(global_stats_plot, pc_plot)
+ggsave("~/Dropbox/Ratones (1)/stats_pc.png")
 plot_grid(DzPC1 , pc_plot)
+ggsave("~/Dropbox/Ratones (1)/dzpc1_pc.png")
+
 
