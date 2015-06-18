@@ -28,7 +28,7 @@ pc_plot <- ggplot(resp, aes(PC1, PC2)) +
   geom_polygon(aes(hpc1, hpc2, fill = strain, group= interaction(strain, treatment)), hulls, alpha=.3) + 
   geom_point(data = ddply(resp, .(strain, treatment), numcolwise(mean)),
              aes(PC1, PC2, group= interaction(treatment, strain), color = strain, shape = treatment), size = 10) + 
-  scale_fill_manual(values = c(c, h, s)) + scale_color_manual(values = c(c, h, s)) + theme_bw() + ggtitle("Cranial traits PC scores")
+  scale_fill_manual(values = c(c, h, s)) + scale_color_manual(values = c(c, h, s)) + theme_bw() + ggtitle("Cranial traits Within-group PC scores")
   
 p49_plot <- lin_data %>% separate(.id, c('treatment', 'strain')) %>%
   ggplot(aes(treatment, P49, fill = strain)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + 
