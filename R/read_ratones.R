@@ -14,6 +14,11 @@ library(plsdepot)
 raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
 raw.data %<>% mutate(treatment = LIN, strain = LIN)
 
+#Strain colors
+c = "#CC79A7"
+h = "#D55E00"
+s = "#0072B2"
+
 # Change weird labels
 names(raw.data) <- gsub("-", "_", names(raw.data))
 raw.data$treatment <- gsub('t', 'control', raw.data$treatment)

@@ -17,7 +17,7 @@ load("./Rdatas/mcmc_stats")
 mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, evolvability) %>% melt %>%
   separate(.id, c( 'treatment', 'strain')) %>% 
   ggplot(aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +
-  facet_wrap(~variable, scale = 'free') + theme_bw() -> global_stats_plot
+  facet_wrap(~variable, scale = 'free') + theme_bw() + scale_fill_manual(values = c(c, h, s)) -> global_stats_plot
 
 x = main.data[[2]]
 delta_Zs <- llply(main.data, function(x) x$ed.means - main.data$control.control$ed.means)
@@ -69,7 +69,7 @@ stats$fe[grep('flex', as.character(stats$variable))] <- 'flex'
 stats$fe[grep('Evol', as.character(stats$variable))] <- 'Evol'
 
 DzPC1 <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'DZpc1') %>% filter(type == "treatment") %>% 
-  ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() + theme_bw() + ggtitle("Correlation of mean change and PC1")
+  ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() + theme_bw() + ggtitle("Correlation of mean change and PC1") + scale_fill_manual(values = c(h, s))
 
 testplsrHip <- function (x) {
   hips = matrix(c(as.numeric(x$ed.means - main.data[[1]]$ed.means > 0), 
