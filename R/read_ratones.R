@@ -9,7 +9,8 @@ if(!require(reshape2)) {install.packages('reshape2'); library(reshape2)}
 if(!require(evolqg)) {devtools::install_github('lem-usp/evolqg'); library(evolqg)}
 if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
 if(!require(cowplot)) {install.packages('cowplot'); library(cowplot)}
-library(plsdepot)
+if(!require(plsdepot)) {install.packages('plsdepot'); library(plsdepot)}
+
 
 raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
 raw.data %<>% mutate(treatment = LIN, strain = LIN)
