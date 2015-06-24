@@ -1,4 +1,4 @@
-source("./R/bayseanStats.R")
+#source("./R/bayseanStats.R")
 
 #m.data = gather(raw.data, trait, value, IS_PM:BA_OPI)
 #lmer(value ~ trait:SEX:LIN + (0 + trait|ID), m.data)
@@ -12,7 +12,7 @@ PRCOMP$scores
 ######## Biplot PC1 x PC2 ##############
 current.data <- select(lin_data, ID, .id, IS_PM:BA_OPI)
 rownames(current.data) <- rownames(lin_data)
-PRCOMP %>% biplot
+#PRCOMP %>% biplot
 #PRCOMP <- princomp(data.frame(na.omit(current.data$sizeless ) ) )
 #resp <- current.data[rownames(PRCOMP$scores), ] #respectivos dados aos participantes da PCA
 #resp %<>% mutate(., PC1 = PRCOMP$scores[,1], PC2=PRCOMP$scores[,2]) 
@@ -35,8 +35,12 @@ p49_plot <- lin_data %>% separate(.id, c('treatment', 'strain')) %>%
   ggplot(aes(treatment, P49, fill = strain)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + 
   facet_wrap(~SEX) + theme_bw() + ggtitle("Weigth at 49 days") +
   theme(text = element_text(size = 30),
-        legend.text = element_text(size = 20), 
+        legend.text = element_text(size = 30), 
         plot.title = element_text(size = 40)) 
+
+global_stats_plot = global_stats_plot +   theme(text = element_text(size = 30),
+                                                legend.text = element_text(size = 30), 
+                                                plot.title = element_text(size = 40)) 
 
 
 ## Canonical variates
@@ -75,7 +79,7 @@ cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
              aes(CV1, CV2, group= interaction(treatment, strain), color = strain, shape = treatment), size = 10) + 
   scale_fill_manual(values = c(c, h, s)) + scale_color_manual(values = c(c, h, s)) + theme_bw() + 
   theme(text = element_text(size = 20),
-        legend.text = element_text(size = 20), 
+        legend.text = element_text(size = 30), 
         plot.title = element_text(size = 30)) + 
   annotate("text", -38.5, 14.5, label = "Increase", color = h, size = 20) + 
   annotate("text", -38.5, 16.5, label = "Increase", color = s, size = 20) + 
@@ -111,3 +115,4 @@ ggsave("~/Dropbox/labbio/Shared Lab/Ratones_shared/dzpc1_pc.png", width = 15, he
 
 ggsave(plot = p49_plot, "./md/p49_plot.png", width = 20, height = 15)
 ggsave(plot = cv_plot_12, "./md/cv_plot_12.png", width = 20, height = 15)
+ggsave(plot = global_stats_plot, "./md/stats.png", width = 20, height = 15)

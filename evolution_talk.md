@@ -1,3 +1,19 @@
+<style>
+.reveal h1, .reveal h2, .reveal h3 {
+  word-wrap: normal;
+  -moz-hyphens: none;
+}
+</style>
+<style>
+.midcenter {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+}
+</style>
+
+
+
 Changes in multivariate covariance structures under directional selection
 ========================================================
 author: Diogo Melo, Anna Penna, Maria Oryzibasa, Gabriel Marroig
@@ -26,3 +42,8 @@ Phenotype Space
 ========================================================
 
 ![](./md/cv_plot_12.png)
+
+Covariance matrix statistics
+========================================================
+
+![](./md/stats.png)
