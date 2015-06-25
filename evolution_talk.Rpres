@@ -71,7 +71,7 @@ Covariance matrix statistics
 Take-home messages
 ========================================================
 
-- Correlated directional can change variation patterns
-- Founder effects can affect response to selection
+- Directional selection can change variation patterns
+- Founder effects can affect response to selection (small population size)
 - Response to selection can be biased by evolutionary history
 - Pattern of covariation is more stable than strength of integration

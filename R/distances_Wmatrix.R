@@ -84,8 +84,8 @@ cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
         plot.title = element_text(size = 30)) + 
   annotate("text", 1.5, 1.5, label = "Increase", color = h, size = 20) + 
   annotate("text", -1.5, 1.5, label = "Increase", color = s, size = 20) + 
-  annotate("text", 1, -2, label = "Decrease", color = h, size = 20) + 
-  annotate("text", -1.5, -2, label = "Decrease", color = s, size = 20) + 
+  annotate("text", 1, -2, label = "Reduce", color = h, size = 20) + 
+  annotate("text", -1.5, -2, label = "Reduce", color = s, size = 20) + 
   annotate("text", 0.5, 2.5, label = "Control", color = c, size = 20) + 
   annotate("text", -2.25, 0.5, label = "s", color = s, size = 20) + 
   annotate("text", 1.5, 0, label = "h", color = h, size = 20) + 
