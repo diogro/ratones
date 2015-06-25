@@ -119,6 +119,8 @@ ggsave(plot = cv_plot_12, "./md/cv_plot_12.png", width = 20, height = 15)
 ggsave(plot = global_stats_plot, "./md/stats.png", width = 20, height = 15)
 
 reps = llply(r_models, function(x) x$P) %>% laply(., MonteCarloRep, sample.size = 50, ComparisonFunc = RandomSkewers)
+RS = llply(r_models, function(x) x$P) %>% RandomSkewers(repeat.vector = reps)
+mat_data <- RS[[1]]
 
 if (!require("gplots")) {
   install.packages("gplots", dependencies = TRUE)
@@ -129,8 +131,6 @@ if (!require("RColorBrewer")) {
   library(RColorBrewer)
 }
 
-RS = llply(r_models, function(x) x$P) %>% RandomSkewers(repeat.vector = rep(1, 5))
-mat_data <- RS[[1]]
 
 
 #########################################################
@@ -145,12 +145,12 @@ col_breaks = c(seq(0.6, 0.8, length=33),  # for red
                seq(0.8, 0.9, length=34),
                seq(0.9,   1,  length=34))              # for green
 
-# creates a 5 x 5 inch image
-# png("../images/heatmaps_in_r.png",    # create PNG for the heat map        
-#     width = 5*300,        # 5 x 300 pixels
-#     height = 5*300,
-#     res = 300,            # 300 pixels per inch
-#     pointsize = 8)        # smaller font size
+#creates a 5 x 5 inch image
+png("./md/heatmaps_in_r.png",    # create PNG for the heat map        
+    width = 5*300,        # 5 x 300 pixels
+    height = 5*300,
+    res = 300,            # 300 pixels per inch
+    pointsize = 8)        # smaller font size
 
 heatmap.2(mat_data, 
           cellnote = round(mat_data, 3),  # same data set for cell labels
