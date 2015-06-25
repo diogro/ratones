@@ -116,3 +116,56 @@ ggsave("~/Dropbox/labbio/Shared Lab/Ratones_shared/dzpc1_pc.png", width = 15, he
 ggsave(plot = p49_plot, "./md/p49_plot.png", width = 20, height = 15)
 ggsave(plot = cv_plot_12, "./md/cv_plot_12.png", width = 20, height = 15)
 ggsave(plot = global_stats_plot, "./md/stats.png", width = 20, height = 15)
+
+reps = llply(r_models, function(x) x$P) %>% laply(., MonteCarloRep, sample.size = 50, ComparisonFunc = RandomSkewers)
+
+if (!require("gplots")) {
+  install.packages("gplots", dependencies = TRUE)
+  library(gplots)
+}
+if (!require("RColorBrewer")) {
+  install.packages("RColorBrewer", dependencies = TRUE)
+  library(RColorBrewer)
+}
+
+RS = llply(r_models, function(x) x$P) %>% RandomSkewers(repeat.vector = rep(1, 5))
+mat_data <- RS[[1]]
+
+
+#########################################################
+### C) Customizing and plotting the heat map
+#########################################################
+
+# creates a own color palette from red to green
+my_palette <- colorRampPalette(c("blue", "white", "red"))(n = 100)
+
+# (optional) defines the color breaks manually for a "skewed" color transition
+col_breaks = c(seq(0.6, 0.8, length=33),  # for red
+               seq(0.8, 0.9, length=34),
+               seq(0.9,   1,  length=34))              # for green
+
+# creates a 5 x 5 inch image
+# png("../images/heatmaps_in_r.png",    # create PNG for the heat map        
+#     width = 5*300,        # 5 x 300 pixels
+#     height = 5*300,
+#     res = 300,            # 300 pixels per inch
+#     pointsize = 8)        # smaller font size
+
+heatmap.2(mat_data, 
+          cellnote = mat_data,  # same data set for cell labels
+          #main = "Correlation", # heat map title
+          notecol="black",      # change font color of cell labels to black
+          density.info="none",  # turns off density plot inside color legend
+          trace="none",         # turns off trace lines inside the heat map
+          margins =c(3,3),     # widens margins around plot
+          col=my_palette,       # use on color palette defined earlier 
+          breaks=col_breaks,    # enable color transition at specified limits
+          #dendrogram="row",     # only draw a row dendrogram
+          Colv="NA", Rowv = "NA")            # turn off column clustering
+
+dev.off()               # close the PNG device
+
+
+llply(r_models, function(x) x$P) %>% RandomSkewers(repeat.vector = reps) -> RS
+color2D.matplot(RS[[1]])
+

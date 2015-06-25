@@ -43,6 +43,10 @@ Phenotype Space
 
 ![](./md/cv_plot_12.png)
 
+Covariance matrix comparisons
+========================================================
+
+
 Covariance matrix statistics
 ========================================================
 
