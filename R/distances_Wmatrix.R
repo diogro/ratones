@@ -1,4 +1,4 @@
-#source("./R/bayseanStats.R")
+source("./R/bayseanStats.R")
 
 #m.data = gather(raw.data, trait, value, IS_PM:BA_OPI)
 #lmer(value ~ trait:SEX:LIN + (0 + trait|ID), m.data)
@@ -55,19 +55,20 @@ ProjetaDados = function(y,var.y){
   for( i in 1:n){
     Scores[i,] = t(eVec)%*%(as.numeric(y[i,]))
   }
+  for(i in 1:p){
+    Scores[,i] <- Scores[,i]/eVal[i]
+  }
   return(Scores)
 }
 
-n.total = dim(current.data)[1]
-lm.total = lm(as.matrix(select(current.data, IS_PM:BA_OPI))~1)
 lm.within = lm(as.matrix(select(current.data, IS_PM:BA_OPI))~select(current.data, .id)[,1])
-SSCP.T = t(residuals(lm.total)) %*% residuals(lm.total)
-SSCP.W = t(residuals(lm.within)) %*% residuals(lm.within)
-Bmat = (SSCP.T - SSCP.W)/n.total
 
-current.data_projected_W = cbind(select(current.data, .id, ID),  ProjetaDados(select(current.data, IS_PM:BA_OPI), Wmat))
+current.data_projected_W = cbind(select(current.data, .id, ID),  
+                                 ProjetaDados(select(current.data, IS_PM:BA_OPI), Wmat))
+
 Bmat = cov(daply(current.data_projected_W, .(.id), function(x) colMeans(x[,-c(1, 2)])))
-resp <- cbind(select(current.data, .id, ID),  ProjetaDados(select(current.data, IS_PM:BA_OPI), Wmat) %*% eigen(Bmat)$vectors[,1:3])
+
+resp <- cbind(select(current.data, .id, ID),  scale(ProjetaDados(select(current.data, IS_PM:BA_OPI), Wmat) %*% eigen(Bmat)$vectors[,1:3], scale = TRUE))
 names(resp) <- c(".id", "ID", "CV1", "CV2", "CV3")
 hulls <-ddply(resp, .(.id), plyr::summarise, "hpc1"=CV1[chull(CV1,CV2)],
                                              "hpc2"=CV2[chull(CV1,CV2)])
@@ -81,13 +82,13 @@ cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
   theme(text = element_text(size = 20),
         legend.text = element_text(size = 30), 
         plot.title = element_text(size = 30)) + 
-  annotate("text", -38.5, 14.5, label = "Increase", color = h, size = 20) + 
-  annotate("text", -38.5, 16.5, label = "Increase", color = s, size = 20) + 
-  annotate("text", -33.5, 12.5, label = "Decrease", color = h, size = 20) + 
-  annotate("text", -32, 14.5, label = "Decrease", color = s, size = 20) + 
-  annotate("text", -35, 13.7, label = "Control", color = c, size = 20) + 
-  annotate("text", -35, 15, label = "s", color = s, size = 20) + 
-  annotate("text", -36, 13, label = "h", color = h, size = 20) + 
+  annotate("text", 1.5, 1.5, label = "Increase", color = h, size = 20) + 
+  annotate("text", -1.5, 1.5, label = "Increase", color = s, size = 20) + 
+  annotate("text", 1, -2, label = "Decrease", color = h, size = 20) + 
+  annotate("text", -1.5, -2, label = "Decrease", color = s, size = 20) + 
+  annotate("text", 0.5, 2.5, label = "Control", color = c, size = 20) + 
+  annotate("text", -2.25, 0.5, label = "s", color = s, size = 20) + 
+  annotate("text", 1.5, 0, label = "h", color = h, size = 20) + 
   ggtitle("Cranial traits Canonical Variates Scores")
 # 
 # current.data_projected_W = cbind(select(current.data, .id, ID),  ProjetaDados(select(current.data, IS_PM:BA_OPI), Wmat))
@@ -152,12 +153,12 @@ col_breaks = c(seq(0.6, 0.8, length=33),  # for red
 #     pointsize = 8)        # smaller font size
 
 heatmap.2(mat_data, 
-          cellnote = mat_data,  # same data set for cell labels
+          cellnote = round(mat_data, 3),  # same data set for cell labels
           #main = "Correlation", # heat map title
           notecol="black",      # change font color of cell labels to black
           density.info="none",  # turns off density plot inside color legend
           trace="none",         # turns off trace lines inside the heat map
-          margins =c(3,3),     # widens margins around plot
+     # widens margins around plot
           col=my_palette,       # use on color palette defined earlier 
           breaks=col_breaks,    # enable color transition at specified limits
           #dendrogram="row",     # only draw a row dendrogram
