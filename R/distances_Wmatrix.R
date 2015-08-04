@@ -146,7 +146,7 @@ col_breaks = c(seq(0.6, 0.8, length=33),  # for red
                seq(0.9,   1,  length=34))              # for green
 
 #creates a 5 x 5 inch image
-png("./md/heatmaps_in_r.png",    # create PNG for the heat map        
+png("./md/raw_heatmaps_in_r.png",    # create PNG for the heat map        
     width = 5*300,        # 5 x 300 pixels
     height = 5*300,
     res = 300,            # 300 pixels per inch
