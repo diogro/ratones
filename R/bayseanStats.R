@@ -21,7 +21,11 @@ mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, evolvability) %>
   facet_wrap(~variable, scale = 'free') + theme_bw() + scale_fill_manual(values = c(c, h, s)) -> global_stats_plot
 
 x = main.data[[2]]
+
+traits = select(full_data, P49, IS_PM:BA_OPI)
+traits$P49 %<>% log
 delta_Zs <- llply(main.data, function(x) x$ed.means - main.data$control.control$ed.means)
+delta_Zs <- llply(main.data, function(x) x$ed.means - colMeans(traits))
 plsr <- llply(main.data, function(x) x$plsr)
 
 directionalVariation <- function(cov.matrix, strain){
@@ -54,3 +58,4 @@ corDZDZ <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variabl
 
 treatment %<>%  separate(.id, c('treatment', 'strain'))
 normDZ_DzPC1 = ggplot(treatment, aes(normDZ, DZpc1, group = interaction(treatment, strain), color = strain)) + geom_violin(aes(fill = strain), alpha = 0.3) + geom_jitter(aes(shape = treatment), size = 3, position = position_jitter(width = .03)) + scale_fill_manual(values = c(h, s)) + scale_color_manual(values = c(h, s))
+
