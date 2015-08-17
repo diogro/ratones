@@ -11,8 +11,8 @@ r_models %>% llply(function(x) x$Ps) %>% ldply(function(x) adply(x, 1, CalcR2)) 
   geom_point(data = ML_R2, color = 'red', aes(.id, V1)) + 
   theme_bw() + labs(y = expression(R^2))
 
-# mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics), .parallel = TRUE))
-# save(mcmc_stats, file = "./Rdatas/mcmc_stats")
+#mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics), .parallel = TRUE))
+#save(mcmc_stats, file = "./Rdatas/mcmc_stats")
 load("./Rdatas/mcmc_stats")
 names(mcmc_stats)[4] <- 'pc1.percent'
 mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, evolvability) %>% melt %>%

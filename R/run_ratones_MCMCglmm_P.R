@@ -48,6 +48,7 @@ find_CI_lower = function(x, prob = 0.95){
   }
   return(c(lower = xs[pos]))
 }
+
 runMCMCmodelsRatones <- function (x) {
   x$ed.raw$P49 %<>% log
   full_data_scaled <- cbind(x$info[,-8], scale(x$ed))
@@ -60,12 +61,12 @@ runMCMCmodelsRatones <- function (x) {
   
   mcmc_formula = as.formula(paste(value, fixed_effects, sep = " ~ "))
   
-  prior <- list(R = list(V = diag(num.traits), n = 2))
+  prior <- list(R = list(V = diag(num.traits), n = 2.5))
   ratones_model_corr <- MCMCglmm(mcmc_formula, 
                             data = full_data_scaled,
                             rcov = ~us(trait):units,
                             family = rep("gaussian", num.traits),
-                            nitt=13000, thin = 100, burnin = 3000,
+                            nitt=130000, thin = 1000, burnin = 30000,
                             prior = prior,
                             verbose = TRUE)
   corrPs = array(ratones_model_corr$VCV, dim = c(100, num.traits, num.traits))
@@ -78,7 +79,7 @@ runMCMCmodelsRatones <- function (x) {
                             data = full_data,
                             rcov = ~idh(trait):units,
                             family = rep("gaussian", num.traits),
-                            nitt=13000, thin = 100, burnin = 3000,
+                            nitt=130000, thin = 1000, burnin = 30000,
                             prior = prior,
                             verbose = TRUE)
   varPs = aaply(ratones_model_var$VCV, 1, function(x) outer(sqrt(x), sqrt(x)))
