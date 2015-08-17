@@ -11,12 +11,12 @@
     left: 50%;
 }
 </style>
-
+ 
 
 
 Changes in multivariate covariance structures under directional selection
 ========================================================
-author: Diogo Melo, Anna Penna, Maria Oyarazabal, Gabriel Marroig
+author: Diogo Melo, Anna Penna, Maria Oyarzabal, Gabriel Marroig
 date: 29/06/2015
 width: 1080
 height: 780
