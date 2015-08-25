@@ -20,6 +20,27 @@ global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, 
   {levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability")} 
   global_stats_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +  facet_wrap(~variable, scale = 'free') + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment") + ggtitle("Evolutionary statistics")
 
+myPalette <- colorRampPalette(c("yellow", "white", "red"))(n = 100)
+myPalette <- colorRampPalette(c("yellow", "white", "purple"))(n = 100)
+m.rs = melt(mat_data) 
+m.rs$Var1<- factor(m.rs$Var1, levels = levels(m.rs$Var1)[5:1])
+m.rs.position = m.rs
+m.rs.position$Var1 <- as.numeric(m.rs.position$Var1)
+m.rs.position$Var2 <- as.numeric(m.rs.position$Var2)
+m.rs.position$value= round(m.rs.position$value, 3)
+m.rs.position$value[is.na(m.rs.position$value)] <- c("Control", "Increase h", "Increase s", "Reduce h", "Reduce s")
+matrix_comparisons <- ggplot (m.rs) +
+    geom_tile(aes(x = Var2, y = Var1, fill = value)) +
+    scale_fill_gradientn(name = '', colours = myPalette) +
+    ylab ('') + xlab ('') + labs(title = "Matrix comparisons") + 
+    geom_text(data = m.rs.position, size = 3, aes(x = Var2, y = Var1, label = value)) + 
+    theme(axis.text.x = element_blank(),
+          axis.text.y = element_blank(),
+          axis.ticks = element_line(size = 0),
+          legend.title = element_text(size = 7),
+          legend.text = element_text(size = 7),
+          rect = element_blank(), line = element_blank())
+  
 x = main.data[[2]]
 
 traits = select(full_data, P49, IS_PM:BA_OPI)
@@ -53,7 +74,8 @@ DzPC1 <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable 
 figure_3 <- ggdraw() +
   draw_plot(global_stats_plot, 0, .5, 1, .5) +
   draw_plot(DzPC1, 0, 0, .5, .5) +
-  draw_plot_label(c("A", "B", "C"), c(0, 0, 0.5), c(1, 0.5, 0.5), size = 15)
+  draw_plot(matrix_comparisons, 0.5, 0, 0.5, 0.5) +
+  draw_plot_label(c("A", "B", "C"), c(0, 0, 0.5), c(1, 0.5, 0.5), size = 20)
 save_plot("~/Desktop/plot2by2.pdf", figure_3,
           ncol = 2, 
           nrow = 2, 
@@ -66,4 +88,7 @@ corDZDZ <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variabl
 
 treatment %<>%  separate(.id, c('treatment', 'strain'))
 normDZ_DzPC1 = ggplot(treatment, aes(normDZ, DZpc1, group = interaction(treatment, strain), color = strain)) + geom_violin(aes(fill = strain), alpha = 0.3) + geom_jitter(aes(shape = treatment), size = 3, position = position_jitter(width = .03)) + scale_fill_manual(values = c(h, s)) + scale_color_manual(values = c(h, s))
+
+
+
 
