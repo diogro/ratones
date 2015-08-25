@@ -15,10 +15,10 @@ r_models %>% llply(function(x) x$Ps) %>% ldply(function(x) adply(x, 1, CalcR2)) 
 #save(mcmc_stats, file = "./Rdatas/mcmc_stats")
 load("./Rdatas/mcmc_stats")
 names(mcmc_stats)[4] <- 'pc1.percent'
-mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, evolvability) %>% melt %>%
-  separate(.id, c( 'treatment', 'strain')) %>% 
-  ggplot(aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +
-  facet_wrap(~variable, scale = 'free') + theme_bw() + scale_fill_manual(values = c(c, h, s)) -> global_stats_plot
+global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, evolvability) %>% melt %>%
+  separate(.id, c( 'treatment', 'strain'))
+  {levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability")} 
+  global_stats_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +  facet_wrap(~variable, scale = 'free') + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment") + ggtitle("Evolutionary statistics")
 
 x = main.data[[2]]
 
@@ -48,9 +48,17 @@ control   <- ldply(r_models[-1], function(model) adply(r_models[['control.contro
 control$type <- 'control'
 stats <- melt(rbind(treatment, control))[-2]
 
-DzPC1 <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'DZpc1') %>% filter(type == "treatment") %>% 
-  ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() + theme_bw() + 
-  ggtitle("Correlation of mean change and PC1") + scale_fill_manual(values = c(h, s)) + labs(y = "Vector correlation")
+DzPC1 <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'DZpc1') %>% filter(type == "treatment") %>%   ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() +  ggtitle(expression(paste("Correlation of ", Delta, "z and PC1"))) + scale_fill_manual(values = c(h, s)) + labs(y = "Vector correlation") + background_grid(major = 'y', minor = "none") +  panel_border()
+
+figure_3 <- ggdraw() +
+  draw_plot(global_stats_plot, 0, .5, 1, .5) +
+  draw_plot(DzPC1, 0, 0, .5, .5) +
+  draw_plot_label(c("A", "B", "C"), c(0, 0, 0.5), c(1, 0.5, 0.5), size = 15)
+save_plot("~/Desktop/plot2by2.pdf", figure_3,
+          ncol = 2, 
+          nrow = 2, 
+          base_aspect_ratio = 1.3
+)
 
 corDZDZ <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'corDZDZ') %>% filter(type == "treatment") %>% 
   ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() + theme_bw() + geom_hline(yintercept = 0.32) +
