@@ -28,7 +28,7 @@ levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility
   global_stats_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +  facet_wrap(~variable, scale = 'free') + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment") + ggtitle("Evolutionary statistics")
 
 myPalette <- colorRampPalette(c("yellow", "white", "red"))(n = 100)
-myPalette <- colorRampPalette(c("yellow", "white", "purple"))(n = 100)
+#myPalette <- colorRampPalette(c("yellow", "white", "purple"))(n = 100)
 m.rs = melt(mat_data) 
 m.rs$Var1<- factor(m.rs$Var1, levels = levels(m.rs$Var1)[5:1])
 m.rs.position = m.rs
