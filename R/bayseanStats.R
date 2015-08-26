@@ -98,7 +98,3 @@ corDZDZ <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variabl
 
 treatment %<>%  separate(.id, c('treatment', 'strain'))
 normDZ_DzPC1 = ggplot(treatment, aes(normDZ, DZpc1, group = interaction(treatment, strain), color = strain)) + geom_violin(aes(fill = strain), alpha = 0.3) + geom_jitter(aes(shape = treatment), size = 3, position = position_jitter(width = .03)) + scale_fill_manual(values = c(h, s)) + scale_color_manual(values = c(h, s))
-
-
-
-
