@@ -86,7 +86,7 @@ figure_3 <- ggdraw() +
   draw_plot(DzPC1, 0, 0, .5, .5) +
   draw_plot(matrix_comparisons, 0.5, 0, 0.5, 0.5) +
   draw_plot_label(c("A", "B", "C"), c(0, 0, 0.5), c(1, 0.5, 0.5), size = 20)
-save_plot("~/Desktop/plot2by2.pdf", figure_3,
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.pdf", figure_3,
           ncol = 2, 
           nrow = 2, 
           base_aspect_ratio = 1.3
