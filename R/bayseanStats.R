@@ -25,7 +25,7 @@ global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, 
 #global_stats <- x %>% melt %>% separate(.id, c( 'treatment', 'strain'))
 #{levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability", "Mean scaled evolvability")} 
 levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability") 
-  global_stats_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +  facet_wrap(~variable, scale = 'free') + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment") + ggtitle("Evolutionary statistics")
+  global_stats_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +  facet_wrap(~variable, scale = 'free') + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "") + ggtitle("Evolutionary statistics")
 
 myPalette <- colorRampPalette(c("yellow", "white", "red"))(n = 100)
 #myPalette <- colorRampPalette(c("yellow", "white", "purple"))(n = 100)
