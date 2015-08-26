@@ -81,12 +81,12 @@ DzPC1 <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable 
 
 evolDZ <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'evolDZ') %>% filter(type == "treatment") %>%   ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() +  ggtitle(expression(paste("Ratio between mean evolvability and in the direction of ",Delta, "z"))) + scale_fill_manual(values = c(h, s)) + labs(y = "Evolvability ratio") + background_grid(major = 'y', minor = "none") +  panel_border()
 
-figure_3 <- ggdraw() +
+figure_2 <- ggdraw() +
   draw_plot(global_stats_plot, 0, .5, 1, .5) +
   draw_plot(DzPC1, 0, 0, .5, .5) +
   draw_plot(matrix_comparisons, 0.5, 0, 0.5, 0.5) +
   draw_plot_label(c("A", "B", "C"), c(0, 0, 0.5), c(1, 0.5, 0.5), size = 20)
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.pdf", figure_3,
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.pdf", figure_2,
           ncol = 2, 
           nrow = 2, 
           base_aspect_ratio = 1.3
