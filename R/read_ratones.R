@@ -99,7 +99,6 @@ Wmat <- CalculateMatrix(lm(as.matrix(select(full_data, IS_PM:BA_OPI)) ~ full_dat
 main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}
 
 m_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10, 11)])
-full_trait_plots = ggplot(m_full_data, aes(strain, value, group = interaction(treatment, strain), fill = treatment)) + geom_boxplot() + facet_wrap(~variable, scale = "free")
-ggsave("~/Desktop/full_trait_plot.pdf", full_trait_plots)
 
-save(main.data, full_data, file = "./Rdatas/lottsa_ratones.Rdata")
+full_trait_plots = ggplot(m_full_data, aes(strain, value, group = interaction(treatment, strain), fill = treatment)) + geom_boxplot() + facet_wrap(~variable, scale = "free") + background_grid(major = 'y', minor = "none")
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/full_trait_plot.pdf", full_trait_plots, ncol = 6, nrow = 6)

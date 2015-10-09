@@ -23,11 +23,12 @@ names(mcmc_stats)[4] <- 'pc1.percent'
 global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, evolvability) %>% melt %>% separate(.id, c( 'treatment', 'strain'))
 #global_stats <- x %>% melt %>% separate(.id, c( 'treatment', 'strain'))
 #{levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability", "Mean scaled evolvability")} 
-levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability", "constraints") 
-  global_stats_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +  facet_wrap(~variable, scale = 'free') + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment") + ggtitle("Evolutionary statistics")
+
+levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability") 
+  global_stats_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +  facet_wrap(~variable, scale = 'free') + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "") + ggtitle("Evolutionary statistics")
 
 myPalette <- colorRampPalette(c("yellow", "white", "red"))(n = 100)
-myPalette <- colorRampPalette(c("yellow", "white", "purple"))(n = 100)
+#myPalette <- colorRampPalette(c("yellow", "white", "purple"))(n = 100)
 m.rs = melt(mat_data) 
 m.rs$Var1<- factor(m.rs$Var1, levels = levels(m.rs$Var1)[5:1])
 m.rs.position = m.rs
@@ -81,12 +82,12 @@ DzPC1 <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable 
 
 evolDZ <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'evolDZ') %>% filter(type == "treatment") %>%   ggplot(aes(treatment, value, group = interaction(treatment, strain, type), fill = strain)) + geom_boxplot() +  ggtitle(expression(paste("Ratio between mean evolvability and in the direction of ",Delta, "z"))) + scale_fill_manual(values = c(h, s)) + labs(y = "Evolvability ratio") + background_grid(major = 'y', minor = "none") +  panel_border()
 
-figure_3 <- ggdraw() +
+figure_2 <- ggdraw() +
   draw_plot(global_stats_plot, 0, .5, 1, .5) +
   draw_plot(DzPC1, 0, 0, .5, .5) +
   draw_plot(matrix_comparisons, 0.5, 0, 0.5, 0.5) +
   draw_plot_label(c("A", "B", "C"), c(0, 0, 0.5), c(1, 0.5, 0.5), size = 20)
-save_plot("~/Desktop/plot2by2.pdf", figure_3,
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.pdf", figure_2,
           ncol = 2, 
           nrow = 2, 
           base_aspect_ratio = 1.3
@@ -97,6 +98,7 @@ corDZDZ <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variabl
   ggtitle("Correlation of observed change\n and expected change in multivariate mean") + scale_fill_manual(values = c(h, s)) + labs(y = "Vector correlation")
 
 treatment %<>%  separate(.id, c('treatment', 'strain'))
+
 normDZ_DzPC1 = ggplot(treatment, aes(normDZ, DZpc1, group = interaction(treatment, strain), color = strain)) + geom_violin(aes(fill = strain), alpha = 0.3) + geom_jitter(aes(shape = treatment), size = 3, position = position_jitter(width = .03)) + scale_fill_manual(values = c(h, s)) + scale_color_manual(values = c(h, s))
 
 stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'normDZ' | variable == 'normPLS') %>% filter(type == "treatment") %>% ddply(.(variable, strain, treatment), numcolwise(mean)) %>% spread(variable, value) %>%
@@ -145,4 +147,5 @@ evol_norm <- melt(rbind(treatment, control))[-2]
 
 evol_norm %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'evol_Random_notDZ' | variable == 'evol_DZ') %>%
 ggplot(aes(type, value, group = interaction(treatment, strain, variable, type), fill = strain)) + geom_boxplot() +  facet_grid(variable~treatment, scales = 'free_y') + scale_fill_manual(values = c(h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment")
+
 
