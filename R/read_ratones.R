@@ -12,6 +12,22 @@ if(!require(cowplot)) {install.packages('cowplot'); library(cowplot)}
 if(!require(plsdepot)) {install.packages('plsdepot'); library(plsdepot)}
 
 
+vectorCor <- function(x, y) t(Normalize(x)) %*% Normalize(y)
+
+gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){
+  if(any(x < 0, na.rm = TRUE)){
+    return(NaN)
+  }
+  if(zero.propagate){
+    if(any(x == 0, na.rm = TRUE)){
+      return(0)
+    }
+    exp(mean(log(x), na.rm = na.rm))
+  } else {
+    exp(sum(log(x[x > 0]), na.rm=na.rm) / length(x))
+  }
+}
+
 raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
 raw.data %<>% mutate(treatment = LIN, strain = LIN)
 
@@ -50,7 +66,7 @@ current.data <- raw.main.data[[4]]
 
 
 makeMainData <- function (current.data) {
-  x = vector("list", 10)
+  x = vector("list", 11)
   current.data$AGE[is.na(current.data$AGE)] <- mean(current.data$AGE, na.rm = TRUE)
   x[[1]] <- select(current.data, c(ID:TAKE, strain, treatment))
   x[[2]] <- select(current.data, c(P49, IS_PM:BA_OPI))
@@ -61,16 +77,18 @@ makeMainData <- function (current.data) {
   names(x)[1:4] <- c('info.raw', 'ed.raw', 'info', 'ed')
   x[[5]] <- CalcRepeatability(current.data$ID, ind.data = x$ed.raw[,-1])
   names(x)[5] <- 'reps'
+  sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
+  sex_age_res <- residuals(sex_age_lm)
+  p49_traits_pls <- plsreg1(sex_age_res[,2:36], sex_age_res[,1])
+  #x[[10]] <- Normalize(p49_traits_pls$reg.coefs[-1])
+  x[[10]] <- p49_traits_pls$reg.coefs[-1]
   x$ed$P49 %<>% log
   x[[6]] <- lm(as.matrix(x$ed) ~ x$info$SEX)
   x[[7]] <- CalculateMatrix(x[[6]])
   x[[8]] <- colMeans(x$ed)
   x[[9]] <- tbl_df(cbind(x$info, x$ed))
-  sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
-  sex_age_res <- residuals(sex_age_lm)
-  p49_traits_pls <- plsreg1(sex_age_res[,2:36], sex_age_res[,1])
-  x[[10]] <- Normalize(p49_traits_pls$reg.coefs[-1])
-  names(x)[6:10] <- c('model', 'cov.matrix', 'ed.means', 'full', 'plsr')
+  x[[11]] <- mean((apply(x[['ed']], 1, gm_mean)))
+  names(x)[6:11] <- c('model', 'cov.matrix', 'ed.means', 'full', 'plsr', 'gm_mean')
   return(x)
 }
 main.data <- llply(raw.main.data, makeMainData)
@@ -83,3 +101,5 @@ main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}
 m_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10, 11)])
 full_trait_plots = ggplot(m_full_data, aes(strain, value, group = interaction(treatment, strain), fill = treatment)) + geom_boxplot() + facet_wrap(~variable, scale = "free")
 ggsave("~/Desktop/full_trait_plot.pdf", full_trait_plots)
+
+save(main.data, full_data, file = "./Rdatas/lottsa_ratones.Rdata")

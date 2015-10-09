@@ -78,18 +78,17 @@ cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
   geom_polygon(aes(hpc1, hpc2, fill = strain, group= interaction(strain, treatment)), hulls, alpha=.3) + 
   geom_point(data = ddply(resp, .(strain, treatment), numcolwise(mean)),
              aes(CV1, CV2, group= interaction(treatment, strain), color = strain, shape = treatment), size = 10) + 
-  scale_fill_manual(values = c(c, h, s)) + scale_color_manual(values = c(c, h, s)) + theme_bw() + 
-  theme(text = element_text(size = 20),
-        legend.text = element_text(size = 30), 
-        plot.title = element_text(size = 30)) + 
-  annotate("text", 1.5, 1.5, label = "Increase", color = h, size = 20) + 
-  annotate("text", -1.5, 1.5, label = "Increase", color = s, size = 20) + 
-  annotate("text", 1, -2, label = "Reduce", color = h, size = 20) + 
-  annotate("text", -1.5, -2, label = "Reduce", color = s, size = 20) + 
-  annotate("text", 0.5, 2.5, label = "Control", color = c, size = 20) + 
-  annotate("text", -2.25, 0.5, label = "s", color = s, size = 20) + 
-  annotate("text", 1.5, 0, label = "h", color = h, size = 20) + 
-  ggtitle("Cranial traits Canonical Variates Scores")
+  scale_fill_manual(values = c(c, h, s)) + scale_color_manual(values = c(c, h, s)) + 
+  theme(legend.position = "none", axis.text = element_text(size = 30), 
+        axis.title = element_text(size = 30)) + 
+  labs(x = "First canonical variate", y = "Second canonial variate") +
+  annotate("text", 1.5, 1.5, label = "Increase", color = h, size = 15) + 
+  annotate("text", -1.5, 1.5, label = "Increase", color = s, size = 15) + 
+  annotate("text", 1, -2, label = "Reduce", color = h, size = 15) + 
+  annotate("text", -1.5, -2, label = "Reduce", color = s, size = 15) + 
+  annotate("text", 0.5, 2.5, label = "Control", color = c, size = 15) + 
+  annotate("text", -2.25, 0.5, label = "s", color = s, size = 15) + 
+  annotate("text", 1.5, 0, label = "h", color = h, size = 15) 
 # 
 # current.data_projected_W = cbind(select(current.data, .id, ID),  ProjetaDados(select(current.data, IS_PM:BA_OPI), Wmat))
 # Bmat = cov(daply(current.data_projected_W, .(.id), function(x) colMeans(x[,-c(1, 2)])))
@@ -115,7 +114,7 @@ plot_grid(DzPC1 , cv_plot_12)
 ggsave("~/Dropbox/labbio/Shared Lab/Ratones_shared/dzpc1_pc.png", width = 15, height = 10)
 
 ggsave(plot = p49_plot, "./md/p49_plot.png", width = 20, height = 15)
-ggsave(plot = cv_plot_12, "./md/cv_plot_12.png", width = 20, height = 15)
+save_plot(plot = cv_plot_12, "./md/cv_plot_12.pdf", base_height = 10)
 ggsave(plot = global_stats_plot, "./md/stats.png", width = 20, height = 15)
 
 reps_RS = llply(r_models, function(x) x$P) %>% laply(., MonteCarloRep, sample.size = 50, ComparisonFunc = RandomSkewers)

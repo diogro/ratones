@@ -1,6 +1,5 @@
 source("R/run_ratones_MCMCglmm_P.R")
 
-vectorCor <- function(x, y) t(Normalize(x)) %*% Normalize(y)
 
 ML_R2 = ldply(main.data, function(x) CalcR2(x$cov.matrix))
 
@@ -24,7 +23,7 @@ names(mcmc_stats)[4] <- 'pc1.percent'
 global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, evolvability) %>% melt %>% separate(.id, c( 'treatment', 'strain'))
 #global_stats <- x %>% melt %>% separate(.id, c( 'treatment', 'strain'))
 #{levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability", "Mean scaled evolvability")} 
-levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability") 
+levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability", "constraints") 
   global_stats_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, strain, variable), fill = strain)) + geom_boxplot() +  facet_wrap(~variable, scale = 'free') + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment") + ggtitle("Evolutionary statistics")
 
 myPalette <- colorRampPalette(c("yellow", "white", "red"))(n = 100)
@@ -52,7 +51,7 @@ x = main.data[[2]]
 
 traits = select(full_data, P49, IS_PM:BA_OPI)
 traits$P49 %<>% log
-delta_Zs <- llply(main.data, function(x) x$ed.means - main.data$control.control$ed.means)
+#delta_Zs <- llply(main.data, function(x) x$ed.means - main.data$control.control$ed.means)
 delta_Zs <- llply(main.data, function(x) x$ed.means - colMeans(traits))
 plsr <- llply(main.data, function(x) x$plsr)
 
@@ -64,7 +63,8 @@ directionalVariation <- function(cov.matrix, strain){
   data.frame(corDZDZ = abs(vectorCor(cov.matrix %*% beta, delta_Z)),
              evolDZ = Evolvability(cov.matrix, Normalize(delta_Z)) / (sum(diag(cov.matrix))/ncol(cov.matrix)),
              DZpc1 = abs(vectorCor(delta_Z, eigen(cov.matrix)$vector[,1])),
-             normDZ = Norm(delta_Z))
+             normDZ = Norm(delta_Z),
+             normPLS = Norm(main.data[[strain]]$plsr))
 }
 
 treatment <- ldply(r_models[-1], function(model) adply(model$Ps, 1, 
@@ -99,6 +99,50 @@ corDZDZ <- stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variabl
 treatment %<>%  separate(.id, c('treatment', 'strain'))
 normDZ_DzPC1 = ggplot(treatment, aes(normDZ, DZpc1, group = interaction(treatment, strain), color = strain)) + geom_violin(aes(fill = strain), alpha = 0.3) + geom_jitter(aes(shape = treatment), size = 3, position = position_jitter(width = .03)) + scale_fill_manual(values = c(h, s)) + scale_color_manual(values = c(h, s))
 
+stats %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'normDZ' | variable == 'normPLS') %>% filter(type == "treatment") %>% ddply(.(variable, strain, treatment), numcolwise(mean)) %>% spread(variable, value) %>%
+  ggplot(aes(normDZ, normPLS, group = interaction(treatment, strain), color = interaction(treatment, strain))) + geom_point() 
 
 
+normalizedEvolvability <- function(cov.matrix, strain){
+  delta_Z <- delta_Zs[[strain]]
+  cov.matrix = cov.matrix / main.data[[strain]]$gm_mean
+  pc1 = eigen(cov.matrix)$vectors[,1]
+  beta_mat_notDZ = array(NA, dim = c(length(delta_Z), num_vector <- 1000))
+  for(i in 1:num_vector){
+    while(TRUE){
+      rand_vector = rnorm(length(delta_Z))
+      if(abs(vectorCor(rand_vector, delta_Z)) < 0.01){
+        beta_mat_notDZ[, i] <- Normalize(rand_vector)
+        break
+      }
+    }
+  }
+  beta_mat_notPC1 = array(NA, dim = c(length(delta_Z), num_vector <- 1000))
+  for(i in 1:num_vector){
+    while(TRUE){
+      rand_vector = rnorm(length(delta_Z))
+      if(abs(vectorCor(rand_vector, pc1)) < 0.01){
+        beta_mat_notPC1[, i] <- Normalize(rand_vector)
+        break
+      }
+    }
+  }
+  data.frame(evol_Random_notDZ = mean(Evolvability(cov.matrix, beta_mat_notDZ)),
+             evol_DZ = Evolvability(cov.matrix, Normalize(delta_Z)),
+             evol_Random_notPC1 = mean(Evolvability(cov.matrix, beta_mat_notPC1)),
+             evol_PC1 = Evolvability(cov.matrix, pc1))
+}
+treatment <- ldply(r_models[-1], function(model) adply(model$Ps, 1, 
+                                                       normalizedEvolvability, 
+                                                       model$strain), .parallel = TRUE)
+treatment$type <- 'treatment'
+control   <- ldply(r_models[-1], function(model) adply(r_models[['control.control']]$Ps, 1, 
+                                                       normalizedEvolvability, 
+                                                       model$strain), .parallel = TRUE)
+control$type <- 'control'
+evol_norm <- melt(rbind(treatment, control))[-2]
+
+
+evol_norm %>% separate(.id, c( 'treatment', 'strain')) %>% filter(variable == 'evol_Random_notDZ' | variable == 'evol_DZ') %>%
+ggplot(aes(type, value, group = interaction(treatment, strain, variable, type), fill = strain)) + geom_boxplot() +  facet_grid(variable~treatment, scales = 'free_y') + scale_fill_manual(values = c(h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment")
 
