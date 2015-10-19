@@ -20,19 +20,19 @@ resp <- cbind(select(current.data, .id, ID),  as.matrix(select(current.data, IS_
 names(resp) <- c(".id", "ID", "PC1", "PC2")
 hulls <-ddply(resp, .(.id), plyr::summarise, "hpc1"=PC1[chull(PC1,PC2)],
                                              "hpc2"=PC2[chull(PC1,PC2)])
-hulls %<>% separate(.id, c('treatment', 'strain'))
-resp %<>% separate(.id, c('treatment', 'strain'))
+hulls %<>% separate(.id, c('treatment', 'line'))
+resp %<>% separate(.id, c('treatment', 'line'))
 pc_plot <- ggplot(resp, aes(PC1, PC2)) +
   #geom_point(aes(PC1, PC2, shape = treatment), size = 4, alpha = 0.5) +
-  geom_polygon(aes(hpc1, hpc2, fill = strain, group= interaction(strain, treatment)), hulls, alpha=.3) + 
-  geom_point(data = ddply(resp, .(strain, treatment), numcolwise(mean)),
-             aes(PC1, PC2, group= interaction(treatment, strain), color = strain, shape = treatment), size = 10) + 
+  geom_polygon(aes(hpc1, hpc2, fill = line, group= interaction(line, treatment)), hulls, alpha=.3) + 
+  geom_point(data = ddply(resp, .(line, treatment), numcolwise(mean)),
+             aes(PC1, PC2, group= interaction(treatment, line), color = line, shape = treatment), size = 10) + 
   scale_fill_manual(values = c(c, h, s)) + scale_color_manual(values = c(c, h, s)) + theme_bw() + ggtitle("Cranial traits Within-group PC scores")
   
 lin_data$SEX <- factor(lin_data$SEX)
 levels(lin_data$SEX) <- c("Females", "Males")
-p49_plot <- lin_data %>% separate(.id, c('treatment', 'strain')) %>%
-  ggplot(aes(treatment, P49, fill = strain)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + 
+p49_plot <- lin_data %>% separate(.id, c('treatment', 'line')) %>%
+  ggplot(aes(treatment, P49, fill = line)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + 
   facet_wrap(~SEX) + theme_bw() + ggtitle("Weigth at 49 days") +
   theme(text = element_text(size = 30),
         legend.text = element_text(size = 30), 
@@ -72,12 +72,12 @@ resp <- cbind(select(current.data, .id, ID),  scale(ProjetaDados(select(current.
 names(resp) <- c(".id", "ID", "CV1", "CV2", "CV3")
 hulls <-ddply(resp, .(.id), plyr::summarise, "hpc1"=CV1[chull(CV1,CV2)],
                                              "hpc2"=CV2[chull(CV1,CV2)])
-hulls %<>% separate(.id, c('treatment', 'strain'))
-resp %<>% separate(.id, c('treatment', 'strain'))
+hulls %<>% separate(.id, c('treatment', 'line'))
+resp %<>% separate(.id, c('treatment', 'line'))
 cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
-  geom_polygon(aes(hpc1, hpc2, fill = strain, group= interaction(strain, treatment)), hulls, alpha=.3) + 
-  geom_point(data = ddply(resp, .(strain, treatment), numcolwise(mean)),
-             aes(CV1, CV2, group= interaction(treatment, strain), color = strain, shape = treatment), size = 10) + 
+  geom_polygon(aes(hpc1, hpc2, fill = line, group= interaction(line, treatment)), hulls, alpha=.3) + 
+  geom_point(data = ddply(resp, .(line, treatment), numcolwise(mean)),
+             aes(CV1, CV2, group= interaction(treatment, line), color = line, shape = treatment), size = 10) + 
   scale_fill_manual(values = c(c, h, s)) + scale_color_manual(values = c(c, h, s)) + 
   theme(legend.position = "none", axis.text = element_text(size = 30), 
         axis.title = element_text(size = 30)) + 
@@ -96,13 +96,13 @@ cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
 # names(resp) <- c(".id", "ID", "CV1", "CV2", "CV3")
 # hulls <-ddply(resp, .(.id), plyr::summarise, "hpc2"=CV2[chull(CV2,CV3)],
 #                                              "hpc3"=CV3[chull(CV2,CV3)])
-# resp %<>% separate(.id, c('treatment', 'strain'))
-# hulls %<>% separate(.id, c('treatment', 'strain'))
+# resp %<>% separate(.id, c('treatment', 'line'))
+# hulls %<>% separate(.id, c('treatment', 'line'))
 # cv_plot_23<- ggplot(resp, aes(CV2, CV3)) +
 #   #geom_point(aes(PC1, PC3, shape = treatment), size = 4, alpha = 0.5) +
-#   geom_polygon(aes(hpc2, hpc3, fill = strain, group= interaction(strain, treatment)), hulls, alpha=.3) +
-#   geom_point(data = ddply(resp, .(strain, treatment), numcolwise(mean)),
-#              aes(CV2, CV3, group= interaction(treatment, strain), color = strain, shape = treatment), size = 10) + 
+#   geom_polygon(aes(hpc2, hpc3, fill = line, group= interaction(line, treatment)), hulls, alpha=.3) +
+#   geom_point(data = ddply(resp, .(line, treatment), numcolwise(mean)),
+#              aes(CV2, CV3, group= interaction(treatment, line), color = line, shape = treatment), size = 10) + 
 #   scale_fill_manual(values = c(c, h, s)) + scale_color_manual(values = c(c, h, s)) + theme_bw() + ggtitle("Cranial traits Canonical Variates Scores")
 
 

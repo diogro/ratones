@@ -29,9 +29,9 @@ gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){
 }
 
 raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
-raw.data %<>% mutate(treatment = LIN, strain = LIN)
+raw.data %<>% mutate(treatment = LIN, line = LIN)
 
-#Strain colors
+#line colors
 c = "#CC79A7"
 h = "#D55E00"
 s = "#0072B2"
@@ -43,9 +43,9 @@ raw.data$treatment <- gsub('hp', 'increase', raw.data$treatment)
 raw.data$treatment <- gsub('h', 'reduce', raw.data$treatment)
 raw.data$treatment <- gsub('sp', 'increase', raw.data$treatment)
 raw.data$treatment <- gsub("\\bs\\b", 'reduce', raw.data$treatment, perl = TRUE)
-raw.data$strain    <- gsub('t', 'control', raw.data$strain)
-raw.data$strain    <- gsub('hp', 'h', raw.data$strain)
-raw.data$strain    <- gsub('sp', 's', raw.data$strain)
+raw.data$line    <- gsub('t', 'control', raw.data$line)
+raw.data$line    <- gsub('hp', 'h', raw.data$line)
+raw.data$line    <- gsub('sp', 's', raw.data$line)
 
 #Remove fat fucks
 raw.data %<>% filter(P49 < 50) %>%
@@ -56,10 +56,10 @@ raw.data %<>% filter(P49 < 50) %>%
               filter(ID != 270190)     #outlier in biplot prcomp - reduce.s
 
 
-ggplot(raw.data, aes(P49, group = strain, color = interaction(treatment, strain))) + geom_histogram() + facet_grid(strain~treatment)
-ggplot(filter(raw.data, strain == 'control'), aes(SEX, P49, color= SEX)) + geom_violin() + geom_jitter()
+ggplot(raw.data, aes(P49, group = line, color = interaction(treatment, line))) + geom_histogram() + facet_grid(line~treatment)
+ggplot(filter(raw.data, line == 'control'), aes(SEX, P49, color= SEX)) + geom_violin() + geom_jitter()
 
-raw.main.data <- dlply(raw.data, .(treatment, strain), tbl_df)
+raw.main.data <- dlply(raw.data, .(treatment, line), tbl_df)
 
 current.data <- raw.main.data[[4]]
 
@@ -68,9 +68,9 @@ current.data <- raw.main.data[[4]]
 makeMainData <- function (current.data) {
   x = vector("list", 11)
   current.data$AGE[is.na(current.data$AGE)] <- mean(current.data$AGE, na.rm = TRUE)
-  x[[1]] <- select(current.data, c(ID:TAKE, strain, treatment))
+  x[[1]] <- select(current.data, c(ID:TAKE, line, treatment))
   x[[2]] <- select(current.data, c(P49, IS_PM:BA_OPI))
-  x[[3]] <- unique(select(current.data, c(ID:P49, strain, treatment)))
+  x[[3]] <- unique(select(current.data, c(ID:P49, line, treatment)))
   x[[4]] <- ddply(select(current.data, c(ID, P49, IS_PM:BA_OPI)), .(ID), numcolwise(mean))
   set_row <- function(x) {rownames(x) <- x$ID; x[,-1]}
   x[[4]] <- set_row(x[[4]])
@@ -100,5 +100,5 @@ main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}
 
 m_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10, 11)])
 
-full_trait_plots = ggplot(m_full_data, aes(strain, value, group = interaction(treatment, strain), fill = treatment)) + geom_boxplot() + facet_wrap(~variable, scale = "free") + background_grid(major = 'y', minor = "none")
+full_trait_plots = ggplot(m_full_data, aes(line, value, group = interaction(treatment, line), fill = treatment)) + geom_boxplot() + facet_wrap(~variable, scale = "free") + background_grid(major = 'y', minor = "none")
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/full_trait_plot.pdf", full_trait_plots, ncol = 6, nrow = 6)
