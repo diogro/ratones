@@ -117,13 +117,4 @@ ggsave(plot = p49_plot, "./md/p49_plot.png", width = 20, height = 15)
 save_plot(plot = cv_plot_12, "./md/cv_plot_12.pdf", base_height = 10)
 ggsave(plot = global_stats_plot, "./md/stats.png", width = 20, height = 15)
 
-reps_RS = llply(r_models, function(x) x$P) %>% laply(., MonteCarloRep, sample.size = 50, ComparisonFunc = RandomSkewers)
-RS = llply(r_models, function(x) x$P) %>% RandomSkewers(repeat.vector = reps_RS)
-rs_data <- RS[[1]]
 
-reps_krz = llply(r_models, function(x) x$P) %>% laply(., MonteCarloRep, sample.size = 50, ComparisonFunc = KrzCor)
-krz_data = llply(r_models, function(x) x$P) %>% KrzCor(repeat.vector = reps_krz)
-
-mat_data <- rs_data
-mat_data[lower.tri(mat_data)] <- t(krz_data)[lower.tri(krz_data)]
-diag(mat_data) <- NA
