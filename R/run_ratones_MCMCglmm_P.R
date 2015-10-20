@@ -84,7 +84,7 @@ runMCMCmodelsRatones <- function (x) {
                             verbose = TRUE)
   varPs = aaply(ratones_model_var$VCV, 1, function(x) outer(sqrt(x), sqrt(x)))
   Ps = corrPs * varPs
-  P = apply(Ps, 2:3, mean)
+  P = apply(Ps, 2:3, median)
   return(list(Ps = Ps,
               corrPs = corrPs, 
               P = P,

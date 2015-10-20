@@ -22,6 +22,12 @@ names(mcmc_stats)[4] <- 'pc1.percent'
 # reps_krz = llply(r_models, function(x) x$P) %>% laply(., MonteCarloRep, sample.size = 50, ComparisonFunc = KrzCor)
 # krz_data = llply(r_models, function(x) x$P) %>% KrzCor(repeat.vector = reps_krz)
 # 
+# library(xtable)
+# reps = rbind(reps_krz, reps_RS)
+# colnames(reps) <- c("Control", "Increase h", "Increase s", "Reduce h", "Reduce s") 
+# rownames(reps) <- c("Krzanowski", "Random Skewers") 
+# xtable(reps, digits = 3)
+# 
 # mat_data <- rs_data
 # mat_data[lower.tri(mat_data)] <- t(krz_data)[lower.tri(krz_data)]
 # diag(mat_data) <- NA
@@ -176,3 +182,12 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
           nrow = 1, 
           base_aspect_ratio = 1.3, base_height = 5)
 
+
+PCones <- t(laply(r_models, function(x) eigen(aaply(x$Ps, 2:3, median)[-1, -1])$vectors[,1]))
+colnames(PCones) <- c("Control", "Increase h", "Increase s", "Reduce h", "Reduce s")
+rownames(PCones) <- rownames(main.data[[1]]$cov.matrix)[-1]
+
+library(xtable)
+xtable(PCones, digits = 3)
+
+PC1_iso_cor = aaply(PCones, 2, function(x) abs(vectorCor(x, rep(1/35, 35))))

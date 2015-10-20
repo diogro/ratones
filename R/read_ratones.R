@@ -94,9 +94,9 @@ main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}
 
 m_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10, 11)])
 
-full_trait_plots = ggplot(m_full_data, aes(treatment, value, group = interaction(treatment, line), fill = line)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + facet_wrap(~variable, scale = "free_y") + labs(y = "Linear distance between landmarks (mm)")
+full_trait_plots = ggplot(m_full_data %>% filter(variable != 'P49'), aes(treatment, value, group = interaction(treatment, line), fill = line)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + facet_wrap(~variable, scale = "free_y", ncol = 5) + labs(y = "Linear distance between landmarks (mm)")
 
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS4.pdf", full_trait_plots, ncol = 6, nrow = 6, base_height = 3)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS4.pdf", full_trait_plots, ncol = 5, nrow = 7, base_height = 3)
 
 p49_full_data = m_full_data %>% filter(variable == 'P49')
 p49_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
@@ -104,3 +104,15 @@ p49_plot = ggplot(p49_full_data, aes(treatment, value, group = interaction(treat
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS2.pdf", p49_plot, base_height = 4, base_aspect_ratio = 1.7)
   
+
+traits = full_data %>% select(IS_PM:BA_OPI)
+full_data$gm = apply(traits, 1, gm_mean)
+p49_gm_plot = ggplot(full_data, aes(log(P49), gm, group = .id, color = .id)) + geom_point() + geom_smooth(method = "lm")
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/p49_gm.pdf", p49_gm_plot, base_aspect_ratio = 1.6, base_height = 12)
+
+gm_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10, 11)]) %>% filter(variable == 'gm')
+gm_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
+gm_plot = ggplot(gm_full_data, aes(treatment, value, group = interaction(treatment, line), fill = line)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Geometric mean of cranial traits")
+
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS5.pdf", gm_plot, base_height = 4, base_aspect_ratio = 1.7)
+

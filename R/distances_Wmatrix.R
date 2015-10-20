@@ -51,6 +51,4 @@ cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
   annotate("text", -2.25, 0.5, label = "s", color = s, size = 15) + 
   annotate("text", 1.5, 0, label = "h", color = h, size = 15) 
 
-save_plot(plot = cv_plot_12, "~/Dropbox/labbio/Shared Lab/Ratones_shared/cv_plot_12.pdf", base_height = 10)
-
-
+save_plot(plot = cv_plot_12, "~/Dropbox/labbio/Shared Lab/Ratones_shared/figure1.pdf", base_height = 10)
