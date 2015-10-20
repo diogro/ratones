@@ -55,15 +55,9 @@ raw.data %<>% filter(P49 < 50) %>%
               filter(ID != 270556) %>% #outlier in biplot prcomp - reduce.h
               filter(ID != 270190)     #outlier in biplot prcomp - reduce.s
 
-
-ggplot(raw.data, aes(P49, group = line, color = interaction(treatment, line))) + geom_histogram() + facet_grid(line~treatment)
-ggplot(filter(raw.data, line == 'control'), aes(SEX, P49, color= SEX)) + geom_violin() + geom_jitter()
-
 raw.main.data <- dlply(raw.data, .(treatment, line), tbl_df)
 
 current.data <- raw.main.data[[4]]
-
-
 
 makeMainData <- function (current.data) {
   x = vector("list", 11)
@@ -100,5 +94,13 @@ main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}
 
 m_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10, 11)])
 
-full_trait_plots = ggplot(m_full_data, aes(line, value, group = interaction(treatment, line), fill = treatment)) + geom_boxplot() + facet_wrap(~variable, scale = "free") + background_grid(major = 'y', minor = "none")
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/full_trait_plot.pdf", full_trait_plots, ncol = 6, nrow = 6)
+full_trait_plots = ggplot(m_full_data, aes(treatment, value, group = interaction(treatment, line), fill = line)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + facet_wrap(~variable, scale = "free_y") + labs(y = "Linear distance between landmarks (mm)")
+
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS4.pdf", full_trait_plots, ncol = 6, nrow = 6, base_height = 3)
+
+p49_full_data = m_full_data %>% filter(variable == 'P49')
+p49_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
+p49_plot = ggplot(p49_full_data, aes(treatment, value, group = interaction(treatment, line), fill = line)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weigth at 49 days (g)")
+
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS2.pdf", p49_plot, base_height = 4, base_aspect_ratio = 1.7)
+  

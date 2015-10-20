@@ -1,23 +1,9 @@
 source("R/run_ratones_MCMCglmm_P.R")
 
-
-ML_R2 = ldply(main.data, function(x) CalcR2(x$cov.matrix))
-
-r_models %>% llply(function(x) x$Ps) %>% ldply(function(x) adply(x, 1, CalcR2)) %>%
-  group_by(.id) %>% summarise_each(., funs(mean, find_CI_lower, find_CI_upper), V1) %>%
-  ggplot(aes(.id, mean, group = .id)) + geom_point() + geom_errorbar(aes(ymin = find_CI_lower, 
-                                                                         ymax = find_CI_upper)) +
-  geom_point(data = ML_R2, color = 'red', aes(.id, V1)) + 
-  theme_bw() + labs(y = expression(R^2))
-
 #mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics), .parallel = TRUE))
 #save(mcmc_stats, file = "./Rdatas/mcmc_stats")
 load("./Rdatas/mcmc_stats")
 names(mcmc_stats)[4] <- 'pc1.percent'
-
-# global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, evolvability) %>% melt %>% separate(.id, c( 'treatment', 'line'))
-# levels(global_stats$variable) <- c("Mean squared correlation", "Mean flexibility", "Mean evolvability") 
-#   global_stats_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, line, variable), fill = line)) + geom_boxplot() +  facet_wrap(~variable, scale = 'free') + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "") + ggtitle("Evolutionary statistics")
 
   global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation) %>% melt %>% separate(.id, c('treatment', 'line'))
   r2_plot <- ggplot(global_stats, aes(treatment, value, group = interaction(treatment, line, variable), fill = line)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "") 
@@ -63,8 +49,6 @@ matrix_comparisons <- ggplot (m.rs) +
           legend.text = element_text(size = 7),
           rect = element_blank(), line = element_blank())
   
-x = main.data[[2]]
-
 traits = select(full_data, P49, IS_PM:BA_OPI)
 traits$P49 %<>% log
 #delta_Zs <- llply(main.data, function(x) x$ed.means - main.data$control.control$ed.means)
