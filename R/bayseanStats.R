@@ -180,7 +180,7 @@ figure_4 <- DzPC1 + theme(legend.position = c(0.1, 0.91))
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
           ncol = 1, 
           nrow = 1, 
-          base_aspect_ratio = 1.3, base_height = 5)
+          base_aspect_ratio = 1.3, base_height = 3)
 
 
 PCones <- t(laply(r_models, function(x) eigen(aaply(x$Ps, 2:3, median)[-1, -1])$vectors[,1]))
