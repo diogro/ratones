@@ -123,4 +123,5 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS5.pdf", gm_plot, ba
 
 full_data %>% count(line, treatment, SEX) %>% xtable
 full_data %>% count(line, treatment, GER) %>% xtable
+full_data %>% count(line, treatment) %>% xtable
 
