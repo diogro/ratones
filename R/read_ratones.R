@@ -121,3 +121,6 @@ gm_plot = ggplot(gm_full_data, aes(treatment, value, group = interaction(treatme
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS5.pdf", gm_plot, base_height = 4, base_aspect_ratio = 1.7)
 
+full_data %>% count(line, treatment, SEX) %>% xtable
+full_data %>% count(line, treatment, GER) %>% xtable
+
