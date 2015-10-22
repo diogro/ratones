@@ -31,10 +31,15 @@ gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){
 raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
 raw.data %<>% mutate(treatment = LIN, line = LIN)
 
-#line colors
+# #line colors
 c = "#CC79A7"
 h = "#D55E00"
 s = "#0072B2"
+
+#line colors
+# c = rgb(255, 0, 255, maxColorValue = 255)
+# h = rgb(0, 0, 128, maxColorValue = 255)
+# s = rgb(0, 128, 128, maxColorValue = 255)
 
 # Change weird labels
 names(raw.data) <- gsub("-", "_", names(raw.data))
@@ -100,7 +105,7 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS4.pdf", full_trait_
 
 p49_full_data = m_full_data %>% filter(variable == 'P49')
 p49_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
-p49_plot = ggplot(p49_full_data, aes(treatment, value, group = interaction(treatment, line), fill = line)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weigth at 49 days (g)")
+p49_plot = ggplot(p49_full_data, aes(treatment, value, group = interaction(treatment, line), fill = line)) + geom_boxplot() + scale_color_manual(values = c(c, h, s))+ scale_fill_manual(values = c(c, h, s)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weigth at 49 days (g)")
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS2.pdf", p49_plot, base_height = 4, base_aspect_ratio = 1.7)
   
