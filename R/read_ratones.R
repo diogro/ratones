@@ -10,6 +10,8 @@ if(!require(evolqg)) {devtools::install_github('lem-usp/evolqg'); library(evolqg
 if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
 if(!require(cowplot)) {install.packages('cowplot'); library(cowplot)}
 if(!require(plsdepot)) {install.packages('plsdepot'); library(plsdepot)}
+if(!require(xtable)) {install.packages('xtable'); library(xtable)}
+
 
 
 vectorCor <- function(x, y) t(Normalize(x)) %*% Normalize(y)

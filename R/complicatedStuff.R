@@ -1,3 +1,5 @@
+source("./R/run_ratones_MCMCglmm_P.R")
+
 traits = select(full_data, P49, IS_PM:BA_OPI)
 traits$P49 %<>% log
 #delta_Zs <- llply(main.data, function(x) x$ed.means - main.data$control.control$ed.means)
@@ -43,6 +45,11 @@ stats %>% separate(.id, c( 'treatment', 'line')) %>% filter(variable == 'normDZ'
   ggplot(aes(normDZ, normPLS, group = interaction(treatment, line), color = interaction(treatment, line))) + geom_point() 
 
 
+traits_no_control = full_data %>% filter(.id != "control.control") %>% select(P49, IS_PM:BA_OPI)
+traits_no_control$P49 %<>% log
+delta_Zs <- llply(main.data, function(x) x$ed.means - colMeans(traits_no_control))
+
+
 normalizedEvolvability <- function(cov.matrix, line){
   delta_Z <- delta_Zs[[line]]
   cov.matrix = cov.matrix / main.data[[line]]$gm_mean
@@ -86,3 +93,4 @@ evol_norm <- melt(rbind(treatment, control))[-2]
 
 evol_norm %>% separate(.id, c( 'treatment', 'line')) %>% filter(variable == 'evol_Random_notDZ' | variable == 'evol_DZ') %>%
   ggplot(aes(type, value, group = interaction(treatment, line, variable, type), fill = line)) + geom_boxplot() +  facet_grid(variable~treatment, scales = 'free_y') + scale_fill_manual(values = c(h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment")
+
