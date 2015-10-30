@@ -36,19 +36,17 @@ hulls <-ddply(resp, .(.id), plyr::summarise, "hpc1"=CV1[chull(CV1,CV2)],
 hulls %<>% separate(.id, c('treatment', 'line'))
 resp %<>% separate(.id, c('treatment', 'line'))
 cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
-  geom_polygon(aes(hpc1, hpc2, fill = line, group= interaction(line, treatment)), hulls, alpha=.3) + 
+  geom_polygon(aes(hpc1, hpc2, fill = treatment, group= interaction(line, treatment)), hulls, alpha=.3) + 
   geom_point(data = ddply(resp, .(line, treatment), numcolwise(mean)),
-             aes(CV1, CV2, group= interaction(treatment, line), color = line, shape = treatment), size = 10) + 
-  scale_fill_manual(values = c(c, h, s)) + scale_color_manual(values = c(c, h, s)) + 
+             aes(CV1, CV2, group= interaction(treatment, line), color = treatment, shape = line), size = 10) + 
+  scale_fill_manual(values = c(c, dw, up)) + scale_color_manual(values = c(c, dw, up)) + 
   theme(legend.position = "none", axis.text = element_text(size = 30), 
         axis.title = element_text(size = 30)) + 
   labs(x = "First canonical variate", y = "Second canonial variate") +
-  annotate("text", 1.5, 1.5, label = "Increase", color = h, size = 15) + 
-  annotate("text", -1.5, 1.5, label = "Increase", color = s, size = 15) + 
-  annotate("text", 1, -2, label = "Reduce", color = h, size = 15) + 
-  annotate("text", -1.5, -2, label = "Reduce", color = s, size = 15) + 
-  annotate("text", 0.5, 2.5, label = "Control", color = c, size = 15) + 
-  annotate("text", -2.25, 0.5, label = "s", color = s, size = 15) + 
-  annotate("text", 1.5, 0, label = "h", color = h, size = 15) 
+  annotate("text", 1.5, 1.5, label = "upwards h'", color = up, size = 15) + 
+  annotate("text", -1.5, 1.5, label = "upwards s'", color = up, size = 15) + 
+  annotate("text", 1, -2, label = "downwards h", color = dw, size = 15) + 
+  annotate("text", -1.5, -2, label = "downwards s", color = dw, size = 15) + 
+  annotate("text", 0.5, 2.5, label = "control", color = c, size = 15) 
 
 save_plot(plot = cv_plot_12, "~/Dropbox/labbio/Shared Lab/Ratones_shared/figure1.pdf", base_height = 10)

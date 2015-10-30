@@ -33,8 +33,8 @@ raw.data %<>% mutate(treatment = LIN, line = LIN)
 
 # #line colors
 c = "#CC79A7"
-h = "#D55E00"
-s = "#0072B2"
+dw = "#D55E00"
+up = "#0072B2"
 
 #line colors
 # c = rgb(255, 0, 255, maxColorValue = 255)
@@ -51,8 +51,8 @@ raw.data$treatment <- gsub("\\bs\\b", 'downwards', raw.data$treatment, perl = TR
 raw.data$original_line <- raw.data$line
 raw.data$original_line <- gsub('hp', "h'", raw.data$original_line)
 raw.data$original_line <- gsub('sp', "s'", raw.data$original_line)
-raw.data$line    <- gsub('hp', 'h', raw.data$line)
-raw.data$line    <- gsub('sp', 's', raw.data$line)
+raw.data$line    <- gsub('hp', "h'", raw.data$line)
+raw.data$line    <- gsub('sp', "s'", raw.data$line)
 raw.data$original_line <- factor(raw.data$original_line, levels = c("t", "h", "s", "h'", "s'"))
 raw.data$line    <- gsub('t', 'control', raw.data$line)
 
@@ -104,13 +104,13 @@ main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}
 
 m_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10:12)])
 
-full_trait_plots = ggplot(m_full_data %>% filter(variable != 'P49'), aes(original_line, value, group = original_line, fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + facet_wrap(~variable, scale = "free_y", ncol = 5) + labs(y = "Linear distance between landmarks (mm)", x = "line")
+full_trait_plots = ggplot(m_full_data %>% filter(variable != 'P49'), aes(original_line, value, group = original_line, fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~variable, scale = "free_y", ncol = 5) + labs(y = "Linear distance between landmarks (mm)", x = "line")
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS4.pdf", full_trait_plots, ncol = 5, nrow = 7, base_height = 3)
 
 p49_full_data = m_full_data %>% filter(variable == 'P49')
 p49_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
-p49_plot = ggplot(p49_full_data, aes(original_line, value, group = original_line, fill = treatment)) + geom_boxplot() + scale_color_manual(values = c(c, h, s)) + scale_fill_manual(values = c(c, h, s)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weigth at 49 days (g)", x = "line")
+p49_plot = ggplot(p49_full_data, aes(original_line, value, group = original_line, fill = treatment)) + geom_boxplot() + scale_color_manual(values = c(c, dw, up)) + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weigth at 49 days (g)", x = "line")
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS2.pdf", p49_plot, base_height = 4, base_aspect_ratio = 1.7)
   
@@ -122,7 +122,7 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS2.pdf", p49_plot, b
 
 gm_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10:12)]) %>% filter(variable == 'gm')
 gm_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
-gm_plot = ggplot(gm_full_data, aes(original_line, value, group = original_line, fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Geometric mean of cranial traits", x = "line")
+gm_plot = ggplot(gm_full_data, aes(original_line, value, group = original_line, fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Geometric mean of cranial traits", x = "line")
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS5.pdf", gm_plot, base_height = 4, base_aspect_ratio = 1.7)
 
