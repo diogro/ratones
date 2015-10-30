@@ -5,20 +5,20 @@ source("R/run_ratones_MCMCglmm_P.R")
 load("./Rdatas/mcmc_stats")
 names(mcmc_stats)[4] <- 'pc1.percent'
 
-  global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation) %>% melt %>% separate(.id, c('treatment', 'line'), sep = "\\.")
+  global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
-  global_stats$line <- factor(global_stats$line, levels = c("t", "h", "s", "h'", "s'"))
-  r2_plot <- ggplot(global_stats, aes(line, value, group = interaction(treatment, line, variable), fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, up, dw)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "") 
+  global_stats$line <- factor(global_stats$line, levels = lines)
+  r2_plot <- ggplot(global_stats, aes(line, value, group = interaction(selection, line, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "") 
   
-  global_stats <- mcmc_stats %>% select(.id, flexibility) %>% melt %>% separate(.id, c('treatment', 'line'), sep = "\\.")
+  global_stats <- mcmc_stats %>% select(.id, flexibility) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
-  global_stats$line <- factor(global_stats$line, levels = c("t", "h", "s", "h'", "s'"))
-  flexibility_plot <- ggplot(global_stats, aes(line, value, group = interaction(treatment, line, variable), fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, up, dw)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean flexibility", x = "") + theme(legend.position = "none", text = element_text(size = 20))
+  global_stats$line <- factor(global_stats$line, levels = lines)
+  flexibility_plot <- ggplot(global_stats, aes(line, value, group = interaction(selection, line, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean flexibility", x = "") + theme(legend.position = "none", text = element_text(size = 20))
   
-  global_stats <- mcmc_stats %>% select(.id, pc1.percent) %>% melt %>% separate(.id, c('treatment', 'line'), sep = "\\.")
+  global_stats <- mcmc_stats %>% select(.id, pc1.percent) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
-  global_stats$line <- factor(global_stats$line, levels = c("t", "h", "s", "h'", "s'"))
-  pc1.percent_plot <- ggplot(global_stats, aes(line, value, group = interaction(treatment, line, variable), fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, up, dw)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Proportion of variation\n in PC1", x = "") + theme(legend.position = "none", text = element_text(size = 20))
+  global_stats$line <- factor(global_stats$line, levels = lines)
+  pc1.percent_plot <- ggplot(global_stats, aes(line, value, group = interaction(selection, line, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Proportion of variation\n in PC1", x = "") + theme(legend.position = "none", text = element_text(size = 20))
   
   
 # reps_RS = llply(r_models, function(x) x$P) %>% laply(., MonteCarloRep, sample.size = 50, ComparisonFunc = RandomSkewers)
@@ -48,7 +48,7 @@ m.rs.position = m.rs
 m.rs.position$Var1 <- as.numeric(m.rs.position$Var1)
 m.rs.position$Var2 <- as.numeric(m.rs.position$Var2)
 m.rs.position$value= round(m.rs.position$value, 3)
-m.rs.position$value[is.na(m.rs.position$value)] <- c("Control", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")
+m.rs.position$value[is.na(m.rs.position$value)] <- c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")
 matrix_comparisons <- ggplot (m.rs) +
     geom_tile(aes(x = Var2, y = Var1, fill = value)) +
     scale_fill_gradientn(name = '', colours = myPalette) +
@@ -75,9 +75,9 @@ DzPC1_stat <- ldply(r_models[-1], function(model) adply(model$Ps, 1,
                                                           directionalVariation, 
                                                           model$line), .parallel = TRUE)
 
-DzPC1_data <- DzPC1_stat %>% select(.id, DZpc1) %>% melt %>% separate(.id, c('treatment', 'line'), sep = "\\.") 
-DzPC1_data$line = factor(DzPC1_data$line, levels = c("h", "s", "h'", "s'"))
-DzPC1 = ggplot(DzPC1_data, aes(line, value, group = interaction(treatment, line), fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(h, s)) + labs(y = expression(paste("Vector correlation of ", Delta, "z and PC1"))) + background_grid(major = 'y', minor = "none") +  panel_border()
+DzPC1_data <- DzPC1_stat %>% select(.id, DZpc1) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.") 
+DzPC1_data$line = factor(DzPC1_data$line, levels = lines[-1])
+DzPC1 = ggplot(DzPC1_data, aes(line, value, group = interaction(selection, line), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(dw, up)) + labs(y = expression(paste("Vector correlation of ", Delta, "z and PC1"))) + background_grid(major = 'y', minor = "none") +  panel_border()
 
 scaledEvolvability <- function(cov.matrix, line){
   delta_Z <- delta_Zs[[line]]
@@ -90,10 +90,10 @@ scaled_mean_evol <- ldply(r_models, function(model) adply(model$Ps, 1,
                                                        scaledEvolvability, 
                                                        model$line), .parallel = TRUE)
 
-evolvability_data <- scaled_mean_evol %>% select(.id, scaled_evol) %>% melt %>% separate(.id, c('treatment', 'line'), sep = "\\.") 
+evolvability_data <- scaled_mean_evol %>% select(.id, scaled_evol) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.") 
 evolvability_data$line <- gsub('control', 't', evolvability_data$line)
-evolvability_data$line = factor(evolvability_data$line, levels = c("t", "h", "s", "h'", "s'"))
-evolvability_plot <- ggplot(evolvability_data, aes(line, value, group = interaction(treatment, line, variable), fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean evolvability", x = "") + theme(legend.position = "none", text = element_text(size = 20))
+evolvability_data$line = factor(evolvability_data$line, levels = lines)
+evolvability_plot <- ggplot(evolvability_data, aes(line, value, group = interaction(selection, line, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean evolvability", x = "") + theme(legend.position = "none", text = element_text(size = 20))
 
 
 figure_2 <- ggdraw() +
@@ -114,7 +114,7 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.pdf", figure_3,
           nrow = 1, 
           base_aspect_ratio = 1.3, base_height = 5)
 
-figure_4 <- DzPC1 + theme(legend.position = c(0.1, 0.91))
+figure_4 <- DzPC1 + theme(legend.position = c(0.2, 0.15))
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
           ncol = 1, 
           nrow = 1, 
@@ -122,7 +122,7 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
 
 
 PCones <- t(laply(r_models, function(x) eigen(aaply(x$Ps, 2:3, median)[-1, -1])$vectors[,1]))
-colnames(PCones) <- c("Control", "Increase h", "Increase s", "Reduce h", "Reduce s")
+colnames(PCones) <- c("Control", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")
 rownames(PCones) <- rownames(main.data[[1]]$cov.matrix)[-1]
 
 library(xtable)

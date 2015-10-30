@@ -29,12 +29,16 @@ gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){
 }
 
 raw.data <- tbl_df(read_csv("./data/Ratabase_Main.csv"))
-raw.data %<>% mutate(treatment = LIN, line = LIN)
+raw.data %<>% mutate(selection = LIN, line = LIN)
 
 # #line colors
 c = "#CC79A7"
 dw = "#D55E00"
 up = "#0072B2"
+
+#Line order
+#lines = c("t", "h", "s", "h'", "s'")
+lines = c("t", "h'", "s'", "h", "s")
 
 #line colors
 # c = rgb(255, 0, 255, maxColorValue = 255)
@@ -43,17 +47,17 @@ up = "#0072B2"
 
 # Change weird labels
 names(raw.data) <- gsub("-", "_", names(raw.data))
-raw.data$treatment <- gsub('t', 'control', raw.data$treatment)
-raw.data$treatment <- gsub('hp', 'upwards', raw.data$treatment)
-raw.data$treatment <- gsub('h', 'downwards', raw.data$treatment)
-raw.data$treatment <- gsub('sp', 'upwards', raw.data$treatment)
-raw.data$treatment <- gsub("\\bs\\b", 'downwards', raw.data$treatment, perl = TRUE)
+raw.data$selection <- gsub('t', 'control', raw.data$selection)
+raw.data$selection <- gsub('hp', 'upwards', raw.data$selection)
+raw.data$selection <- gsub('h', 'downwards', raw.data$selection)
+raw.data$selection <- gsub('sp', 'upwards', raw.data$selection)
+raw.data$selection <- gsub("\\bs\\b", 'downwards', raw.data$selection, perl = TRUE)
 raw.data$original_line <- raw.data$line
 raw.data$original_line <- gsub('hp', "h'", raw.data$original_line)
 raw.data$original_line <- gsub('sp', "s'", raw.data$original_line)
 raw.data$line    <- gsub('hp', "h'", raw.data$line)
 raw.data$line    <- gsub('sp', "s'", raw.data$line)
-raw.data$original_line <- factor(raw.data$original_line, levels = c("t", "h", "s", "h'", "s'"))
+raw.data$original_line <- factor(raw.data$original_line, levels = lines)
 raw.data$line    <- gsub('t', 'control', raw.data$line)
 
 
@@ -65,16 +69,16 @@ raw.data %<>% filter(P49 < 50) %>%
               filter(ID != 270556) %>% #outlier in biplot prcomp - reduce.h
               filter(ID != 270190)     #outlier in biplot prcomp - reduce.s
 
-raw.main.data <- dlply(raw.data, .(treatment, line), tbl_df)
+raw.main.data <- dlply(raw.data, .(selection, line), tbl_df)
 
 current.data <- raw.main.data[[4]]
 
 makeMainData <- function (current.data) {
   x = vector("list", 11)
   current.data$AGE[is.na(current.data$AGE)] <- mean(current.data$AGE, na.rm = TRUE)
-  x[[1]] <- select(current.data, c(ID:TAKE, line, original_line, treatment))
+  x[[1]] <- select(current.data, c(ID:TAKE, line, original_line, selection))
   x[[2]] <- select(current.data, c(P49, IS_PM:BA_OPI))
-  x[[3]] <- unique(select(current.data, c(ID:P49, line, original_line, treatment)))
+  x[[3]] <- unique(select(current.data, c(ID:P49, line, original_line, selection)))
   x[[4]] <- ddply(select(current.data, c(ID, P49, IS_PM:BA_OPI)), .(ID), numcolwise(mean))
   set_row <- function(x) {rownames(x) <- x$ID; x[,-1]}
   x[[4]] <- set_row(x[[4]])
@@ -104,13 +108,13 @@ main.data %>% laply(function(x) x$plsr) %>% {. %*% t(.)}
 
 m_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10:12)])
 
-full_trait_plots = ggplot(m_full_data %>% filter(variable != 'P49'), aes(original_line, value, group = original_line, fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~variable, scale = "free_y", ncol = 5) + labs(y = "Linear distance between landmarks (mm)", x = "line")
+full_trait_plots = ggplot(m_full_data %>% filter(variable != 'P49'), aes(original_line, value, group = original_line, fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~variable, scale = "free_y", ncol = 5) + labs(y = "Linear distance between landmarks (mm)", x = "line")
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS4.pdf", full_trait_plots, ncol = 5, nrow = 7, base_height = 3)
 
 p49_full_data = m_full_data %>% filter(variable == 'P49')
 p49_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
-p49_plot = ggplot(p49_full_data, aes(original_line, value, group = original_line, fill = treatment)) + geom_boxplot() + scale_color_manual(values = c(c, dw, up)) + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weigth at 49 days (g)", x = "line")
+p49_plot = ggplot(p49_full_data, aes(original_line, value, group = original_line, fill = selection)) + geom_boxplot() + scale_color_manual(values = c(c, dw, up)) + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weigth at 49 days (g)", x = "line")
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS2.pdf", p49_plot, base_height = 4, base_aspect_ratio = 1.7)
   
@@ -122,11 +126,11 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS2.pdf", p49_plot, b
 
 gm_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10:12)]) %>% filter(variable == 'gm')
 gm_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
-gm_plot = ggplot(gm_full_data, aes(original_line, value, group = original_line, fill = treatment)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Geometric mean of cranial traits", x = "line")
+gm_plot = ggplot(gm_full_data, aes(original_line, value, group = original_line, fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Geometric mean of cranial traits", x = "line")
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS5.pdf", gm_plot, base_height = 4, base_aspect_ratio = 1.7)
 
-full_data %>% count(line, treatment, SEX) %>% xtable
-full_data %>% count(line, treatment, GER) %>% xtable
-full_data %>% count(line, treatment) %>% xtable
+full_data %>% count(line, selection, SEX) %>% xtable
+full_data %>% count(line, selection, GER) %>% xtable
+full_data %>% count(line, selection) %>% xtable
 

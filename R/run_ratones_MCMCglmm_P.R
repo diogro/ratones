@@ -96,7 +96,8 @@ runMCMCmodelsRatones <- function (x) {
 #r_models = llply(main.data, runMCMCmodelsRatones, .parallel = TRUE)
 #save(r_models, file = "Rdatas/ratonesMCMCmodels.RData")
 load("Rdatas/ratonesMCMCmodels.RData")
-for(i in 1:length(r_models)) r_models[[i]]$line <- names(main.data)[[i]]
-names(r_models) <- names(main.data)
+new_names = names(main.data)[c(1, 4, 5, 2, 3)]
+for(i in 1:length(r_models)) r_models[[i]]$line <- new_names[[i]]
+names(r_models) <- new_names
 
 
