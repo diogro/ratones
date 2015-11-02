@@ -33,12 +33,13 @@ resp <- cbind(select(current.data, .id, ID),  scale(ProjetaDados(select(current.
 names(resp) <- c(".id", "ID", "CV1", "CV2", "CV3")
 hulls <-ddply(resp, .(.id), plyr::summarise, "hpc1"=CV1[chull(CV1,CV2)],
                                              "hpc2"=CV2[chull(CV1,CV2)])
-hulls %<>% separate(.id, c('treatment', 'line'))
-resp %<>% separate(.id, c('treatment', 'line'))
+hulls %<>% separate(.id, c('treatment', 'line'), sep = "\\.")
+resp %<>% separate(.id, c('treatment', 'line'), sep = "\\.")
+resp$is_control = factor(resp$treatment == "control")
 cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
   geom_polygon(aes(hpc1, hpc2, fill = treatment, group= interaction(line, treatment)), hulls, alpha=.3) + 
-  geom_point(data = ddply(resp, .(line, treatment), numcolwise(mean)),
-             aes(CV1, CV2, group= interaction(treatment, line), color = treatment, shape = line), size = 10) + 
+  geom_point(data = ddply(resp, .(line, treatment, is_control), numcolwise(mean)),
+             aes(CV1, CV2, group= interaction(treatment, line), color = treatment, shape = is_control), size = 10) + 
   scale_fill_manual(values = c(c, dw, up)) + scale_color_manual(values = c(c, dw, up)) + 
   theme(legend.position = "none", axis.text = element_text(size = 30), 
         axis.title = element_text(size = 30)) + 
@@ -47,6 +48,6 @@ cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
   annotate("text", -1.5, 1.5, label = "upwards s'", color = up, size = 15) + 
   annotate("text", 1, -2, label = "downwards h", color = dw, size = 15) + 
   annotate("text", -1.5, -2, label = "downwards s", color = dw, size = 15) + 
-  annotate("text", 0.5, 2.5, label = "control", color = c, size = 15) 
+  annotate("text", 0.5, 2.5, label = "control t", color = c, size = 15) 
 
 save_plot(plot = cv_plot_12, "~/Dropbox/labbio/Shared Lab/Ratones_shared/figure1.pdf", base_height = 10)
