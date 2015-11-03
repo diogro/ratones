@@ -79,9 +79,9 @@ makeMainData <- function (current.data) {
   x = vector("list", 11)
   current.data$AGE[is.na(current.data$AGE)] <- mean(current.data$AGE, na.rm = TRUE)
   x[[1]] <- select(current.data, c(ID:TAKE, line, original_line, selection))
-  x[[2]] <- select(current.data, c(P49, IS_PM:BA_OPI))
+  x[[2]] <- select(current.data, IS_PM:BA_OPI)
   x[[3]] <- unique(select(current.data, c(ID:P49, line, original_line, selection)))
-  x[[4]] <- ddply(select(current.data, c(ID, P49, IS_PM:BA_OPI)), .(ID), numcolwise(mean))
+  x[[4]] <- ddply(select(current.data, ID, IS_PM:BA_OPI), .(ID), numcolwise(mean))
   set_row <- function(x) {rownames(x) <- x$ID; x[,-1]}
   x[[4]] <- set_row(x[[4]])
   names(x)[1:4] <- c('info.raw', 'ed.raw', 'info', 'ed')
@@ -89,10 +89,10 @@ makeMainData <- function (current.data) {
   names(x)[5] <- 'reps'
   sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
   sex_age_res <- residuals(sex_age_lm)
-  p49_traits_pls <- plsreg1(sex_age_res[,2:36], sex_age_res[,1])
+  p49_traits_pls <- plsreg1(sex_age_res[,2:35], sex_age_res[,1])
   #x[[10]] <- Normalize(p49_traits_pls$reg.coefs[-1])
   x[[10]] <- p49_traits_pls$reg.coefs[-1]
-  x$ed$P49 %<>% log
+  #x$ed$P49 %<>% log
   x[[6]] <- lm(as.matrix(x$ed) ~ x$info$SEX)
   x[[7]] <- CalculateMatrix(x[[6]])
   x[[8]] <- colMeans(x$ed)
@@ -136,3 +136,8 @@ full_data %>% count(line, selection, SEX) %>% xtable
 full_data %>% count(line, selection, GER) %>% xtable
 full_data %>% count(line, selection) %>% xtable
 
+cvs = data.frame(t(laply(main.data, function(x) sqrt(diag(x$cov.matrix))/ x$ed.means)))
+names(cvs) <- names(main.data)
+cvs$traits = factor(rownames(cvs), levels = rownames(cvs))
+
+cv_plot = ggplot(melt(cvs), aes(traits, value, group = variable, color=  variable)) + geom_point() + geom_line() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x = "Traits", y = "Coeficient of variation") + scale_color_discrete(name = "line")

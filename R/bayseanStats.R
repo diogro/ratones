@@ -1,8 +1,8 @@
 source("R/run_ratones_MCMCglmm_P.R")
 
-#mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE, .inform = TRUE))
-#save(mcmc_stats, file = "./Rdatas/mcmc_stats")
-load("./Rdatas/mcmc_stats")
+# mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE, .inform = TRUE))
+# save(mcmc_stats, file = "./Rdatas/mcmc_stats")
+# load("./Rdatas/mcmc_stats")
 names(mcmc_stats)[4] <- 'pc1.percent'
 
   global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
@@ -24,16 +24,16 @@ names(mcmc_stats)[4] <- 'pc1.percent'
 # reps_RS = llply(r_models, function(x) x$P) %>% laply(., MonteCarloRep, sample.size = 50, ComparisonFunc = RandomSkewers)
 # RS = llply(r_models, function(x) x$P) %>% RandomSkewers(repeat.vector = reps_RS)
 # rs_data <- RS[[1]]
-#
+# 
 # reps_krz = llply(r_models, function(x) x$P) %>% laply(., MonteCarloRep, sample.size = 50, ComparisonFunc = KrzCor)
 # krz_data = llply(r_models, function(x) x$P) %>% KrzCor(repeat.vector = reps_krz)
-#
+# 
 # library(xtable)
 # reps = rbind(reps_krz, reps_RS)
 # colnames(reps) <- c("Control", "Increase h", "Increase s", "Reduce h", "Reduce s")
 # rownames(reps) <- c("Krzanowski", "Random Skewers")
 # xtable(reps, digits = 3)
-#
+# 
 # mat_data <- rs_data
 # mat_data[lower.tri(mat_data)] <- t(krz_data)[lower.tri(krz_data)]
 # diag(mat_data) <- NA
@@ -61,8 +61,7 @@ matrix_comparisons <- ggplot (m.rs) +
           legend.text = element_text(size = 7),
           rect = element_blank(), line = element_blank())
 
-traits = select(full_data, P49, IS_PM:BA_OPI)
-traits$P49 %<>% log
+traits = select(full_data, IS_PM:BA_OPI)
 #delta_Zs <- llply(main.data, function(x) x$ed.means - main.data$control.control$ed.means)
 delta_Zs <- llply(main.data, function(x) x$ed.means - colMeans(traits))
 
@@ -118,12 +117,12 @@ figure_4 <- DzPC1 + theme(legend.position = c(0.2, 0.15))
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
           ncol = 1,
           nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 3)
+          base_aspect_ratio = 1.3, base_height = 4)
 
 
-PCones <- t(laply(r_models, function(x) eigen(aaply(x$Ps, 2:3, median)[-1, -1])$vectors[,1]))
+PCones <- t(laply(r_models, function(x) eigen(aaply(x$Ps, 2:3, median))$vectors[,1]))
 colnames(PCones) <- c("Control", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")
-rownames(PCones) <- rownames(main.data[[1]]$cov.matrix)[-1]
+rownames(PCones) <- rownames(main.data[[1]]$cov.matrix)
 
 library(xtable)
 xtable(PCones, digits = 3)

@@ -1,8 +1,8 @@
 source('./R/read_ratones.R')
 if(!require(doMC)) {install.packages('doMC'); library(doMC)}
 
-registerDoMC(4)
-num.traits = 36
+registerDoMC(5)
+num.traits = 35
 
 find_CI = function(x, prob = 0.95){
   n = length(x)
@@ -50,11 +50,11 @@ find_CI_lower = function(x, prob = 0.95){
 }
 
 runMCMCmodelsRatones <- function (x) {
-  x$ed.raw$P49 %<>% log
+  #x$ed.raw$P49 %<>% log
   full_data_scaled <- cbind(x$info[,-8], scale(x$ed))
 
   value = paste("cbind(",
-                paste(names(select(full_data_scaled, P49:BA_OPI)), collapse = ', '),
+                paste(names(select(full_data_scaled, IS_PM:BA_OPI)), collapse = ', '),
                 ")", sep = '')
 
   fixed_effects = "trait:SEX + trait:AGE - 1"
