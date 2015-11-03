@@ -12,6 +12,8 @@ if(!require(cowplot)) {install.packages('cowplot'); library(cowplot)}
 if(!require(plsdepot)) {install.packages('plsdepot'); library(plsdepot)}
 if(!require(xtable)) {install.packages('xtable'); library(xtable)}
 
+setwd("~/projects/ratones/")
+
 vectorCor <- function(x, y) t(Normalize(x)) %*% Normalize(y)
 
 gm_mean = function(x, na.rm=TRUE, zero.propagate = FALSE){
@@ -114,7 +116,7 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS4.pdf", full_trait_
 
 p49_full_data = m_full_data %>% filter(variable == 'P49')
 p49_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
-p49_plot = ggplot(p49_full_data, aes(original_line, value, group = original_line, fill = selection)) + geom_boxplot() + scale_color_manual(values = c(c, dw, up)) + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weigth at 49 days (g)", x = "line")
+p49_plot = ggplot(p49_full_data, aes(line, value, group = original_line, fill = selection)) + geom_boxplot() + scale_color_manual(values = c(c, dw, up)) + scale_fill_manual(values = c(c, dw, up)) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weigth at 49 days (g)", x = "line")
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS2.pdf", p49_plot, base_height = 4, base_aspect_ratio = 1.7)
   

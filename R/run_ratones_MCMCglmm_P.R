@@ -1,7 +1,7 @@
 source('./R/read_ratones.R')
 if(!require(doMC)) {install.packages('doMC'); library(doMC)}
 
-registerDoMC(10)
+registerDoMC(4)
 num.traits = 36
 
 find_CI = function(x, prob = 0.95){
@@ -52,41 +52,41 @@ find_CI_lower = function(x, prob = 0.95){
 runMCMCmodelsRatones <- function (x) {
   x$ed.raw$P49 %<>% log
   full_data_scaled <- cbind(x$info[,-8], scale(x$ed))
-  
+
   value = paste("cbind(",
                 paste(names(select(full_data_scaled, P49:BA_OPI)), collapse = ', '),
                 ")", sep = '')
-  
+
   fixed_effects = "trait:SEX + trait:AGE - 1"
-  
+
   mcmc_formula = as.formula(paste(value, fixed_effects, sep = " ~ "))
-  
+
   prior <- list(R = list(V = diag(num.traits), n = 2.5))
-  ratones_model_corr <- MCMCglmm(mcmc_formula, 
+  ratones_model_corr <- MCMCglmm(mcmc_formula,
                             data = full_data_scaled,
                             rcov = ~us(trait):units,
                             family = rep("gaussian", num.traits),
-                            nitt=130000, thin = 1000, burnin = 30000,
+                            nitt=1030000, thin = 1000, burnin = 30000,
                             prior = prior,
                             verbose = TRUE)
-  corrPs = array(ratones_model_corr$VCV, dim = c(100, num.traits, num.traits))
+  corrPs = array(ratones_model_corr$VCV, dim = c(1000, num.traits, num.traits))
   corrPs = aaply(corrPs, 1, cov2cor)
   corrP = apply(corrPs, 2:3, mean)
-  
+
   full_data <- cbind(x$info[,-8], x$ed)
   prior <- list(R = list(V = diag(num.traits), n = 0.01))
-  ratones_model_var <- MCMCglmm(mcmc_formula, 
+  ratones_model_var <- MCMCglmm(mcmc_formula,
                             data = full_data,
                             rcov = ~idh(trait):units,
                             family = rep("gaussian", num.traits),
-                            nitt=130000, thin = 1000, burnin = 30000,
+                            nitt=1030000, thin = 1000, burnin = 30000,
                             prior = prior,
                             verbose = TRUE)
   varPs = aaply(ratones_model_var$VCV, 1, function(x) outer(sqrt(x), sqrt(x)))
   Ps = corrPs * varPs
   P = apply(Ps, 2:3, median)
   return(list(Ps = Ps,
-              corrPs = corrPs, 
+              corrPs = corrPs,
               P = P,
               corrP = corrP,
               mcor = ratones_model_corr,
@@ -94,10 +94,9 @@ runMCMCmodelsRatones <- function (x) {
 }
 
 #r_models = llply(main.data, runMCMCmodelsRatones, .parallel = TRUE)
+#new_names = names(main.data)
+#for(i in 1:length(r_models)) r_models[[i]]$line <- new_names[[i]]
 #save(r_models, file = "Rdatas/ratonesMCMCmodels.RData")
 load("Rdatas/ratonesMCMCmodels.RData")
-new_names = names(main.data)[c(1, 4, 5, 2, 3)]
-for(i in 1:length(r_models)) r_models[[i]]$line <- new_names[[i]]
-names(r_models) <- new_names
 
 
