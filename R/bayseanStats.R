@@ -2,13 +2,13 @@ source("R/run_ratones_MCMCglmm_P.R")
 
 # mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE, .inform = TRUE))
 # save(mcmc_stats, file = "./Rdatas/mcmc_stats")
-# load("./Rdatas/mcmc_stats")
+load("./Rdatas/mcmc_stats")
 names(mcmc_stats)[4] <- 'pc1.percent'
 
   global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
   global_stats$line <- factor(global_stats$line, levels = lines)
-  r2_plot <- ggplot(global_stats, aes(line, value, group = interaction(selection, line, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "")
+  r2_plot <- ggplot(global_stats, aes(line, value, group = interaction(selection, line, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "") + theme(legend.position = c(0.15, 0.8)) 
 
   global_stats <- mcmc_stats %>% select(.id, flexibility) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
@@ -96,8 +96,7 @@ evolvability_plot <- ggplot(evolvability_data, aes(line, value, group = interact
 
 
 figure_2 <- ggdraw() +
-  draw_plot(r2_plot +
-              theme(legend.position = c(0.15, 0.8)) , 0, 0.5, 0.5, 0.5) +
+  draw_plot(r2_plot + theme(axis.title.y = element_text(size = rel(1.4))), 0, 0.5, 0.5, 0.5) +
   draw_plot(pc1.percent_plot, 0.5, 0.5, 0.5, 0.5) +
   draw_plot(flexibility_plot, 0, 0, 0.5, 0.5) +
   draw_plot(evolvability_plot, 0.5, 0, 0.5, 0.5) +

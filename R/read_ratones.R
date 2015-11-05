@@ -138,6 +138,8 @@ full_data %>% count(line, selection) %>% xtable
 
 cvs = data.frame(t(laply(main.data, function(x) sqrt(diag(x$cov.matrix))/ x$ed.means)))
 names(cvs) <- names(main.data)
-cvs$traits = factor(rownames(cvs), levels = rownames(cvs))
+cvs$traits = factor(rownames(cvs), levels = rownames(cvs)[order(cvs$control.control)])
 
-cv_plot = ggplot(melt(cvs), aes(traits, value, group = variable, color=  variable)) + geom_point() + geom_line() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x = "Traits", y = "Coeficient of variation") + scale_color_discrete(name = "line")
+cv_plot = ggplot(melt(cvs), aes(traits, value, group = variable, color=  variable)) + geom_point() + geom_line() + theme(axis.text.x = element_text(angle = 45, hjust = 1)) + labs(x = "Traits", y = "Coeficient of variation") + scale_color_discrete(name = "line") + scale_y_continuous(limits = c(0, 0.2)) + background_grid(major = 'y', minor = "y") + theme(legend.position = c(0.15, 0.8))
+
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figureS6.pdf", cv_plot, base_height = 5.5, base_aspect_ratio = 2)
