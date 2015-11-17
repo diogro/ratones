@@ -128,3 +128,11 @@ xtable(PCones, digits = 3)
 
 PC1_iso_cor = aaply(PCones, 2, function(x) abs(vectorCor(x, sqrt(rep(1/35, 35)))))
 
+
+load("./Rdatas/PG.Calomys.RData")
+
+G_comp = cbind(RandomSkewers(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,1:2],
+               KrzCor(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,2])
+names(G_comp) = c(".id", "Random Skewers", "Krzanowski")
+G_comp %>% separate(.id, c("selection", "line"), sep = "\\.") %>% {xtable(.[,c(2, 1, 3, 4)])}
+ 
