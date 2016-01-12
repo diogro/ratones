@@ -9,7 +9,7 @@ matrix_median <- function(mat.list){
 #source("R/run_ratones_MCMCglmm_P.R")
 source("R/read_ratones.R")
 
-r_models = llply(main.data, function(x) evolqg:::CalculateMatrix_Baysean(x$model, samples = 100, nu = 2))
+r_models = llply(main.data, function(x) evolqg:::CalculateMatrix_Baysean(x$model, samples = 1000, nu = 2))
 for(i in 1:length(r_models)){
   r_models[[i]]$line <- names(r_models)[1]
   r_models[[i]]$P <- matrix_median(r_models[[i]]$Ps)
