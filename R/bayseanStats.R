@@ -1,20 +1,36 @@
-source("R/run_ratones_MCMCglmm_P.R")
+if(!require(doMC)) {install.packages('doMC'); library(doMC)}
+registerDoMC(4)
 
+matrix_median <- function(mat.list){
+  x = laply(mat.list, identity)
+  aaply(x, 2:3, median)
+}
+
+#source("R/run_ratones_MCMCglmm_P.R")
+source("R/read_ratones.R")
+
+r_models = llply(main.data, function(x) evolqg:::CalculateMatrix_Baysean(x$model, samples = 100, nu = 2))
+for(i in 1:length(r_models)){
+  r_models[[i]]$line <- names(r_models)[1]
+  r_models[[i]]$P <- matrix_median(r_models[[i]]$Ps)
+}
+
+mcmc_stats = tbl_df(ldply(r_models, function(x) ldply(x$Ps, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE, .inform = TRUE))
 # mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE, .inform = TRUE))
 # save(mcmc_stats, file = "./Rdatas/mcmc_stats")
-load("./Rdatas/mcmc_stats")
-names(mcmc_stats)[4] <- 'pc1.percent'
+#load("./Rdatas/mcmc_stats")
+names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
 
   global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
   global_stats$line <- factor(global_stats$line, levels = lines)
-  r2_plot <- ggplot(global_stats, aes(line, value, group = interaction(selection, line, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "") + theme(legend.position = c(0.15, 0.8)) 
+  r2_plot <- ggplot(global_stats, aes(line, value, group = interaction(selection, line, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "") + theme(legend.position = c(0.15, 0.8))
 
   global_stats <- mcmc_stats %>% select(.id, flexibility) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
   global_stats$line <- factor(global_stats$line, levels = lines)
   flexibility_plot <- ggplot(global_stats, aes(line, value, group = interaction(selection, line, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean flexibility", x = "") + theme(legend.position = "none", text = element_text(size = 20))
-
+  
   global_stats <- mcmc_stats %>% select(.id, pc1.percent) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
   global_stats$line <- factor(global_stats$line, levels = lines)
@@ -38,8 +54,25 @@ names(mcmc_stats)[4] <- 'pc1.percent'
 # mat_data[lower.tri(mat_data)] <- t(krz_data)[lower.tri(krz_data)]
 # diag(mat_data) <- NA
 # save(mat_data,file = "./Rdatas/mat_data.Rdata")
-load("./Rdatas/mat_data.Rdata")
+#load("./Rdatas/mat_data.Rdata")
 
+reps_RS = laply(r_models, function(x) mean(RandomSkewers(x$Ps, x$MAP)[,1]))
+RS = llply(r_models, function(x) x$MAP) %>% RandomSkewers(repeat.vector = reps_RS)
+rs_data <- RS[[1]]
+  
+reps_krz = laply(r_models, function(x) mean(KrzCor(x$Ps, x$MAP)))
+krz_data = llply(r_models, function(x) x$MAP) %>% KrzCor(repeat.vector = reps_krz)
+  
+library(xtable)
+reps = rbind(reps_krz, reps_RS)
+colnames(reps) <- c("Control t", "Increase h", "Increase s", "Reduce h", "Reduce s")
+rownames(reps) <- c("Krzanowski", "Random Skewers")
+xtable(reps, digits = 3)
+  
+mat_data <- rs_data
+mat_data[lower.tri(mat_data)] <- t(krz_data)[lower.tri(krz_data)]
+diag(mat_data) <- NA
+  
 myPalette <- colorRampPalette(c("yellow", "white", "red"))(n = 100)
 #myPalette <- colorRampPalette(c("yellow", "white", "purple"))(n = 100)
 m.rs = melt(mat_data)
@@ -70,13 +103,14 @@ directionalVariation <- function(cov.matrix, line){
   data.frame(DZpc1 = abs(vectorCor(delta_Z, eigen(cov.matrix)$vector[,1])))
 }
 
-DzPC1_stat <- ldply(r_models[-1], function(model) adply(model$Ps, 1,
+
+DzPC1_stat <- ldply(r_models[-1], function(model) ldply(model$Ps,
                                                           directionalVariation,
                                                           model$line), .parallel = TRUE)
 
 DzPC1_data <- DzPC1_stat %>% select(.id, DZpc1) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
 DzPC1_data$line = factor(DzPC1_data$line, levels = lines[-1])
-DzPC1 = ggplot(DzPC1_data, aes(line, value, group = interaction(selection, line), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(dw, up)) + labs(y = expression(paste("Vector correlation of ", Delta, "z and PC1"))) + background_grid(major = 'y', minor = "none") +  panel_border()
+DzPC1 = ggplot(DzPC1_data, aes(line, value, group = interaction(selection, line), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(dw, up)) + labs(y = expression(paste("Vector correlation of ", Delta, "z and PC1"))) + background_grid(major = 'y', minor = "none") +  panel_border() + theme_bw()
 
 scaledEvolvability <- function(cov.matrix, line){
   delta_Z <- delta_Zs[[line]]
@@ -119,8 +153,8 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
           base_aspect_ratio = 1.3, base_height = 4)
 
 
-PCones <- t(laply(r_models, function(x) eigen(aaply(x$Ps, 2:3, median))$vectors[,1]))
-colnames(PCones) <- c("Control", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")
+PCones <- t(laply(r_models, function(x) eigen(x$MAP)$vectors[,1]))
+colnames(PCones) <- c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")
 rownames(PCones) <- rownames(main.data[[1]]$cov.matrix)
 
 library(xtable)
@@ -128,11 +162,10 @@ xtable(PCones, digits = 3)
 
 PC1_iso_cor = aaply(PCones, 2, function(x) abs(vectorCor(x, sqrt(rep(1/35, 35)))))
 
-
 load("./Rdatas/PG.Calomys.RData")
 
-G_comp = cbind(RandomSkewers(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,1:2],
-               KrzCor(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,2])
+G_comp = cbind(RandomSkewers(llply(r_models, `[[`, "MAP"), Calomys.Pacote$G)[,1:2],
+                      KrzCor(llply(r_models, `[[`, "MAP"), Calomys.Pacote$G)[,2])
 names(G_comp) = c(".id", "Random Skewers", "Krzanowski")
 G_comp %>% separate(.id, c("selection", "line"), sep = "\\.") %>% {xtable(.[,c(2, 1, 3, 4)])}
  

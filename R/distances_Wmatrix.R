@@ -50,4 +50,4 @@ cv_plot_12 <- ggplot(resp, aes(CV1, CV2)) +
   annotate("text", -1.5, -2, label = "downwards s", color = dw, size = 15) + 
   annotate("text", 0.5, 2.5, label = "control t", color = c, size = 15) 
 
-save_plot(plot = cv_plot_12, "~/Dropbox/labbio/Shared Lab/Ratones_shared/figure1.pdf", base_height = 10)
+save_plot(plot = cv_plot_12, paste0(figure_folder, "figure1.png"), base_height = 10, base_aspect_ratio = 1.5)
