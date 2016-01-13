@@ -6,7 +6,7 @@ if(!require(ggplot2)) {install.packages('ggplot2'); library(ggplot2)}
 if(!require(tidyr)) {install.packages('tidyr'); library(tidyr)}
 if(!require(MCMCglmm)) {install.packages('MCMCglmm'); library(MCMCglmm)}
 if(!require(reshape2)) {install.packages('reshape2'); library(reshape2)}
-if(!require(evolqg)) {devtools::install_github('lem-usp/evolqg'); library(evolqg)}
+if(!require(evolqg)) {devtools::install_github('diogro/evolqg'); library(evolqg)}
 if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
 if(!require(cowplot)) {install.packages('cowplot'); library(cowplot)}
 if(!require(plsdepot)) {install.packages('plsdepot'); library(plsdepot)}

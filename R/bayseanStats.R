@@ -1,21 +1,22 @@
 if(!require(doMC)) {install.packages('doMC'); library(doMC)}
-registerDoMC(4)
-
-matrix_median <- function(mat.list){
-  x = laply(mat.list, identity)
-  aaply(x, 2:3, median)
-}
+registerDoMC(5)
 
 #source("R/run_ratones_MCMCglmm_P.R")
 source("R/read_ratones.R")
 
-r_models = llply(main.data, function(x) evolqg:::CalculateMatrix_Baysean(x$model, samples = 1000, nu = 2))
+r_models = llply(main.data, function(x) evolqg:::CalculateMatrix_Baysean(x$model, samples = 1000, nu = 3))
 for(i in 1:length(r_models)){
   r_models[[i]]$line <- names(r_models)[1]
-  r_models[[i]]$P <- matrix_median(r_models[[i]]$Ps)
 }
 
-mcmc_stats = tbl_df(ldply(r_models, function(x) ldply(x$Ps, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE, .inform = TRUE))
+for(i in 1:length(r_models)){
+  if(any(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)){
+  x = r_models[[i]]$Ps[(which(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)),,]
+  r_models[[i]]$Ps[(which(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)),,] <- (x + t(x))/2
+  }
+}
+
+mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
 # mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE, .inform = TRUE))
 # save(mcmc_stats, file = "./Rdatas/mcmc_stats")
 #load("./Rdatas/mcmc_stats")
@@ -56,12 +57,12 @@ names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
 # save(mat_data,file = "./Rdatas/mat_data.Rdata")
 #load("./Rdatas/mat_data.Rdata")
 
-reps_RS = laply(r_models, function(x) mean(RandomSkewers(x$Ps, x$MAP)[,1]))
-RS = llply(r_models, function(x) x$MAP) %>% RandomSkewers(repeat.vector = reps_RS)
+reps_RS = laply(r_models, function(x) mean(RandomSkewers(alply(x$Ps, 1), x$P)[,2]))
+RS = llply(r_models, function(x) x$P) %>% RandomSkewers(repeat.vector = reps_RS)
 rs_data <- RS[[1]]
   
-reps_krz = laply(r_models, function(x) mean(KrzCor(x$Ps, x$MAP)))
-krz_data = llply(r_models, function(x) x$MAP) %>% KrzCor(repeat.vector = reps_krz)
+reps_krz = laply(r_models, function(x) mean(KrzCor(alply(x$Ps, 1), x$P)[,2]))
+krz_data = llply(r_models, function(x) x$P) %>% KrzCor(repeat.vector = reps_krz)
   
 library(xtable)
 reps = rbind(reps_krz, reps_RS)
@@ -104,7 +105,7 @@ directionalVariation <- function(cov.matrix, line){
 }
 
 
-DzPC1_stat <- ldply(r_models[-1], function(model) ldply(model$Ps,
+DzPC1_stat <- ldply(r_models[-1], function(model) adply(model$Ps, 1, 
                                                           directionalVariation,
                                                           model$line), .parallel = TRUE)
 
@@ -153,7 +154,7 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
           base_aspect_ratio = 1.3, base_height = 4)
 
 
-PCones <- t(laply(r_models, function(x) eigen(x$MAP)$vectors[,1]))
+PCones <- t(laply(r_models, function(x) eigen(x$P)$vectors[,1]))
 colnames(PCones) <- c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")
 rownames(PCones) <- rownames(main.data[[1]]$cov.matrix)
 
@@ -164,8 +165,8 @@ PC1_iso_cor = aaply(PCones, 2, function(x) abs(vectorCor(x, sqrt(rep(1/35, 35)))
 
 load("./Rdatas/PG.Calomys.RData")
 
-G_comp = cbind(RandomSkewers(llply(r_models, `[[`, "MAP"), Calomys.Pacote$G)[,1:2],
-                      KrzCor(llply(r_models, `[[`, "MAP"), Calomys.Pacote$G)[,2])
+G_comp = cbind(RandomSkewers(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,1:2],
+                      KrzCor(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,2])
 names(G_comp) = c(".id", "Random Skewers", "Krzanowski")
 G_comp %>% separate(.id, c("selection", "line"), sep = "\\.") %>% {xtable(.[,c(2, 1, 3, 4)])}
  
