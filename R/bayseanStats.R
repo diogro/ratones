@@ -1,10 +1,10 @@
 if(!require(doMC)) {install.packages('doMC'); library(doMC)}
-registerDoMC(5)
+registerDoMC(4)
 
 #source("R/run_ratones_MCMCglmm_P.R")
 source("R/read_ratones.R")
 
-r_models = llply(main.data, function(x) evolqg:::CalculateMatrix_Baysean(x$model, samples = 1000, nu = 3))
+r_models = llply(main.data, function(x) evolqg:::CalculateMatrix_Baysean(x$model, samples = 100, nu = 3))
 for(i in 1:length(r_models)){
   r_models[[i]]$line <- names(r_models)[1]
 }
