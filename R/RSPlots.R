@@ -15,8 +15,7 @@ RSresults <- list()
 for(i in 1:(p-1)){
   for(j in (i+1):p){
     pair <- paste(n[i], n[j], sep = "-")
-    RSresults[[pair]] <-  aaply(1:num_samples, 1, 
-                                function(k) RandomSkewers(mats[[i]][k,,], mats[[j]][k,,])[1])
+    RSresults[[pair]] <- RandomSkewers(mats[[i]], mats[[j]])
   }
 }
 rs_intervals <- ldply(RSresults, quantile, c(0.025, 0.5, 0.975))
@@ -27,8 +26,7 @@ KRZresults <- list()
 for(i in 1:(p-1)){
   for(j in (i+1):p){
     pair <- paste(n[i], n[j], sep = "-")
-    KRZresults[[pair]] <- aaply(1:num_samples, 1, 
-                                function(k) KrzCor(mats[[i]][k,,], mats[[j]][k,,]))
+    KRZresults[[pair]] <- KrzCor(mats[[i]], mats[[j]])
   }
 }
 krz_intervals <- ldply(KRZresults, quantile, c(0.025, 0.5, 0.975))

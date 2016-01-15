@@ -57,11 +57,11 @@ names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
 # save(mat_data,file = "./Rdatas/mat_data.Rdata")
 #load("./Rdatas/mat_data.Rdata")
 
-reps_RS = laply(r_models, function(x) mean(RandomSkewers(alply(x$Ps, 1), x$P)[,2]))
+reps_RS = laply(r_models, function(x) mean(RandomSkewers(x$Ps, x$P)))
 RS = llply(r_models, function(x) x$P) %>% RandomSkewers(repeat.vector = reps_RS)
 rs_data <- RS[[1]]
   
-reps_krz = laply(r_models, function(x) mean(KrzCor(alply(x$Ps, 1), x$P)[,2]))
+reps_krz = laply(r_models, function(x) mean(KrzCor(x$Ps, x$P)))
 krz_data = llply(r_models, function(x) x$P) %>% KrzCor(repeat.vector = reps_krz)
   
 library(xtable)
