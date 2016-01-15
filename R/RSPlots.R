@@ -38,8 +38,8 @@ intervals <- rbind(rs_intervals, krz_intervals)
 mean_comp <- ddply(intervals, .(comparison), numcolwise(mean))
 
 rs_plot <- ggplot(intervals, aes_string("pair", "median", group = "comparison", color = "comparison")) + 
-  geom_point(position = position_dodge(width = 0.25)) + 
-  geom_linerange(position = position_dodge(width = 0.25), 
+  geom_point(position = position_dodge(width = 0.4), aes_string(shape = "comparison"), size = 3) + 
+  geom_linerange(position = position_dodge(width = 0.4), 
                  aes_string(ymin = "lower", ymax = "upper", position = "comparison")) +  
   geom_hline(data = mean_comp, aes_string(yintercept = "median", color = "comparison")) + 
   coord_flip() + theme(legend.position = c(0.2, 0.9)) + labs(y = "Matrix comparison", x = "Matrix pair")
