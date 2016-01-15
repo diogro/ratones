@@ -109,13 +109,14 @@ full_data = ldply(main.data, function(x) x$full)
 Wmat <- CalculateMatrix(lm(as.matrix(select(full_data, IS_PM:BA_OPI)) ~ full_data$SEX*full_data$LIN))
 
 
-r_models = llply(main.data, function(x) evolqg:::CalculateMatrix_Baysean(x$model, samples = 100, nu = 3))
+r_models = llply(main.data, function(x) BayesianCalculateMatrix(x$model, samples = 100, nu = 3))
 for(i in 1:length(r_models)){
   r_models[[i]]$line <- names(r_models)[1]
 }
 
 for(i in 1:length(r_models)){
   if(any(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)){
+    print("non symmetric")
     x = r_models[[i]]$Ps[(which(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)),,]
     r_models[[i]]$Ps[(which(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)),,] <- (x + t(x))/2
   }
