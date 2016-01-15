@@ -4,18 +4,6 @@ registerDoMC(4)
 #source("R/run_ratones_MCMCglmm_P.R")
 source("R/read_ratones.R")
 
-r_models = llply(main.data, function(x) evolqg:::CalculateMatrix_Baysean(x$model, samples = 100, nu = 3))
-for(i in 1:length(r_models)){
-  r_models[[i]]$line <- names(r_models)[1]
-}
-
-for(i in 1:length(r_models)){
-  if(any(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)){
-  x = r_models[[i]]$Ps[(which(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)),,]
-  r_models[[i]]$Ps[(which(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)),,] <- (x + t(x))/2
-  }
-}
-
 mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
 # mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE, .inform = TRUE))
 # save(mcmc_stats, file = "./Rdatas/mcmc_stats")
