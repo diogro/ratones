@@ -39,6 +39,37 @@ names(Demog)[3] <- "line"
 Demog$original.line <- Demog$line
 Demog$original.line %<>% gsub("\\.", "'", .)
 
+hand.plot.dem <- Demog %>% filter(GEN == 55 & original.line == "t" |
+                                  GEN == 47 & original.line == "h'" |
+                                  GEN == 47 & original.line == "h" |
+                                  GEN == 48 & original.line == "h" |
+                                  GEN == 52 & original.line == "s'" |
+                                  GEN == 52 & original.line == "s" |
+                                  GEN == 53 & original.line == "s" 
+)
+
+labels.lines = c("t" = "control t", "h" = "downwards h", "h'" = "upwards h'", "s" = "downwards s", "s'" = "upwards s'")
+
+demo.plot <- Demog %>% ggplot(aes(x= GEN, y= Census, group = interaction(SEX, line), color = SEX, shape =original.line) ) +
+  geom_point(size =3) +
+  geom_line() +
+  geom_point(data = hand.plot.dem, shape = 16, color = "darkgrey", size = 5, alpha = 0.8) +
+  facet_wrap(~ original.line, nrow = 3, scales =  "free_y", labeller = as_labeller(labels.lines) )+
+  scale_x_discrete(breaks = seq(from = 0, to = 55, 5), labels = seq(from = 0, to = 55, 5)) +
+  ylab( "Weighted individuals" ) +
+  xlab ("Generations") +
+  scale_shape_manual(values = c(22,15, 17, 2, 19 )) +
+  #scale_color_manual(values = c(c, dw, up))  +
+  labs(shape = "lines", color ="sex") +
+  panel_border() +
+  theme(legend.position = c(0.8, 0.2),
+        legend.direction = "horizontal",
+        strip.background = element_rect(fill = "transparent") )
+
+save_plot(filename = "demography_by_generation.png", plot = demo.plot, 
+          base_aspect_ratio = 0.9, base_height = 8)
+
+
 Demog %>% ggplot(aes(x=GEN, y=Census, group = interaction(selection, line), color = selection, shape =original.line) ) +
   geom_point(size = 3) +
   geom_line() +
