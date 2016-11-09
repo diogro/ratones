@@ -4,7 +4,7 @@ library(ggplot2)
 library(reshape2)
 library(cowplot)
 
-num_samples = 100
+num_samples = 500
 
 mats = llply(r_models, function(x) x$Ps)
 
