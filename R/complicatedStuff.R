@@ -94,3 +94,25 @@ evol_norm <- melt(rbind(treatment, control))[-2]
 evol_norm %>% separate(.id, c( 'treatment', 'line')) %>% filter(variable == 'evol_Random_notDZ' | variable == 'evol_DZ') %>%
   ggplot(aes(type, value, group = interaction(treatment, line, variable, type), fill = line)) + geom_boxplot() +  facet_grid(variable~treatment, scales = 'free_y') + scale_fill_manual(values = c(h, s)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "", x = "Treatment")
 
+
+directionalEvolvability <- function(cov.matrix, line, num_vector = 100000, control = r_models[[1]]$MAP){
+  pc1 = eigen(cov.matrix)$vectors[,1]
+  out  = NULL
+  while(TRUE){
+    rand_vector = rnorm(length(delta_Z))
+    if(abs(vectorCor(rand_vector, pc1)) < 0.01){
+      beta_mat_notPC1[, i] <- Normalize(rand_vector)
+      break
+    }
+  }
+  for(i in 1:num_vector){
+    
+      rand_vector = rnorm(length(pc1))
+      corBetaPc1 = abs(vectorCor(rand_vector, rep(1, length(pc1)))) 
+      evolLine = Evolvability(cov.matrix, rand_vector)
+      evolCont = Evolvability(control, rand_vector)
+      out = rbind(out, data.frame(direction = corBetaPc1, evolRatio = evolLine/evolCont))
+  }
+  out
+}
+plot(directionalEvolvability(r_models[[2]]$MAP, 2))

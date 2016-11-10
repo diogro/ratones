@@ -73,9 +73,9 @@ raw.data %<>% filter(P49 < 50) %>%
               filter(ID != 270556) %>% #outlier in biplot prcomp - reduce.h
               filter(ID != 270190)     #outlier in biplot prcomp - reduce.s
 
-raw.main.data <- dlply(raw.data, .(selection), tbl_df)
+raw.main.data <- dlply(raw.data, .(selection, line), tbl_df)
 
-current.data <- raw.main.data[[1]]
+current.data <- raw.main.data[[4]]
 
 makeMainData <- function (current.data) {
   x = vector("list", 11)
@@ -89,15 +89,13 @@ makeMainData <- function (current.data) {
   names(x)[1:4] <- c('info.raw', 'ed.raw', 'info', 'ed')
   x[[5]] <- CalcRepeatability(current.data$ID, ind.data = x$ed.raw[,-1])
   names(x)[5] <- 'reps'
-  if(unique(x$info$line)[1] == "t")   sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
-  else sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$line + x$info$SEX + x$info$AGE)
+  sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
   sex_age_res <- residuals(sex_age_lm)
   p49_traits_pls <- plsreg1(sex_age_res[,2:35], sex_age_res[,1])
   #x[[10]] <- Normalize(p49_traits_pls$reg.coefs[-1])
   x[[10]] <- p49_traits_pls$reg.coefs[-1]
   #x$ed$P49 %<>% log
-  if(unique(x$info$line)[1] == "t") x[[6]] <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
-  else x[[6]] <- lm(as.matrix(x$ed) ~ x$info$line + x$info$SEX + x$info$AGE)
+  x[[6]] <- lm(as.matrix(x$ed) ~ x$info$SEX)
   x[[7]] <- CalculateMatrix(x[[6]])
   x[[8]] <- colMeans(x$ed)
   x[[9]] <- tbl_df(cbind(x$info, x$ed))
