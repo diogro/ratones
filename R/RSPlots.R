@@ -51,7 +51,7 @@ mean_comp <- ddply(intervals, .(comparison), numcolwise(mean))
 
 rs_plot <- ggplot(intervals, aes_string("pair", "median", group = "comparison", color = "comparison")) + 
   geom_point(position = position_dodge(width = 0.4), aes_string(shape = "comparison"), size = 3) + 
-  geom_point(data = comp.map, position = position_dodge(width = 0.4), aes_string(y = "value", shape = "comparison"), size = 3) + 
+#  geom_point(data = comp.map, position = position_dodge(width = 0.4), aes_string(y = "value", shape = "comparison"), size = 3) + 
   geom_linerange(position = position_dodge(width = 0.4), 
                  aes_string(ymin = "lower", ymax = "upper", position = "comparison")) +  
   geom_hline(data = mean_comp, aes_string(yintercept = "median", color = "comparison")) + 

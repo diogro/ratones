@@ -75,7 +75,7 @@ raw.data %<>% filter(P49 < 50) %>%
 
 raw.main.data <- dlply(raw.data, .(selection), tbl_df)
 
-current.data <- raw.main.data[[1]]
+current.data <- raw.main.data[[2]]
 
 makeMainData <- function (current.data) {
   x = vector("list", 11)
@@ -89,15 +89,15 @@ makeMainData <- function (current.data) {
   names(x)[1:4] <- c('info.raw', 'ed.raw', 'info', 'ed')
   x[[5]] <- CalcRepeatability(current.data$ID, ind.data = x$ed.raw[,-1])
   names(x)[5] <- 'reps'
-  if(unique(x$info$line)[1] == "t")   sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
-  else sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$line + x$info$SEX + x$info$AGE)
+  if(length(unique(x$info$original_line))==1)   sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
+  else sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$original_line*x$info$SEX*x$info$AGE)
   sex_age_res <- residuals(sex_age_lm)
   p49_traits_pls <- plsreg1(sex_age_res[,2:35], sex_age_res[,1])
   #x[[10]] <- Normalize(p49_traits_pls$reg.coefs[-1])
   x[[10]] <- p49_traits_pls$reg.coefs[-1]
   #x$ed$P49 %<>% log
-  if(unique(x$info$line)[1] == "t") x[[6]] <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
-  else x[[6]] <- lm(as.matrix(x$ed) ~ x$info$line + x$info$SEX + x$info$AGE)
+  if(length(unique(x$info$original_line))==1) x[[6]] <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
+  else x[[6]] <- lm(as.matrix(x$ed) ~ x$info$original_line*x$info$SEX*x$info$AGE)
   x[[7]] <- CalculateMatrix(x[[6]])
   x[[8]] <- colMeans(x$ed)
   x[[9]] <- tbl_df(cbind(x$info, x$ed))
@@ -108,8 +108,7 @@ makeMainData <- function (current.data) {
 main.data <- llply(raw.main.data, makeMainData)
 
 full_data = ldply(main.data, function(x) x$full)
-Wmat <- CalculateMatrix(lm(as.matrix(select(full_data, IS_PM:BA_OPI)) ~ full_data$SEX*full_data$LIN))
-
+Wmat <- CalculateMatrix(lm(as.matrix(select(full_data, IS_PM:BA_OPI)) ~ full_data$AGE*full_data$SEX*full_data$LIN))
 
 r_models = llply(main.data, function(x) BayesianCalculateMatrix(x$model, samples = 500, nu = 3))
 for(i in 1:length(r_models)){
@@ -123,3 +122,9 @@ for(i in 1:length(r_models)){
     r_models[[i]]$Ps[(which(aaply(r_models[[i]]$Ps, 1, isSymmetric)==FALSE)),,] <- (x + t(x))/2
   }
 }
+
+
+res = residuals(main.data$downwards$model) %*% eigen(r_models$downwards$MAP)$vectors
+cov(res)
+res_l = data.frame(res, main.data$downwards$info)
+ggplot(res_l, aes(X1, X2, color = line)) + geom_point()

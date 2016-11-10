@@ -71,10 +71,11 @@ m.rs.position = m.rs
 m.rs.position$Var1 <- as.numeric(m.rs.position$Var1)
 m.rs.position$Var2 <- as.numeric(m.rs.position$Var2)
 m.rs.position$value= round(m.rs.position$value, 3)
-m.rs.position$value[is.na(m.rs.position$value)] <- c("Control", "Downwards", "Upwards")
+#m.rs.position$value[is.na(m.rs.position$value)] <- c("Control", "Downwards", "Upwards")
+m.rs.position$value[is.na(m.rs.position$value)] <- c("Control t", "Downwards h", "Downwards s", "Upwards h'", "Upwards s'")
 matrix_comparisons <- ggplot (m.rs) +
     geom_tile(aes(x = Var2, y = Var1, fill = value)) +
-    scale_fill_gradientn(name = '', colours = myPalette, limits = c(0.5, 1)) +
+    scale_fill_gradientn(name = '', colours = myPalette, limits = c(0.7, 1)) +
     ylab ('') + xlab ('') +  
     geom_text(data = m.rs.position, size = 4, aes(x = Var2, y = Var1, label = value)) +
   theme_grey(base_size = 12, base_family = "") %+replace% 
@@ -146,7 +147,7 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
 
 
 PCones <- t(laply(r_models, function(x) eigen(x$P)$vectors[,1]))
-colnames(PCones) <- c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")
+colnames(PCones) <- c("Control", "Downwards", "Upwards")
 rownames(PCones) <- rownames(main.data[[1]]$cov.matrix)
 
 library(xtable)
