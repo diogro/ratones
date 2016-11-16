@@ -66,43 +66,33 @@ raw.data$line <- factor(raw.data$line, levels = lines)
 
 
 #Remove fat fucks
-raw.data %<>% filter(P49 < 50) %>%
+raw.data %<>% filter(P49 < 50)  %>%
               filter(ID != 270160) %>% #outlier in biplot prcomp - control
               filter(ID != 270493) %>% #outlier in biplot prcomp - increase.S
               filter(ID != 270200) %>% #outlier in biplot prcomp - reduce.h
               filter(ID != 270556) %>% #outlier in biplot prcomp - reduce.h
               filter(ID != 270190)     #outlier in biplot prcomp - reduce.s
 
-raw.main.data <- dlply(raw.data, .(selection), tbl_df)
+raw.main.data <- dlply(raw.data, .(selection, line), tbl_df)
 
 current.data <- raw.main.data[[2]]
 
 makeMainData <- function (current.data) {
-  x = vector("list", 11)
+  x = vector("list", 9)
+  names(x) <- c('info.raw', 'ed.raw', 'info', 'ed', 'reps', 'model', 'ed.means', 'full', 'gm_mean')
   current.data$AGE[is.na(current.data$AGE)] <- mean(current.data$AGE, na.rm = TRUE)
-  x[[1]] <- select(current.data, c(ID:TAKE, line, original_line, selection))
-  x[[2]] <- select(current.data, IS_PM:BA_OPI)
-  x[[3]] <- unique(select(current.data, c(ID:P49, line, original_line, selection)))
-  x[[4]] <- ddply(select(current.data, ID, IS_PM:BA_OPI), .(ID), numcolwise(mean))
+  x$info.raw = select(current.data, c(ID:TAKE, line, original_line, selection))
+  x$ed.raw   = select(current.data, ID, IS_PM:BA_OPI)
+  x$info     = arrange(unique(select(current.data, c(ID:P49, line, original_line, selection))), ID)
+  x$ed       = arrange(ddply(select(current.data, ID, IS_PM:BA_OPI), .(ID), numcolwise(mean)), ID)
+  x$full <- tbl_df(inner_join(x$info, x$ed, by = "ID"))
   set_row <- function(x) {rownames(x) <- x$ID; x[,-1]}
-  x[[4]] <- set_row(x[[4]])
-  names(x)[1:4] <- c('info.raw', 'ed.raw', 'info', 'ed')
-  x[[5]] <- CalcRepeatability(current.data$ID, ind.data = x$ed.raw[,-1])
-  names(x)[5] <- 'reps'
-  if(length(unique(x$info$original_line))==1)   sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
-  else sex_age_lm <- lm(as.matrix(x$ed) ~ x$info$original_line*x$info$SEX*x$info$AGE)
-  sex_age_res <- residuals(sex_age_lm)
-  p49_traits_pls <- plsreg1(sex_age_res[,2:35], sex_age_res[,1])
-  #x[[10]] <- Normalize(p49_traits_pls$reg.coefs[-1])
-  x[[10]] <- p49_traits_pls$reg.coefs[-1]
-  #x$ed$P49 %<>% log
-  if(length(unique(x$info$original_line))==1) x[[6]] <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
-  else x[[6]] <- lm(as.matrix(x$ed) ~ x$info$original_line*x$info$SEX*x$info$AGE)
-  x[[7]] <- CalculateMatrix(x[[6]])
-  x[[8]] <- colMeans(x$ed)
-  x[[9]] <- tbl_df(cbind(x$info, x$ed))
-  x[[11]] <- mean((apply(x[['ed']], 1, gm_mean)))
-  names(x)[6:11] <- c('model', 'cov.matrix', 'ed.means', 'full', 'plsr', 'gm_mean')
+  x$ed <- set_row(x$ed)
+  x$reps <- CalcRepeatability(x$ed.raw$ID, ind.data = x$ed.raw[,-1])
+  if(length(unique(x$info$original_line))==1) x$model <- lm(as.matrix(x$ed) ~ x$info$SEX + x$info$AGE)
+  else x$model <- lm(as.matrix(x$ed) ~ x$info$original_line + x$info$SEX + x$info$AGE)
+  x$ed.means <- colMeans(x$ed)
+  x$gm_mean <- mean((apply(x$'ed', 1, gm_mean)))
   return(x)
 }
 main.data <- llply(raw.main.data, makeMainData)
@@ -112,7 +102,7 @@ Wmat <- CalculateMatrix(lm(as.matrix(select(full_data, IS_PM:BA_OPI)) ~ full_dat
 
 r_models = llply(main.data, function(x) BayesianCalculateMatrix(x$model, samples = 500, nu = 3))
 for(i in 1:length(r_models)){
-  r_models[[i]]$line <- names(r_models)[1]
+  r_models[[i]]$line <- names(r_models)[i]
 }
 
 for(i in 1:length(r_models)){
@@ -123,8 +113,3 @@ for(i in 1:length(r_models)){
   }
 }
 
-
-res = residuals(main.data$downwards$model) %*% eigen(r_models$downwards$MAP)$vectors
-cov(res)
-res_l = data.frame(res, main.data$downwards$info)
-ggplot(res_l, aes(X1, X2, color = line)) + geom_point()
