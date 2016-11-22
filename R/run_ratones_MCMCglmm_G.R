@@ -7,6 +7,18 @@ count_ID <- table(ped[,1])
 ped <- ped[!(ped[,1] %in% names(which(count_ID > 1)) & is.na(ped[,2])),]
 ped <- orderPed (ped)
 
+library(R.matlab)
+library(pedigree)
+makeAinv(ped)
+Ai <- read.table("Ainv.txt")
+nInd <- nrow(ped)
+Ainv <- matrix(0,nrow = nInd,ncol = nInd)
+Ainv[as.matrix(Ai[,1:2])] <- Ai[,3]
+dd <- diag(Ainv)
+Ainv <- Ainv + t(Ainv)
+diag(Ainv) <- dd
+writeMat("./Gmatlab/Amatrix.mat", A = solve(Ainv))
+
 num.traits = 36
 
 x <- main.data[[1]]

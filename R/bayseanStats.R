@@ -8,25 +8,41 @@ source("R/read_ratones.R")
 
 mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
 save(mcmc_stats, file = "./Rdatas/mcmc_stats")
-#load("./Rdatas/mcmc_stats")
+load("./Rdatas/P_mcmc_stats")
 names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
 
-if(length(r_models) != 3){
-  global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, pc1.percent, evolvability) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
+  global_stats <- mcmc_stats %>% dplyr::select(.id, MeanSquaredCorrelation, flexibility, pc1.percent, evolvability) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
   global_stats$line <- factor(global_stats$line, levels = lines)
-  r2_plot <- ggplot(filter(global_stats, variable == "MeanSquaredCorrelation"), aes(line, value, group = interaction(selection, variable, line), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "") + theme(legend.position = c(0.15, 0.8))
-  flexibility_plot <- ggplot(filter(global_stats, variable == "flexibility"), aes(line, value, group = interaction(selection, variable, line), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean flexibility", x = "") + theme(legend.position = "none", text = element_text(size = 20))
-  pc1.percent_plot <- ggplot(filter(global_stats, variable == "pc1.percent"), aes(line, value, group = interaction(selection, variable, line), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Proportion of variation\n in PC1", x = "") + theme(legend.position = "none", text = element_text(size = 20))
-  evolvability_plot <- ggplot(filter(global_stats, variable == "evolvability"), aes(line, value, group = interaction(selection, variable, line), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean evolvability", x = "") + theme(legend.position = "none", text = element_text(size = 20))
-} else {
-  global_stats <- mcmc_stats %>% select(.id, MeanSquaredCorrelation, flexibility, pc1.percent, evolvability) %>% melt %>% separate(.id, c('selection'), sep = "\\.")
-  r2_plot <- ggplot(filter(global_stats, variable == "MeanSquaredCorrelation"), aes(selection, value, group = interaction(selection, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "") + theme(legend.position = c(0.15, 0.8))
-  flexibility_plot <- ggplot(filter(global_stats, variable == "flexibility"), aes(selection, value, group = interaction(selection, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean flexibility", x = "") + theme(legend.position = "none", text = element_text(size = 20))
-  pc1.percent_plot <- ggplot(filter(global_stats, variable == "pc1.percent"), aes(selection, value, group = interaction(selection, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Proportion of variation\n in PC1", x = "") + theme(legend.position = "none", text = element_text(size = 20))
-  evolvability_plot <- ggplot(filter(global_stats, variable == "evolvability"), aes(selection, value, group = interaction(selection, variable), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean evolvability", x = "") + theme(legend.position = "none", text = element_text(size = 20))
-} 
-  
+  r2_plot <- ggplot(filter(global_stats, variable == "MeanSquaredCorrelation"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean squared correlation", x = "") + theme(legend.position = c(0.8, 0.8))
+  flexibility_plot <- ggplot(filter(global_stats, variable == "flexibility"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean flexibility", x = "") + theme(legend.position = "none", text = element_text(size = 20))
+  pc1.percent_plot <- ggplot(filter(global_stats, variable == "pc1.percent"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Proportion of variation\n in PC1", x = "") + theme(legend.position = "none", text = element_text(size = 20))
+  evolvability_plot <- ggplot(filter(global_stats, variable == "evolvability"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line")+ background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean evolvability", x = "") + theme(legend.position = "none", text = element_text(size = 20))
+figure_2 <- ggdraw() +
+  draw_plot(r2_plot + theme(axis.title.y = element_text(size = rel(1.4))), 0, 0.5, 0.5, 0.5) +
+  draw_plot(pc1.percent_plot, 0.5, 0.5, 0.5, 0.5) +
+  draw_plot(flexibility_plot, 0, 0, 0.5, 0.5) +
+  draw_plot(evolvability_plot, 0.5, 0, 0.5, 0.5) +
+  draw_plot_label(c("A", "B", "C", "D"), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = 20)
+
+directionalVariation <- function(cov.matrix, line){
+  beta_s <- solve(cov.matrix, delta_Z)
+  beta_NN <- solve(ExtendMatrix(cov.matrix, ret.dim = 13)[[1]], delta_Z)  
+  data.frame(evolDZ = Evolvability(cov.matrix, Normalize(delta_Z)) / (sum(diag(cov.matrix))/ncol(cov.matrix)),
+             evolBeta = Evolvability(cov.matrix, Normalize(beta_NN)) / (sum(diag(cov.matrix))/ncol(cov.matrix)),
+             DZpc1 = abs(vectorCor(delta_Z, eigen(cov.matrix)$vector[,1])))
+}
+
+stats <- ldply(g_models, function(model) adply(model$Ps, 1, 
+                                               directionalVariation, 
+                                               model$line), .parallel = TRUE)
+
+DzPC1 <- stats %>% dplyr::select(-X1) %>% ggplot(aes(DZpc1, group = .id, fill = .id)) + geom_density(alpha = 0.5) + labs(x = expression(paste("Vector correlation of ", Delta, "z and PC1"))) + background_grid(major = 'y', minor = "none") +  panel_border()
+
+evolDZ <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolDZ, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = expression(paste("Ratio between mean evolvability and in the direction of ",Delta, "z"))) + labs(x = "Evolvability ratio") + background_grid(major = 'y', minor = "none") +  panel_border()
+
+evolBeta <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolBeta, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  ggtitle(expression(paste("Ratio between mean evolvability and in the direction of ",Delta, "z"))) + labs(x = "Evolvability ratio") + background_grid(major = 'y', minor = "none") +  panel_border()
+
 reps_RS = laply(r_models, function(x) mean(RandomSkewers(x$Ps, x$MAP)$correlation))
 RS = llply(r_models, function(x) x$MAP) %>% RandomSkewers(repeat.vector = reps_RS)
 rs_data <- RS[[1]]
@@ -60,19 +76,19 @@ if(length(r_models) == 3) {
 matrix_comparisons <- ggplot (m.rs) +
     geom_tile(aes(x = Var2, y = Var1, fill = value)) +
     scale_fill_gradientn(name = '', colours = myPalette, limits = c(0.7, 1)) +
-    ylab ('') + xlab ('') +  
+    ylab ('') + xlab ('') +
     geom_text(data = m.rs.position, size = 4, aes(x = Var2, y = Var1, label = value)) +
-  theme_grey(base_size = 12, base_family = "") %+replace% 
+  theme_grey(base_size = 12, base_family = "") %+replace%
   theme(rect = element_rect(fill = "transparent", colour = NA,
-                            color = NA, size = 0, linetype = 0), 
-        line = element_blank(), 
-        title = element_blank(), 
+                            color = NA, size = 0, linetype = 0),
+        line = element_blank(),
+        title = element_blank(),
         axis.text.x=element_blank(),
         axis.text.y=element_blank(),
-        panel.background = element_blank(), 
+        panel.background = element_blank(),
         axis.ticks.length = grid::unit(0, "lines"))
 
-traits = select(full_data, IS_PM:BA_OPI)
+traits = dplyr::select(full_data, IS_PM:BA_OPI)
 #delta_Zs <- llply(main.data, function(x) x$ed.means - main.data$control.control$ed.means)
 delta_Zs <- llply(main.data, function(x) x$ed.means - colMeans(traits))
 
@@ -86,7 +102,7 @@ DzPC1_stat <- ldply(r_models[-1], function(model) adply(model$Ps, 1,
                                                           directionalVariation,
                                                           model$line), .parallel = TRUE)
 
-DzPC1_data <- DzPC1_stat %>% select(.id, DZpc1) %>% melt %>% separate(.id, c('selection'), sep = "\\.")
+DzPC1_data <- DzPC1_stat %>% dplyr::select(.id, DZpc1) %>% melt %>% separate(.id, c('selection'), sep = "\\.")
 # DzPC1_data$line = factor(DzPC1_data$line, levels = lines[-1])
 DzPC1 = ggplot(DzPC1_data, aes(selection, value, group = interaction(selection), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(dw, up)) + labs(y = expression(paste("Vector correlation of ", Delta, "z and PC1"))) + background_grid(major = 'y', minor = "none") +  panel_border() + theme_bw()
 
@@ -95,12 +111,12 @@ DzPC1 = ggplot(DzPC1_data, aes(selection, value, group = interaction(selection),
 #   cov.matrix = cov.matrix / main.data[[line]]$gm_mean
 #   data.frame(scaled_evol = mean(Evolvability(cov.matrix)))
 # }
-# 
+#
 # scaled_mean_evol <- ldply(r_models, function(model) adply(model$Ps, 1,
 #                                                        scaledEvolvability,
 #                                                        model$line), .parallel = TRUE)
-# 
-# evolvability_data <- scaled_mean_evol %>% select(.id, scaled_evol) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
+#
+# evolvability_data <- scaled_mean_evol %>% dplyr::select(.id, scaled_evol) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
 # evolvability_data$line <- gsub('control', 't', evolvability_data$line)
 # evolvability_data$line = factor(evolvability_data$line, levels = lines)
 # evolvability_plot <- ggplot(evolvability_data, aes(line, value, group = interaction(selection, variable, line), fill = selection)) + geom_boxplot() + scale_fill_manual(values = c(c, dw, up)) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(y = "Mean evolvability", x = "") + theme(legend.position = "none", text = element_text(size = 20))
@@ -131,11 +147,12 @@ library(xtable)
 xtable(PCones, digits = 3)
 
 PC1_iso_cor = aaply(PCones, 2, function(x) abs(vectorCor(x, sqrt(rep(1/35, 35)))))
+PC1_dz_cor = aaply(PCones, 2, function(x) abs(vectorCor(x, delta_Z)))
 
-load("./Rdatas/PG.Calomys.RData")
+#load("./Rdatas/PG.Calomys.RData")
 
-G_comp = cbind(RandomSkewers(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,1:2],
-                      KrzCor(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,2])
-names(G_comp) = c(".id", "Random Skewers", "Krzanowski")
-G_comp %>% separate(.id, c("selection", "line"), sep = "\\.") %>% {xtable(.[,c(2, 1, 3, 4)])}
+#G_comp = cbind(RandomSkewers(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,1:2],
+                      #KrzCor(llply(r_models, `[[`, "P"), Calomys.Pacote$G)[,2])
+#names(G_comp) = c(".id", "Random Skewers", "Krzanowski")
+#G_comp %>% separate(.id, c("selection", "line"), sep = "\\.") %>% {xtable(.[,c(2, 1, 3, 4)])}
 

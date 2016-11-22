@@ -11,6 +11,7 @@ if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
 if(!require(cowplot)) {install.packages('cowplot'); library(cowplot)}
 if(!require(plsdepot)) {install.packages('plsdepot'); library(plsdepot)}
 if(!require(xtable)) {install.packages('xtable'); library(xtable)}
+if(!require(viridis)) {install.packages('viridis'); library(viridis)}
 
 setwd("~/projects/ratones/")
 
@@ -81,10 +82,10 @@ makeMainData <- function (current.data) {
   x = vector("list", 9)
   names(x) <- c('info.raw', 'ed.raw', 'info', 'ed', 'reps', 'model', 'ed.means', 'full', 'gm_mean')
   current.data$AGE[is.na(current.data$AGE)] <- mean(current.data$AGE, na.rm = TRUE)
-  x$info.raw = select(current.data, c(ID:TAKE, line, original_line, selection))
-  x$ed.raw   = select(current.data, ID, IS_PM:BA_OPI)
-  x$info     = arrange(unique(select(current.data, c(ID:P49, line, original_line, selection))), ID)
-  x$ed       = arrange(ddply(select(current.data, ID, IS_PM:BA_OPI), .(ID), numcolwise(mean)), ID)
+  x$info.raw = dplyr::select(current.data, c(ID:TAKE, line, original_line, selection))
+  x$ed.raw   = dplyr::select(current.data, ID, IS_PM:BA_OPI)
+  x$info     = arrange(unique(dplyr::select(current.data, c(ID:P49, line, original_line, selection))), ID)
+  x$ed       = arrange(ddply(dplyr::select(current.data, ID, IS_PM:BA_OPI), .(ID), numcolwise(mean)), ID)
   x$full <- tbl_df(inner_join(x$info, x$ed, by = "ID"))
   set_row <- function(x) {rownames(x) <- x$ID; x[,-1]}
   x$ed <- set_row(x$ed)
@@ -98,7 +99,7 @@ makeMainData <- function (current.data) {
 main.data <- llply(raw.main.data, makeMainData)
 
 full_data = ldply(main.data, function(x) x$full)
-Wmat <- CalculateMatrix(lm(as.matrix(select(full_data, IS_PM:BA_OPI)) ~ full_data$AGE*full_data$SEX*full_data$LIN))
+Wmat <- CalculateMatrix(lm(as.matrix(dplyr::select(full_data, IS_PM:BA_OPI)) ~ full_data$AGE*full_data$SEX*full_data$LIN))
 
 r_models = llply(main.data, function(x) BayesianCalculateMatrix(x$model, samples = 500, nu = 3))
 for(i in 1:length(r_models)){
@@ -113,3 +114,25 @@ for(i in 1:length(r_models)){
   }
 }
 
+folder = "t"
+readMatLab <- function(folder){
+    x = readMat(paste0("./Gmatlab/", folder, "/Posterior_mean.mat"))
+    G = x$posterior.mean[,,1]$G
+    P = x$posterior.mean[,,1]$P
+    Gs = aperm(x$posterior.mean[,,1]$Gs, c(3, 1, 2))
+    Ps = aperm(x$posterior.mean[,,1]$Ps, c(3, 1, 2))
+    list(P = P, Ps = Ps, G = G, Gs = Gs)
+    }
+g_models = list(control.t = readMatLab("t"),
+     downwards.h = readMatLab("h"),
+     downwards.s = readMatLab("s"),
+     "upwards.h'" = readMatLab("hp"),
+     "upwards.s'" = readMatLab("sp"))
+for(i in 1:length(g_models)){ g_models[[i]]$line <- names(g_models)[i] }
+
+x = readMat("./Gmatlab/ratones/Posterior_mean.mat")
+G = x$posterior.mean[,,1]$G
+P = x$posterior.mean[,,1]$P
+
+delta_Z = full_data %>% filter(selection == "upwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans -
+    full_data %>% filter(selection == "downwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans
