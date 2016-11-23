@@ -1,5 +1,4 @@
 if(!require(plyr)) {install.packages('plyr'); library(plyr)}
-if(!require(dplyr)) {install.packages('dplyr'); library(dplyr)}
 if(!require(magrittr)) {install.packages('magrittr'); library(magrittr)}
 if(!require(lme4)) {install.packages('lme4'); library(lme4)}
 if(!require(ggplot2)) {install.packages('ggplot2'); library(ggplot2)}
@@ -9,9 +8,10 @@ if(!require(reshape2)) {install.packages('reshape2'); library(reshape2)}
 if(!require(evolqg)) {devtools::install_github('diogro/evolqg'); library(evolqg)}
 if(!require(readr)) {devtools::install_github('hadley/readr'); library(readr)}
 if(!require(cowplot)) {install.packages('cowplot'); library(cowplot)}
-if(!require(plsdepot)) {install.packages('plsdepot'); library(plsdepot)}
 if(!require(xtable)) {install.packages('xtable'); library(xtable)}
 if(!require(viridis)) {install.packages('viridis'); library(viridis)}
+if(!require(R.matlab)) {install.packages('R.matlab'); library(R.matlab)}
+if(!require(dplyr)) {install.packages('dplyr'); library(dplyr)}
 
 setwd("~/projects/ratones/")
 
@@ -114,9 +114,8 @@ for(i in 1:length(r_models)){
   }
 }
 
-folder = "t"
 readMatLab <- function(folder){
-    x = readMat(paste0("./Gmatlab/", folder, "/Posterior_mean.mat"))
+    x = readMat(paste0("./data/Gmatlab/", folder, "/Posterior_mean.mat"))
     G = x$posterior.mean[,,1]$G
     P = x$posterior.mean[,,1]$P
     Gs = aperm(x$posterior.mean[,,1]$Gs, c(3, 1, 2))
@@ -130,9 +129,16 @@ g_models = list(control.t = readMatLab("t"),
      "upwards.s'" = readMatLab("sp"))
 for(i in 1:length(g_models)){ g_models[[i]]$line <- names(g_models)[i] }
 
-x = readMat("./Gmatlab/ratones/Posterior_mean.mat")
+x = readMat("./data/Gmatlab/ratones/Posterior_mean.mat")
 G = x$posterior.mean[,,1]$G
 P = x$posterior.mean[,,1]$P
 
 delta_Z = full_data %>% filter(selection == "upwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans -
     full_data %>% filter(selection == "downwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans
+
+library(mvtnorm)
+sigma = r_models$control.t$MAP[1:5, 1:5]
+data = rmvnorm(100, sigma = sigma)
+trace(sigma)
+mean(diag(sigma))
+trace(BayesianCalculateMatrix(lm(data~1), samples = 100, nu = 5, S_0 = diag(rep(0.067, 5)))$P)

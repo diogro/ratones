@@ -73,15 +73,6 @@ plotMatrix <- function (corMat, file = NULL) {
 plotMatrix(cov2cor(P))
 
 folder = "t"
-readMatLab <- function(folder){
-    x = readMat(paste0("./Gmatlab/", folder, "/Posterior_mean.mat"))
-    G = x$posterior.mean[,,1]$G
-    P = x$posterior.mean[,,1]$P
-    Gs = x$posterior.mean[,,1]$G
-    Ps = x$posterior.mean[,,1]$P
-    list(P = P, Ps = Ps, G = G, Gs = Gs)
-    }
-readMatLab("t")
 
 x = readMat("./Gmatlab/ratones/Posterior_mean.mat")
 G = x$posterior.mean[,,1]$G
