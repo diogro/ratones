@@ -1,7 +1,7 @@
 if(!require(doMC)) {install.packages('doMC'); library(doMC)}
 if(!require(viridis)) install.packages("viridis")
 library(viridis)
-registerDoMC(12)
+registerDoMC(4)
 
 #source("R/run_ratones_MCMCglmm_P.R")
 source("R/read_ratones.R")
@@ -18,7 +18,7 @@ names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
   flexibility_plot <- ggplot(filter(global_stats, variable == "flexibility"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'y', minor = "none") +  panel_border() + labs(x = "Mean flexibility", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
   pc1.percent_plot <- ggplot(filter(global_stats, variable == "pc1.percent"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'y', minor = "none") +  panel_border() + labs(x = "Proportion of variation\n in PC1", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
   evolvability_plot <- ggplot(filter(global_stats, variable == "evolvability"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line")+ background_grid(major = 'y', minor = "none") +  panel_border() + labs(x = "Mean evolvability", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
-figure_2 <- ggdraw() +
+figure_3 <- ggdraw() +
   draw_plot(r2_plot, 0, 0.5, 0.5, 0.5) +
   draw_plot(pc1.percent_plot, 0.5, 0.5, 0.5, 0.5) +
   draw_plot(flexibility_plot, 0, 0, 0.5, 0.5) +
@@ -74,7 +74,7 @@ m.rs.position$Var1 <- as.numeric(m.rs.position$Var1)
 m.rs.position$Var2 <- as.numeric(m.rs.position$Var2)
 m.rs.position$value= round(m.rs.position$value, 3)
 m.rs.position$value[is.na(m.rs.position$value)] <- c("Control t", "Downwards h", "Downwards s", "Upwards h'", "Upwards s'")
-matrix_comparisons <- ggplot (m.rs) +
+figure_2 <- ggplot (m.rs) +
     geom_tile(aes(x = Var2, y = Var1, fill = value)) +
     scale_fill_gradientn(name = '', colours = myPalette, limits = c(0.7, 1)) +
     ylab ('') + xlab ('') +
@@ -94,13 +94,27 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.pdf", figure_2,
           nrow = 2,
           base_aspect_ratio = 1.3, base_height = 5)
 
-figure_3 <- matrix_comparisons
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.pdf", figure_3,
           ncol = 1,
           nrow = 1,
           base_aspect_ratio = 1.3, base_height = 5)
 
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
+          ncol = 2,
+          nrow = 1,
+          base_aspect_ratio = 1.3, base_height = 5)
+
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.png", figure_2,
+          ncol = 2,
+          nrow = 2,
+          base_aspect_ratio = 1.3, base_height = 5)
+
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.png", figure_3,
+          ncol = 1,
+          nrow = 1,
+          base_aspect_ratio = 1.3, base_height = 5)
+
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.png", figure_4,
           ncol = 2,
           nrow = 1,
           base_aspect_ratio = 1.3, base_height = 5)

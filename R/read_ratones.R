@@ -132,13 +132,3 @@ for(i in 1:length(g_models)){ g_models[[i]]$line <- names(g_models)[i] }
 x = readMat("./data/Gmatlab/ratones/Posterior_mean.mat")
 G = x$posterior.mean[,,1]$G
 P = x$posterior.mean[,,1]$P
-
-delta_Z = full_data %>% filter(selection == "upwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans -
-    full_data %>% filter(selection == "downwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans
-
-library(mvtnorm)
-sigma = r_models$control.t$MAP[1:5, 1:5]
-data = rmvnorm(100, sigma = sigma)
-trace(sigma)
-mean(diag(sigma))
-trace(BayesianCalculateMatrix(lm(data~1), samples = 100, nu = 5, S_0 = diag(rep(0.067, 5)))$P)

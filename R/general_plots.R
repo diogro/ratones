@@ -26,6 +26,7 @@ gm_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
 gm_plot = ggplot(gm_full_data, aes(original_line, value, group = original_line, fill = interaction(selection, line))) + geom_violin(alpha = 0.4) + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Donwards h", "Donwards s")) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Geometric mean of cranial traits", x = "line")+ geom_jitter(height = 0, width = 0.08, alpha = 0.8, size = 0.5)
 
 save_plot(paste0(figure_folder, "figure1.pdf"), gm_plot, base_height = 4, base_aspect_ratio = 1.7)
+save_plot(paste0(figure_folder, "figure1.png"), gm_plot, base_height = 4, base_aspect_ratio = 1.7)
 
 full_data %>% count(line, selection, SEX) %>% xtable
 full_data %>% count(line, selection, GER) %>% xtable
