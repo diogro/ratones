@@ -2,7 +2,7 @@ load("./R/read_ratones.R")
 
 m_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10:12)])
 
-full_trait_plots = ggplot(m_full_data %>% filter(variable != 'P49'), aes(original_line, value, group = original_line, fill = interaction(selection, line))) + geom_violin() + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Donwards h", "Donwards s"))  + facet_wrap(~variable, scale = "free_y", ncol = 5) + labs(y = "Linear distance between landmarks (mm)", x = "line") + geom_jitter(height = 0, width = 0.08, alpha = 0.8, size = 0.5)
+full_trait_plots = ggplot(m_full_data %>% filter(variable != 'P49'), aes(original_line, value, group = original_line, fill = interaction(selection, line))) + geom_violin() + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s"))  + facet_wrap(~variable, scale = "free_y", ncol = 5) + labs(y = "Linear distance between landmarks (mm)", x = "line") + geom_jitter(height = 0, width = 0.08, alpha = 0.8, size = 0.5)
 
 figure_folder = "~/Dropbox/labbio/Shared Lab/Ratones_shared/"
 #figure_folder = "~/Desktop/"
@@ -11,7 +11,7 @@ save_plot(paste0(figure_folder, "figureS4.pdf"), full_trait_plots, ncol = 5, nro
 
 p49_full_data = m_full_data %>% filter(variable == 'P49')
 p49_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
-p49_plot = ggplot(p49_full_data, aes(line, value, group = original_line, fill = interaction(selection, line))) + geom_violin(alpha = 0.4) + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Donwards h", "Donwards s")) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Geometric mean of cranial traits", x = "line")+ geom_jitter(height = 0, width = 0.08, alpha = 0.8, size = 0.5)
+p49_plot = ggplot(p49_full_data, aes(line, value, group = original_line, fill = interaction(selection, line))) + geom_violin(alpha = 0.4) + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Weight at 49 days", x = "line")+ geom_jitter(height = 0, width = 0.08, alpha = 0.8, size = 0.5)
 
 save_plot(paste0(figure_folder, "figureS2.pdf"), p49_plot, base_height = 4, base_aspect_ratio = 1.7)
 
@@ -23,7 +23,7 @@ full_data$gm = apply(traits, 1, gm_mean)
 
 gm_full_data = melt(full_data, id.vars = names(full_data)[c(1:8, 10:12)]) %>% filter(variable == 'gm')
 gm_full_data$SEX %<>% {gsub("M", "Male", .)} %>% {gsub("F", "Female", .)}
-gm_plot = ggplot(gm_full_data, aes(original_line, value, group = original_line, fill = interaction(selection, line))) + geom_violin(alpha = 0.4) + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Donwards h", "Donwards s")) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Geometric mean of cranial traits", x = "line")+ geom_jitter(height = 0, width = 0.08, alpha = 0.8, size = 0.5)
+gm_plot = ggplot(gm_full_data, aes(original_line, value, group = original_line, fill = interaction(selection, line))) + geom_violin(alpha = 0.4) + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + facet_wrap(~SEX) + background_grid(major = 'y', minor = "none") + labs(y = "Geometric mean of cranial traits", x = "line")+ geom_jitter(height = 0, width = 0.08, alpha = 0.8, size = 0.5)
 
 save_plot(paste0(figure_folder, "figure1.pdf"), gm_plot, base_height = 4, base_aspect_ratio = 1.7)
 save_plot(paste0(figure_folder, "figure1.png"), gm_plot, base_height = 4, base_aspect_ratio = 1.7)
