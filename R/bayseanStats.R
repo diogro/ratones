@@ -24,10 +24,6 @@ figure_3 <- ggdraw() +
   draw_plot(flexibility_plot, 0, 0, 0.5, 0.5) +
   draw_plot(evolvability_plot, 0.5, 0, 0.5, 0.5) +
   draw_plot_label(c("A", "B", "C", "D"), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = 20)
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.pdf", figure_3,
-          ncol = 2,
-          nrow = 2,
-          base_aspect_ratio = 1.3, base_height = 4)
 
 directionalVariation <- function(cov.matrix, line){
   beta_s <- solve(cov.matrix, delta_Z)
@@ -49,10 +45,6 @@ figure_4 <- ggdraw() +
   draw_plot(DzPC1, 0, 0, 0.5, 1) +
   draw_plot(evolDZ, 0.5, 0, 0.5, 1) +
   draw_plot_label(c("A", "B"), c(0, 0.5), c(1, 1), size = 20)
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
-          ncol = 2,
-          nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 4)
 
 #evolBeta <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolBeta, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  ggtitle(expression(paste("Ratio between mean evolvability and in the direction of ",Delta, "z"))) + labs(x = "Evolvability ratio") + background_grid(major = 'x', minor = "none") +  panel_border()
 
@@ -97,33 +89,13 @@ figure_2 <- ggplot (m.rs) +
         panel.background = element_blank(),
         axis.ticks.length = grid::unit(0, "lines"))
 
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.pdf", figure_2,
-          base_aspect_ratio = 1.3, base_height = 4.8)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.pdf", figure_2, base_aspect_ratio = 1.3, base_height = 4.8)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.pdf", figure_3, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4, ncol = 2, base_aspect_ratio = 1.3, base_height = 4)
 
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.pdf", figure_3,
-          ncol = 1,
-          nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 4)
-
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
-          ncol = 2,
-          nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 4)
-
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.png", figure_2,
-          ncol = 2,
-          nrow = 2,
-          base_aspect_ratio = 1.3, base_height = 5)
-
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.png", figure_3,
-          ncol = 1,
-          nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 5)
-
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.png", figure_4,
-          ncol = 2,
-          nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 5)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.png", figure_2, base_aspect_ratio = 1.3, base_height = 4.8)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.png", figure_3, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.png", figure_4, ncol = 2, base_aspect_ratio = 1.3, base_height = 4)
 
 PCones <- t(laply(g_models, function(x) eigen(x$P)$vectors[,1]))
 colnames(PCones) <- c("Control t", "Downwards h", "Downwards s", "Upwards h'", "Upwards s'")
