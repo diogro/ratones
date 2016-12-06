@@ -132,3 +132,5 @@ for(i in 1:length(g_models)){ g_models[[i]]$line <- names(g_models)[i] }
 x = readMat("./data/Gmatlab/ratones/Posterior_mean.mat")
 G = x$posterior.mean[,,1]$G
 P = x$posterior.mean[,,1]$P
+
+delta_Z = full_data %>% filter(selection == "upwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans - full_data %>% filter(selection == "downwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans
