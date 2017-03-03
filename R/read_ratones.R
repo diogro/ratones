@@ -123,11 +123,12 @@ readMatLab <- function(folder){
     list(P = P, Ps = Ps, G = G, Gs = Gs)
     }
 g_models = list(control.t = readMatLab("t"),
-     downwards.h = readMatLab("h"),
-     downwards.s = readMatLab("s"),
-     "upwards.h'" = readMatLab("hp"),
-     "upwards.s'" = readMatLab("sp"))
+                "upwards.h'" = readMatLab("hp"),
+                "upwards.s'" = readMatLab("sp"),
+                downwards.h = readMatLab("h"),
+                downwards.s = readMatLab("s"))
 for(i in 1:length(g_models)){ g_models[[i]]$line <- names(g_models)[i] }
+
 
 x = readMat("./data/Gmatlab/ratones/Posterior_mean.mat")
 G = x$posterior.mean[,,1]$G

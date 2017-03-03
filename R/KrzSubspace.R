@@ -10,7 +10,7 @@ avgH.vec <- eigen(avgH)$vectors
 MCMC.H.val = laply(Hs, function(mat) diag(t(avgH.vec) %*% mat %*% avgH.vec))
 
 # confidence intervals for variation in shared subspace directions
-observed = HPDinterval(as.mcmc(MCMC.H.val))
+observed = HPDinterval(as.mcmc(MCMC.H.val), prob = 0.95)
 
 
 ped <- unique(read.csv("./data/pedigree.csv"))
@@ -50,7 +50,7 @@ null_Hs = alply(rand.g_models, 4, function(x) alply(x, 3)) %>% llply(function(x)
 null_avgH = Reduce("+", null_Hs)/length(null_Hs)
 null_avgH.vec <- eigen(null_avgH)$vectors
 null_MCMC.H.val = laply(null_Hs, function(mat) diag(t(avgH.vec) %*% mat %*% avgH.vec))
-null = HPDinterval(as.mcmc(null_MCMC.H.val))
+null = HPDinterval(as.mcmc(null_MCMC.H.val), prob = 0.95)
 krz_subspace_plot = rbind(cbind(rank = 1:35, as.data.frame(observed), type = "Observed"), 
       cbind(rank = 1:35, as.data.frame(null), type = "Randomised")) %>%
   mutate(mean = (upper + lower) / 2) %>%
@@ -60,3 +60,46 @@ krz_subspace_plot = rbind(cbind(rank = 1:35, as.data.frame(observed), type = "Ob
   labs(y = "Eigenvalues of H", x = "Eigenvectors of H") + 
   theme(legend.position = c(0.75, 0.9), text = element_text(size = 20))
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/krz_subspace_(figure2?).png", krz_subspace_plot, base_aspect_ratio = 1.3, base_height = 4.8)
+
+dimnames(p_matrices)[[3]] = Gnames
+
+rs_projection = RSProjection(p_matrices)
+rs_projection_plot_full = PlotRSprojection(rs_proj = rs_projection, p_matrices, p = 0.95, num_pc = 35, ncols = 5)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(full_SI).png", rs_projection_plot_full, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 5, nrow = 7)
+rs_projection_plot = PlotRSprojection(rs_proj = rs_projection, p_matrices, p = 0.95, num_pc = 9, ncols = 3)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(figure2?).png", rs_projection_plot, base_aspect_ratio = 1.3, base_height = 4.8)
+
+figure_2_review = plot_grid(krz_subspace_plot, rs_projection_plot, labels = c("A", "B"))
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2_review.png", figure_2_review, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 2)
+
+PlotRSprojection = function (rs_proj, cov.matrix.array, p = 0.95, num_pc = 5, ncols = 5) {
+  n <- dim(cov.matrix.array)[[1]]
+  evecs = t(rs_proj$eig.R$vectors)
+  R_eigen_projection <- apply(cov.matrix.array, 3:4, function(mat) diag(evecs %*% 
+                                                                          mat %*% t(evecs)))
+  R_eigen_projection <- aperm(R_eigen_projection, c(3, 2, 1))
+  colnames(R_eigen_projection) <- dimnames(cov.matrix.array)[[3]]
+  HPD.int <- aaply(R_eigen_projection, 3, function(proj) HPDinterval(as.mcmc(proj), 
+                                                                     prob = p))
+  HPD.int <- aperm(HPD.int, c(2, 3, 1))
+  dimnames(HPD.int) = list(dimnames(cov.matrix.array)[[3]], 
+                           NULL, NULL)
+  dat = adply(HPD.int, 1:3)
+  names(dat) = c("Line", "interval", "trait", "value")
+  dat = dcast(dat, as.formula("Line+trait~interval"))
+  names(dat) = c("Line", "trait", "lower", "upper")
+  dat$trait = paste0("PC", dat$trait)
+  order.list = paste0("PC", 1:n)
+  dat$trait = factor(dat$trait, levels = order.list)
+  dat$mean = rowMeans(cbind(dat$upper, dat$lower))
+  plot = ggplot(filter(dat, trait %in% paste0("PC", 1:num_pc)), aes_string("Line", "mean")) + geom_point() + 
+    geom_errorbar(aes_string(ymin = "lower", ymax = "upper")) + 
+    theme_bw() + theme(axis.text.x = element_text(angle = 45, 
+                                                  hjust = 1)) + 
+    ylab("Genetic Variance") + facet_wrap(~trait, ncol = ncols, scales = "free_y") +
+    scale_x_discrete(labels  = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) +
+                       theme(text = element_text(size = 15))
+                     
+
+  return(plot)
+}
