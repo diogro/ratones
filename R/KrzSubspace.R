@@ -96,7 +96,7 @@ PlotRSprojection = function (rs_proj, cov.matrix.array, p = 0.95, num_pc = 5, nc
     geom_errorbar(aes_string(ymin = "lower", ymax = "upper")) + 
     theme_bw() + theme(axis.text.x = element_text(angle = 45, 
                                                   hjust = 1)) + 
-    ylab("Genetic Variance") + facet_wrap(~trait, ncol = ncols, scales = "free_y") +
+    ylab("Phenotypic Variance") + facet_wrap(~trait, ncol = ncols, scales = "free_y") +
     scale_x_discrete(labels  = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) +
                        theme(text = element_text(size = 15))
                      
