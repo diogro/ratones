@@ -51,10 +51,12 @@ null_avgH = Reduce("+", null_Hs)/length(null_Hs)
 null_avgH.vec <- eigen(null_avgH)$vectors
 null_MCMC.H.val = laply(null_Hs, function(mat) diag(t(avgH.vec) %*% mat %*% avgH.vec))
 null = HPDinterval(as.mcmc(null_MCMC.H.val))
-rbind(cbind(rank = 1:35, as.data.frame(observed), type = "observed"), 
-      cbind(rank = 1:35, as.data.frame(null), type = "null")) %>%
+krz_subspace_plot = rbind(cbind(rank = 1:35, as.data.frame(observed), type = "Observed"), 
+      cbind(rank = 1:35, as.data.frame(null), type = "Randomised")) %>%
   mutate(mean = (upper + lower) / 2) %>%
   ggplot(aes(x = rank, y = mean, linetype = type, shape = type)) + 
   geom_point(position = position_dodge(width = 0.5)) + 
-  geom_linerange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5))
-
+  geom_linerange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5)) +
+  labs(y = "Eigenvalues of H", x = "Eigenvectors of H") + 
+  theme(legend.position = c(0.75, 0.9), text = element_text(size = 20))
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/krz_subspace_(figure2?).png", krz_subspace_plot, base_aspect_ratio = 1.3, base_height = 4.8)
