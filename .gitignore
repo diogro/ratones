@@ -4,23 +4,19 @@
 # History files
 .Rhistory
 .Rapp.history
-
 # Example code in package build process
 *-Ex.R
-
 # RStudio files
 .Rproj.user/
 *.Rproj
-
 # produced vignettes
 vignettes/*.html
 vignettes/*.pdf
-
 data
 data/*
 Rdatas/*
 Rdatas
-
 *.png
 *.jpg
 *.html
+*.pdf
