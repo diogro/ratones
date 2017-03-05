@@ -54,11 +54,13 @@ null = HPDinterval(as.mcmc(null_MCMC.H.val), prob = 0.95)
 krz_subspace_plot = rbind(cbind(rank = 1:35, as.data.frame(observed), type = "Observed"), 
       cbind(rank = 1:35, as.data.frame(null), type = "Randomised")) %>%
   mutate(mean = (upper + lower) / 2) %>%
-  ggplot(aes(x = rank, y = mean, linetype = type, shape = type)) + 
+  ggplot(aes(x = rank, y = mean, linetype = type, color = type)) + 
   geom_point(position = position_dodge(width = 0.5)) + 
   geom_linerange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5)) +
-  labs(y = "Eigenvalues of H", x = "Eigenvectors of H") + 
-  theme(legend.position = c(0.75, 0.9), text = element_text(size = 20))
+  labs(y = "Eigenvalues of H", x = "Eigenvectors of H") +
+  theme(legend.position = c(0.75, 0.9), text = element_text(size = 20)) + 
+  scale_colour_grey("", start = 0, end = 0.6) + scale_linetype(guide = "none")
+  krz_subspace_plot
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/krz_subspace_(figure2?).png", krz_subspace_plot, base_aspect_ratio = 1.3, base_height = 4.8)
 
 dimnames(p_matrices)[[3]] = Gnames
