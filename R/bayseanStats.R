@@ -14,10 +14,10 @@ names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
   global_stats <- mcmc_stats %>% dplyr::select(.id, MeanSquaredCorrelation, flexibility, pc1.percent, evolvability) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
   global_stats$line <- gsub('control', 't', global_stats$line)
   global_stats$line <- factor(global_stats$line, levels = lines)
-  r2_plot <- ggplot(filter(global_stats, variable == "MeanSquaredCorrelation"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'y', minor = "none") +  panel_border() + labs(x = "Mean squared correlation", y = "Density") + theme(legend.position = c(0.8, 0.8), text = element_text(size = 20))
-  flexibility_plot <- ggplot(filter(global_stats, variable == "flexibility"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'y', minor = "none") +  panel_border() + labs(x = "Mean flexibility", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
-  pc1.percent_plot <- ggplot(filter(global_stats, variable == "pc1.percent"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'y', minor = "none") +  panel_border() + labs(x = "Proportion of variation\n in PC1", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
-  evolvability_plot <- ggplot(filter(global_stats, variable == "evolvability"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line")+ background_grid(major = 'y', minor = "none") +  panel_border() + labs(x = "Mean evolvability", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
+  r2_plot <- ggplot(filter(global_stats, variable == "MeanSquaredCorrelation"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Mean squared correlation", y = "Density") + theme(legend.position = c(0.7, 0.7), text = element_text(size = 20))
+  flexibility_plot <- ggplot(filter(global_stats, variable == "flexibility"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Mean flexibility", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
+  pc1.percent_plot <- ggplot(filter(global_stats, variable == "pc1.percent"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Proportion of variation in PC1", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
+  evolvability_plot <- ggplot(filter(global_stats, variable == "evolvability"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line")+ background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Mean evolvability", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
 figure_3 <- ggdraw() +
   draw_plot(r2_plot, 0, 0.5, 0.5, 0.5) +
   draw_plot(pc1.percent_plot, 0.5, 0.5, 0.5, 0.5) +
@@ -37,16 +37,16 @@ stats <- ldply(g_models, function(model) adply(model$Ps, 1,
                                                directionalVariation,
                                                model$line), .parallel = TRUE)
 
-DzPC1 <- stats %>% dplyr::select(-X1) %>% ggplot(aes(DZpc1, group = .id, fill = .id)) + geom_density(alpha = 0.5) + labs(x = expression(paste("Vector correlation of ", Delta, "z and PC1")), y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'y', minor = "none") +  panel_border()+ theme(legend.position = c(0.15, 0.8), text = element_text(size = 20))
+DzPC1 <- stats %>% dplyr::select(-X1) %>% ggplot(aes(DZpc1, group = .id, fill = .id)) + geom_density(alpha = 0.5) + labs(x = expression(paste("Vector correlation of ", Delta, "z and PC1")), y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = c(0.25, 0.7), text = element_text(size = 20))
 
-evolDZ <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolDZ, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = "Scaled directional evolvability", y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'y', minor = "none") +  panel_border()+ theme(legend.position = "none", text = element_text(size = 20))
+evolDZ <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolDZ, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = "Scaled directional evolvability", y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = "none", text = element_text(size = 20))
 
 figure_4 <- ggdraw() +
-  draw_plot(DzPC1 + theme(axis.title.x = element_text(size = rel(1.4))), 0, 0, 0.5, 1) +
-  draw_plot(evolDZ+ theme(axis.title.x = element_text(size = rel(1.4))), 0.5, 0, 0.5, 1) +
+  draw_plot(DzPC1, 0, 0, 0.5, 1) +
+  draw_plot(evolDZ, 0.5, 0, 0.5, 1) +
   draw_plot_label(c("A", "B"), c(0, 0.5), c(1, 1), size = 20)
 
-#evolBeta <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolBeta, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  ggtitle(expression(paste("Ratio between mean evolvability and in the direction of ",Delta, "z"))) + labs(x = "Evolvability ratio") + background_grid(major = 'y', minor = "none") +  panel_border()
+#evolBeta <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolBeta, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  ggtitle(expression(paste("Ratio between mean evolvability and in the direction of ",Delta, "z"))) + labs(x = "Evolvability ratio") + background_grid(major = 'x', minor = "none") +  panel_border()
 
 reps_RS = laply(g_models, function(x) mean(RandomSkewers(alply(x$Ps, 1), x$P)$correlation))
 RS = llply(g_models, function(x) x$P) %>% RandomSkewers(repeat.vector = reps_RS)
@@ -89,35 +89,13 @@ figure_2 <- ggplot (m.rs) +
         panel.background = element_blank(),
         axis.ticks.length = grid::unit(0, "lines"))
 
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.pdf", figure_2,
-          ncol = 2,
-          nrow = 2,
-          base_aspect_ratio = 1.3, base_height = 5)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.pdf", figure_2, base_aspect_ratio = 1.3, base_height = 4.8)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.pdf", figure_3, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4, ncol = 2, base_aspect_ratio = 1.3, base_height = 4)
 
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.pdf", figure_3,
-          ncol = 1,
-          nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 5)
-
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.pdf", figure_4,
-          ncol = 2,
-          nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 5)
-
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.png", figure_2,
-          ncol = 2,
-          nrow = 2,
-          base_aspect_ratio = 1.3, base_height = 5)
-
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.png", figure_3,
-          ncol = 1,
-          nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 5)
-
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.png", figure_4,
-          ncol = 2,
-          nrow = 1,
-          base_aspect_ratio = 1.3, base_height = 5)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2.png", figure_2, base_aspect_ratio = 1.3, base_height = 4.8)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.png", figure_3, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.png", figure_4, ncol = 2, base_aspect_ratio = 1.3, base_height = 4)
 
 PCones <- t(laply(g_models, function(x) eigen(x$P)$vectors[,1]))
 colnames(PCones) <- c("Control t", "Downwards h", "Downwards s", "Upwards h'", "Upwards s'")
