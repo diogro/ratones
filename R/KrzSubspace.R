@@ -71,7 +71,7 @@ rs_projection_plot_full = PlotRSprojection(rs_proj = rs_projection, cov.matrix.a
 rs_projection_plot_full
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(full_SI).png", rs_projection_plot_full, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 5, nrow = 7)
 
-PlotRSprojection_rata <- function( rs_proj = rs_projection, cov.matrix.array = p_matrices, num_pc = 8, p = 0.95, ncols = 5)
+PlotRSprojection_rata <- function( rs_proj = rs_projection, cov.matrix.array = p_matrices, num_pc = 8, p = 0.95, ncols = 5, label = "Phenotypic Variance")
 {
 n <- dim(cov.matrix.array)[[1]]
 evecs = t(rs_proj$eig.R$vectors)
@@ -105,7 +105,7 @@ plot = ggplot(dat, aes_string( colour= "Population", x = "Population", y = "mean
   theme(axis.text.x = element_text(hjust = 1)) + background_grid() + 
   theme(legend.position = c(0.85, 0.15), text = element_text(size = 18)) +
   scale_x_discrete("Lines", labels = c("control.t" = "t","upwards.h'" = "h'", "upwards.s'" = "s'","downwards.h" = "h","downwards.s" = "s")) +
-  facet_wrap(~trait, ncol = 3, scales = "free_y") + panel_border() + ylab("Phenotypic Variance") 
+  facet_wrap(~trait, ncol = 3, scales = "free_y") + panel_border() + ylab(label) 
 
 return(plot)
 }
@@ -115,3 +115,12 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(figure2?).p
 
 figure_2_review = plot_grid(krz_subspace_plot, rs_projection_plot, labels = c("A", "B"), ncol = 2, rel_widths = c(1,1.3))
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2_review.png", figure_2_review, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 2)
+
+#G matrices
+
+g_matrices = laply(g_models, function(x) x$Gs)
+g_matrices = aperm(g_matrices, c(3, 4, 1, 2))
+dimnames(g_matrices)[[3]] <- dimnames(p_matrices)[[3]]
+rs_projection_plot_g = PlotRSprojection_rata(rs_proj = rs_projection, g_matrices, num_pc = 8, p = 0.95, ncols = 3, label = "Genetic Variance")
+
+
