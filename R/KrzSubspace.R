@@ -113,8 +113,5 @@ return(plot)
 rs_projection_plot = PlotRSprojection_rata(rs_proj = rs_projection, p_matrices, p = 0.95, num_pc = 8, ncols = 3)
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(figure2?).png", rs_projection_plot, base_aspect_ratio = 1.3, base_height = 4.8)
 
-figure_2_review = plot_grid(krz_subspace_plot, rs_projection_plot, labels = c("A", "B"), ncol = 2, rel_heights = c(1,1.3))
+figure_2_review = plot_grid(krz_subspace_plot, rs_projection_plot, labels = c("A", "B"), ncol = 2, rel_widths = c(1,1.3))
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2_review.png", figure_2_review, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 2)
-
-
-rs_projection_plot <- plot
