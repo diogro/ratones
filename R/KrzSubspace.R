@@ -122,5 +122,7 @@ g_matrices = laply(g_models, function(x) x$Gs)
 g_matrices = aperm(g_matrices, c(3, 4, 1, 2))
 dimnames(g_matrices)[[3]] <- dimnames(p_matrices)[[3]]
 rs_projection_plot_g = PlotRSprojection_rata(rs_proj = rs_projection, g_matrices, num_pc = 8, p = 0.95, ncols = 3, label = "Genetic Variance")
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_g.png", rs_projection_plot_g, base_aspect_ratio = 1.3, base_height = 4.8)
+
 
 
