@@ -129,9 +129,11 @@ g_models = list(control.t = readMatLab("t"),
                 downwards.s = readMatLab("s"))
 for(i in 1:length(g_models)){ g_models[[i]]$line <- names(g_models)[i] }
 
-
 x = readMat("./data/Gmatlab/ratones/Posterior_mean.mat")
 G = x$posterior.mean[,,1]$G
 P = x$posterior.mean[,,1]$P
+Gs = aperm(x$posterior.mean[,,1]$Gs, c(3, 1, 2))
+Ps = aperm(x$posterior.mean[,,1]$Ps, c(3, 1, 2))
+class(Ps) = class(Gs) = "mcmc_sample"
 
 delta_Z = full_data %>% filter(selection == "upwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans - full_data %>% filter(selection == "downwards") %>% dplyr::select(IS_PM:BA_OPI) %>% colMeans
