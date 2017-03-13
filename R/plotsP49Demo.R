@@ -62,8 +62,8 @@ demo.plot <- Demog %>% ggplot(aes(x= GEN, y= Census, group = interaction(SEX, li
   ylab( "Weighted individuals" ) +  xlab ("Generations") +
   theme(panel.grid.minor = element_line(colour = "grey", linetype = "dotted", size =0.2)) +
   scale_color_manual(values = viridis(5)) + 
-  scale_shape_manual(values = c(22, 15)) + 
-  labs(shape = "Sexes", color ="lines") +
+  scale_shape_manual(values = c(17, 6)) + 
+  labs(shape = "Sex", color ="lines") +
   panel_border() +
   theme(legend.position = c(0.8, 0.2),
         #legend.direction = "horizontal",
