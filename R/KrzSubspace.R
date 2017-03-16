@@ -66,11 +66,6 @@ save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/krz_subspace_(figure2?).pn
 
 dimnames(p_matrices)[[3]] = Gnames
 
-rs_projection = RSProjection(p_matrices)
-rs_projection_plot_full = PlotRSprojection(rs_proj = rs_projection, cov.matrix.array = p_matrices, num_pc = 35, p = 0.95, ncols = 5)
-rs_projection_plot_full
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(full_SI).png", rs_projection_plot_full, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 5, nrow = 7)
-
 PlotRSprojection_rata <- function( rs_proj = rs_projection, cov.matrix.array = p_matrices, num_pc = 8, p = 0.95, ncols = 5, label = "Phenotypic Variance")
 {
 n <- dim(cov.matrix.array)[[1]]
@@ -103,12 +98,17 @@ plot = ggplot(dat, aes_string( colour= "Population", x = "Population", y = "mean
   geom_errorbar(aes_string(ymin = "lower", ymax = "upper"), size = 1 ) + 
   scale_color_manual(values = myPalette, name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) +
   theme(axis.text.x = element_text(hjust = 1)) + background_grid() + 
-  theme(legend.position = c(0.85, 0.15), text = element_text(size = 18)) +
+  theme(legend.position = c(0.85, 0.1), text = element_text(size = 18)) +
   scale_x_discrete("Lines", labels = c("control.t" = "t","upwards.h'" = "h'", "upwards.s'" = "s'","downwards.h" = "h","downwards.s" = "s")) +
-  facet_wrap(~trait, ncol = 3, scales = "free_y") + panel_border() + ylab(label) 
+  facet_wrap(~trait, ncol = ncols, scales = "free_y") + panel_border() + ylab(label) 
 
 return(plot)
 }
+
+rs_projection = RSProjection(p_matrices)
+rs_projection_plot_full = PlotRSprojection_rata(rs_proj = rs_projection, cov.matrix.array = p_matrices, num_pc = 35, p = 0.95, ncols = 5)
+rs_projection_plot_full = rs_projection_plot_full +  theme(legend.position = "bottom")
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(full_SI).png", rs_projection_plot_full, base_aspect_ratio = 1.1, base_height = 1.8, ncol = 5, nrow = 7)
 
 rs_projection_plot = PlotRSprojection_rata(rs_proj = rs_projection, p_matrices, p = 0.95, num_pc = 8, ncols = 3)
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(figure2?).png", rs_projection_plot, base_aspect_ratio = 1.3, base_height = 4.8)
