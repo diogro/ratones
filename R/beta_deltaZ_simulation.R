@@ -17,8 +17,8 @@ simulateBetaEstimation = function(beta_center, delta_Z) {
 result = rdply(1000, simulateBetaEstimation(beta, delta_Z)) 
 m_result = gather(result, estimator, value, beta:delta_z)
 figure_S7 = ggplot(m_result, aes(value, fill = estimator)) + 
-  geom_density() + labs(x= expression(paste("Correlation with real ", beta)))+
-  scale_fill_brewer(palette = "Greys", "Estimators", labels = c(expression(paste(beta, " - equation" ), paste( beta, " - non noise"), paste(Delta, "z")) ),
+  geom_density() + labs(x= expression(paste("Vector correlation with the real ", beta)))+
+  scale_fill_brewer(palette = "Greys", "Estimators", labels = c(expression(paste(beta, " - from equation" ), paste( beta, " - non noise"), paste(Delta, "z")) ),
   guide = guide_legend(
     label.position = "right",
     label.hjust = 0))
