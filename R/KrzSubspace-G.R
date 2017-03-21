@@ -4,8 +4,21 @@ library(MasterBayes)
 
 source("R/read_ratones.R")
 
-g_matrices = laply(g_models, function(x) x$Ps)
+# g_models = list(control.t = readMatLab("t"),
+#                 "upwards.h'" = readMatLab("hp"),
+#                 "upwards.s'" = readMatLab("sp"),
+#                 downwards.h = readMatLab("h"),
+#                 downwards.s = readMatLab("s"))
+# for(i in 1:length(g_models)){ g_models[[i]]$line <- names(g_models)[i] }
+
+g_matrices = laply(g_models, function(x) x$Gs)
 g_matrices = aperm(g_matrices, c(3, 4, 1, 2))
+dimnames(g_matrices)[[3]] <- names(g_models)
+
+p_matrices = laply(g_models, function(x) x$Ps)
+p_matrices = aperm(g_matrices, c(3, 4, 1, 2))
+dimnames(p_matrices)[[3]] <- names(g_models)
+
 Hs = alply(g_matrices, 4, function(x) alply(x, 3)) %>% llply(function(x) KrzSubspace(x)$H)
 avgH = Reduce("+", Hs)/length(Hs)
 avgH.vec <- eigen(avgH)$vectors
@@ -67,11 +80,11 @@ krz_subspace_plot = rbind(cbind(rank = 1:35, as.data.frame(observed), type = "Ob
 
 dimnames(g_matrices)[[3]] = Gnames
 
-rs_projection = RSProjection(g_matrices)
-rs_projection_plot_full = PlotRSprojection_rata(rs_proj = rs_projection, cov.matrix.array = g_matrices, num_pc = 35, p = 0.95, ncols = 5)
+rs_projection = RSProjection(p_matrices)
+rs_projection_plot_full = PlotRSprojection_rata(rs_proj = rs_projection, cov.matrix.array = p_matrices, num_pc = 35, p = 0.95, ncols = 5)
 rs_projection_plot_full
 
-PlotRSprojection_rata <- function( rs_proj = rs_projection, cov.matrix.array = g_matrices, num_pc = 8, p = 0.95, ncols = 5, label = "Phenotypic Variance")
+PlotRSprojection_rata <- function( rs_proj = rs_projection, cov.matrix.array = p_matrices, num_pc = 8, p = 0.95, ncols = 5, label = "Phenotypic Variance")
 {
 n <- dim(cov.matrix.array)[[1]]
 evecs = t(rs_proj$eig.R$vectors)
@@ -110,19 +123,94 @@ plot = ggplot(dat, aes_string( colour= "Population", x = "Population", y = "mean
 return(plot)
 }
 
-rs_projection_plot = PlotRSprojection_rata(rs_proj = rs_projection, g_matrices, p = 0.95, num_pc = 8, ncols = 3)
+rs_projection_plot = PlotRSprojection_rata(rs_proj = rs_projection, p_matrices, p = 0.95, num_pc = 8, ncols = 3)
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(figure2?).png", rs_projection_plot, base_aspect_ratio = 1.3, base_height = 4.8)
 
 figure_2_review = plot_grid(krz_subspace_plot, rs_projection_plot, labels = c("A", "B"), ncol = 2, rel_widths = c(1,1.3))
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2_review.png", figure_2_review, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 2)
 
-#G matrices
+#Gmatrix
 
-g_matrices = laply(g_models, function(x) x$Gs)
-g_matrices = aperm(g_matrices, c(3, 4, 1, 2))
-dimnames(g_matrices)[[3]] <- dimnames(g_matrices)[[3]]
-rs_projection_plot_g = PlotRSprojection_rata(rs_proj = rs_projection, g_matrices, num_pc = 8, p = 0.95, ncols = 3, label = "Genetic Variance")
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_g.png", rs_projection_plot_g, base_aspect_ratio = 1.3, base_height = 4.8)
+g_rs_projection = RSProjection(g_matrices)
+g_rs_projection_plot_full = PlotRSprojection_rata(rs_proj = g_rs_projection, cov.matrix.array = g_matrices, num_pc = 35, p = 0.95, ncols = 5)
+g_rs_projection_plot_full
+
+rs_projection_plot_g = PlotRSprojection_rata(rs_proj = g_rs_projection, g_matrices, num_pc = 8, p = 0.95, ncols = 3, label = "Genetic Variance")
+save_plot("rs_projection_g.png", rs_projection_plot_g, base_aspect_ratio = 1.3, base_height = 4.8)
+
+figure_2_SI = plot_grid(krz_subspace_plot, rs_projection_plot_g, labels = c("A", "B"), ncol = 2, rel_widths = c(1,1.3))
+save_plot("figure2_SI_version.png", figure_2_SI, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 2)
 
 
+#Polled within matrices and Ps compare
 
+g_models = list(control.t = readMatLab("t"),
+                "upwards.h'" = readMatLab("hp"),
+                "upwards.s'" = readMatLab("sp"),
+                downwards.h = readMatLab("h"),
+                downwards.s = readMatLab("s"))
+for(i in 1:length(g_models)){ g_models[[i]]$line <- names(g_models)[i] }
+
+p_matrices = laply(g_models, function(x) x$Ps)
+
+p_matrices = aperm(p_matrices, c(3, 4, 1, 2))
+dimnames(p_matrices)[[3]] <- names(g_models)
+
+rata_models = list(PolledWithin =readMatLab("ratones"))
+library(abind)
+PW_matrices = abind(rata_models[[1]][2]$Ps, rata_models[[1]][4]$Gs, along = 0)
+PW_matrices %>% str
+PW_matrices = aperm(PW_matrices, c(3, 4, 1, 2))
+dimnames(PW_matrices)[[3]] = c("PW.P", "PW.G")
+
+PWP_matrices = abind(PW_matrices, p_matrices, along = 3)
+
+PWPrs_projection = RSProjection(PWP_matrices)
+PWP_rs_projection_plot_full = PlotRSprojection(rs_proj = PWPrs_projection, cov.matrix.array = PWP_matrices, p = 0.95, ncols = 5)
+PWP_rs_projection_plot_full = rs_projection_plot_full +  ylab("Variance") + xlab("")
+save_plot("rs_projection_PWP.png", PWPrs_projection_plot_full, base_aspect_ratio = 1.3, base_height = 4.8)
+
+  rs_proj = PWPrs_projection
+  cov.matrix.array = PWP_matrices
+  num_pc = 8 
+  p = 0.95 
+  ncols = 5 
+  label = "Variance"
+
+  n <- dim(cov.matrix.array)[[1]]
+  evecs = t(rs_proj$eig.R$vectors)
+  R_eigen_projection <- apply(cov.matrix.array, 3:4, function(mat) diag(evecs %*% 
+                                                                          mat %*% t(evecs)))
+  R_eigen_projection <- aperm(R_eigen_projection, c(3, 2, 1))
+  colnames(R_eigen_projection) <- dimnames(cov.matrix.array)[[3]]
+  HPD.int <- aaply(R_eigen_projection, 3, function(proj) HPDinterval(as.mcmc(proj), 
+                                                                     prob = p))
+  HPD.int <- aperm(HPD.int, c(2, 3, 1))
+  dimnames(HPD.int) = list(dimnames(cov.matrix.array)[[3]], 
+                           NULL, NULL)
+  dat = adply(HPD.int, 1:3)
+  names(dat) = c("Population", "interval", "trait", "value")
+  dat$trait <- as.numeric(dat$trait)
+  if(!is.null(num_pc))  dat %<>% filter(trait <=num_pc)
+  dat$trait <- as.factor(dat$trait)
+  dat = dcast(dat, as.formula("Population+trait~interval"))
+  names(dat) = c("Population", "trait", "lower", "upper")
+  dat$trait = paste0("E", dat$trait)
+  order.list = paste0("E", 1:num_pc)
+  dat$trait = factor(dat$trait, levels = order.list)
+  dat$Population <- as.factor(dat$Population)
+  dat$Population = factor(dat$Population, levels = c("PW.P", "PW.G" , "control.t", "upwards.h'", "upwards.s'","downwards.h", "downwards.s"))
+  dat$mean = rowMeans(cbind(dat$upper, dat$lower))
+  myPalette <- c("black", "red", viridis(5))
+  
+  plot = ggplot(dat, aes_string( colour= "Population", x = "Population", y = "mean")) + geom_point() + 
+    geom_errorbar(aes_string(ymin = "lower", ymax = "upper"), size = 1 ) + 
+    scale_color_manual(values = myPalette, name = "Line", labels = c("Pooled-P", "Pooled-G", "Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) +
+    theme(axis.text.x = element_text(hjust = 1)) + background_grid() + 
+    theme(legend.position = c(0.85, 0.15), text = element_text(size = 18)) +
+    scale_x_discrete("Lines", labels = c("PW.P" = "P", "PW.G"= "G", "control.t" = "t","upwards.h'" = "h'", "upwards.s'" = "s'","downwards.h" = "h","downwards.s" = "s")) +
+    facet_wrap(~trait, ncol = 3, scales = "free_y") + panel_border() + ylab(label) 
+  
+  plot
+  save_plot("PWP_rs_projection_g.png", plot, base_aspect_ratio = 1.3, base_height = 4.8)
+  
