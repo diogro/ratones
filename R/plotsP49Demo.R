@@ -57,7 +57,7 @@ demo.plot <- Demog %>% ggplot(aes(x= GEN, y= Census, group = interaction(SEX, li
   geom_point(size =3) +
   geom_line() +
   geom_point(data = hand.plot.dem, shape = 16, color = "darkgrey", size = 5, alpha = 0.8) +
-  facet_wrap(~ original.line, ncol = 1, labeller = as_labeller(labels.lines) )+
+  facet_wrap(~ original.line, scale = "free_y", ncol = 1, labeller = as_labeller(labels.lines) )+
   scale_x_discrete(breaks = seq(from = 0, to = 55, 5), labels = seq(from = 0, to = 55, 5)) +
   ylab( "Weighted individuals" ) +  xlab ("Generations") +
   theme(panel.grid.minor = element_line(colour = "grey", linetype = "dotted", size =0.2)) +
@@ -73,7 +73,7 @@ demo.plot
 
 
 save_plot(filename = "demography_by_generation.png", plot = demo.plot, 
-          base_aspect_ratio = 0.9, base_height = 10)
+          base_aspect_ratio = 0.9, base_height = 8)
 
 
 Demog %>% ggplot(aes(x=GEN, y=Census, group = interaction(selection, line), color = selection, shape =original.line) ) +

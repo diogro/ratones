@@ -52,7 +52,7 @@ null_avgH.vec <- eigen(null_avgH)$vectors
 null_MCMC.H.val = laply(null_Hs, function(mat) diag(t(avgH.vec) %*% mat %*% avgH.vec))
 null = HPDinterval(as.mcmc(null_MCMC.H.val), prob = 0.95)
 krz_subspace_plot = rbind(cbind(rank = 1:35, as.data.frame(observed), type = "Observed"), 
-      cbind(rank = 1:35, as.data.frame(null), type = "Randomised")) %>%
+      cbind(rank = 1:35, as.data.frame(null), type = "Randomized")) %>%
   mutate(mean = (upper + lower) / 2) %>%
   ggplot(aes(x = rank, y = mean, linetype = type, color = type)) + 
   geom_point(position = position_dodge(width = 0.5)) + 

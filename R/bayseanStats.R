@@ -28,12 +28,13 @@ figure_3 <- ggdraw() +
 
 directionalVariation <- function(cov.matrix, line){
   beta_s <- solve(cov.matrix, delta_Z)
-  beta_NN <- solve(ExtendMatrix(cov.matrix, ret.dim = 13)[[1]], delta_Z)
+  beta_NN <- solve(ExtendMatrix(P)[[1]], delta_Z)
   condEvol = (sum(ConditionalEvolvability(cov.matrix)))
   data.frame(evolDZ = Evolvability(cov.matrix, Normalize(delta_Z)) / (sum(diag(cov.matrix))/ncol(cov.matrix)),
              evolBeta = Evolvability(cov.matrix, Normalize(beta_NN)) / (sum(diag(cov.matrix))/ncol(cov.matrix)),
              condevolDZ = ConditionalEvolvability(cov.matrix, Normalize(delta_Z)) / condEvol,
              condevolBeta = ConditionalEvolvability(cov.matrix, Normalize(beta_NN)) / condEvol,
+             BetaPC1 = abs(vectorCor(beta_NN, eigen(cov.matrix)$vector[,1])),
              DZpc1 = abs(vectorCor(delta_Z, eigen(cov.matrix)$vector[,1])))
 }
 
@@ -42,17 +43,23 @@ stats <- ldply(g_models, function(model) adply(model$Ps, 1,
                                                model$line), .parallel = TRUE)
 
 DzPC1 <- stats %>% dplyr::select(-X1) %>% ggplot(aes(DZpc1, group = .id, fill = .id)) + geom_density(alpha = 0.5) + labs(x = expression(paste("Vector correlation of ", Delta, "z and the first eigenvector")), y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = c(0.25, 0.7), text = element_text(size = 20))
-
 evolDZ <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolDZ, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = "Scaled directional\n evolvability", y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = "none", text = element_text(size = 20))
-
 condevolDZ <- stats %>% dplyr::select(-X1) %>% ggplot(aes(condevolDZ, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = "Scaled directional\n conditional evolvability", y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = "none", text = element_text(size = 20))
 
 evolBeta <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolBeta, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = "Scaled directional evolvability (Beta)", y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = "none", text = element_text(size = 20))
+BetaPC1 <- stats %>% dplyr::select(-X1) %>% ggplot(aes(BetaPC1, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = "Vector correlation of ", beta, " and the first eigenvector", y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = "none", text = element_text(size = 20))
+condevolBeta <- stats %>% dplyr::select(-X1) %>% ggplot(aes(condevolBeta, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = "Scaled directional condititonal evolvability (Beta)", y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = "none", text = element_text(size = 20))
 
 figure_4 <- ggdraw() +
   draw_plot(evolDZ, 0, 0.5, 0.5, 0.5) +
   draw_plot(condevolDZ, 0.5, 0.5, 0.5, 0.5) +
   draw_plot(DzPC1, 0, 0, 0.5, 0.5) +
+  draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = 20)
+
+figure_4_Beta <- ggdraw() +
+  draw_plot(evolBeta, 0, 0.5, 0.5, 0.5) +
+  draw_plot(condevolBeta, 0.5, 0.5, 0.5, 0.5) +
+  draw_plot(BetaPC1, 0, 0, 0.5, 0.5) +
   draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = 20)
 
 betaDzComparison <- function(cov.matrix, line){

@@ -1,0 +1,160 @@
+---
+title: "Estimating selection gradients and divergence"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+## Introduction
+
+Is this document we explore the difficulties in estimating selection gradients from information in evolutionary divergence and extant covariation matrices using the Lande equation. Some of this material is discussed in Marroig et al. (2012).
+
+## Selection gradient estimation
+
+The Lande eq. estates that the evolutionary divergence ($\Delta z$)  in a population will be proportional to the current additive genetic covariation (G-matrix) and the current selection gradient ($\beta$). If we measure evolutionary divergence and the G-matrix we can invert the Lande equation and solve for the selection gradient, reconstructing past selection and infering the direction of selection the population was subjected to. However, this procedure is extremelly sensitive to error in the G-matrix estimate, and this can lead to $\beta$ estimates that are wildly different from the acctual selection gradient. This is easy to see using simulations. 
+
+### A known selection gradient
+
+First, let's set up a simulated example using the mean pooled within-groups G-matrix from our experiment:
+
+```{r}
+G = readRDS("./G.rds")
+G[1:3, 1:3]
+```
+
+Now we simualate a know selection gradient which is size related, by perturbing the isometric vector with a small multivariate normal perturbation vector. This is resonable, since we are dealing with size selection. We can control the size of the perturbation via the variance.
+
+```{r}
+library(mvtnorm)
+library(evolqg)
+
+vectorCor = function(x, y) t(Normalize(x)) %*% Normalize(y)
+
+isometric = rep(1, 35)
+beta_var = 0.5
+beta = isometric + rnorm(35, 0, beta_var)
+beta
+```
+
+Now we can use this selection gradient to obtain a response to selection
+
+```{r} 
+deltaZ = G %*% beta
+deltaZ[1:3]
+```
+
+Now, if we have an error free estimate of the G-matrix, we can use the $\Delta z$ to reconstruct $\beta$ exactly:
+
+```{r}
+recons_beta = solve(G, deltaZ)
+
+## Are they numericaly the same?
+all(abs(recons_beta - beta) < 10e-9)
+
+## Are they pointing in the same direction?
+vectorCor(recons_beta, beta)
+```
+
+However, if we only have a sample of the population to estimate the G-matrix, things change. Even a resonably large sample of 100 individuals will carry considerable noise, and the $\beta$ estimate will suffer.
+
+```{r} 
+## One hundred individuals sampled from G
+pop = rmvnorm(100, mean = rep(0, 35), sigma = G)
+
+## The estimated covariance matrix
+G_estimated = cov(pop)
+
+## check that G and G_estimated are similar
+MatrixCompare(G, G_estimated)
+```
+
+The matrices are pretty similar, but let's check the estimated $\beta$, using the actual $\Delta z$
+
+```{r}
+beta_estimated = solve(G_estimated, deltaZ)
+vectorCor(beta, beta_estimated)
+```
+
+The estimated $\beta$ is completely different from the actual $\beta$, and their correlation is about what we would expect for random vectors in 35 dimentions. If fact, the $\Delta z$ is a better predictor of the direction of $\beta$ than the estimated selection gradient!
+
+```{r}
+vectorCor(deltaZ, beta)
+```
+
+We can repeat this many times and see if this was a fluke:
+```{r}
+library(tidyr)
+library(plyr)
+library(ggplot2)
+simulateBetaEstimation = function(beta_center, G, beta_var = 0.5, Gsample = 100) {
+  beta = beta_center + rnorm(35, 0, beta_var)
+  delta_Z = G %*% beta
+  pop = rmvnorm(Gsample, mean = rep(0, 35), sigma = G)
+  G_estimated = cov(pop)
+  beta_estimated = solve(G_estimated, delta_Z)
+  data.frame("estimated beta" = vectorCor(beta_estimated, beta),
+             delta_z = vectorCor(delta_Z, beta))
+}
+result = rdply(1000, simulateBetaEstimation(isometric, G)) 
+m_result = gather(result, estimator, value, estimated.beta:delta_z)
+ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
+  labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
+```
+
+While this is surprising, it make sense if we understand that $\beta$ estimation is very sensitive to noise in the G-matrix, and that selection in the direction of size (the first eigenvector) will tend to lead to responses also alligned with size. If we increase the variance in the selection gradient generation, and selection is no longer in the size direction, $\Delta z$ becomes a worst estimator:
+
+```{r}
+result = rdply(1000, simulateBetaEstimation(isometric, G, beta_var = 3)) 
+m_result = gather(result, estimator, value, estimated.beta:delta_z)
+ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
+  labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
+```
+
+We can also improve the gradient estimation by having extremelly large sample sizes and well estimated matrices:
+
+```{r}
+result = rdply(1000, simulateBetaEstimation(isometric, G, Gsample = 5000)) 
+m_result = gather(result, estimator, value, estimated.beta:delta_z)
+ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
+  labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
+```
+
+## Noise control methods
+
+Another option is to improve the G-matrix estimate using statistical methods. Marroig et al 2012 showed that the extended covariance matrix estimator could vastly improve selection gradient estimation. Let's try with out simulated example, using the ExtendMatrix function in the EvolQG package:
+
+```{r}
+simulateBetaEstimation = function(beta_center, G, beta_var = 0.5, Gsample = 100) {
+  beta = beta_center + rnorm(35, 0, beta_var)
+  delta_Z = G %*% beta
+  pop = rmvnorm(Gsample, mean = rep(0, 35), sigma = G)
+  G_estimated = cov(pop)
+  beta_estimated = solve(G_estimated, delta_Z)
+  beta_extended = solve(ExtendMatrix(G_estimated)[[1]], delta_Z)
+  data.frame("estimated beta" = vectorCor(beta_estimated, beta),
+           beta_extended = vectorCor(beta_extended, beta),
+             delta_z = vectorCor(delta_Z, beta))
+}
+result = rdply(1000, simulateBetaEstimation(isometric, G, 0.5)) 
+m_result = gather(result, estimator, value, estimated.beta:delta_z)
+ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
+  labs(x = "Correlation with true selection gradient", y = "Density")
+```
+
+With a sample of 100 for the G-matrix, $\Delta z$ is a better estimator of $\beta$ under size selection, but the matrix extension helps with the selection gradient estimate. 
+
+With a larger sample, the extended $\beta$ is about the same as $\Delta z$, even for size selection.
+
+```{r}
+result = rdply(1000, simulateBetaEstimation(isometric, G, 0.5, Gsample = 350)) 
+m_result = gather(result, estimator, value, estimated.beta:delta_z)
+ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
+  labs(x = "Correlation with true selection gradient", y = "Density")
+```
+
+## Divergence and variation
+
+In our manuscript we are interested in exploring the anisotropic changes in variation after an event of selection. To do so, we compare variation in the direction of phenotypic divergence and in other direction. Our figure 4 uses the direction of divergence because in order to have a meaningful direction in which to explore the differences in variation we must maximize our power at every step of the way. Using individual $\Delta z$ for each population would require the ancestral population, which we do not have access. We could use the control strain, but we expect this estimate to be very error prone, given the fluctuations due to drift in the control and the number of parameters to be estimated from a limited sample size per strain. We then opted to using the difference between the selected populations. This gives us a widely used quantity that reflects the differences caused by the selectioin regimes, and can plausibably be a better estimator of the direction of selection than the selection gradient (if we accept that selection was size related). Another option that would be resonable given our experiment and sample sizes is to use the divergence and the extended pooled within-groups G- or P-matrix (an estimate of the ancestral matrix) to estimate a single selection gradient, and then use this gradient to explore the directional variation in the covariance matrices. Using this strategy, we get the following version for figure 4:
+

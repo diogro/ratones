@@ -1,5 +1,5 @@
-library(mvtnorm)
-library(ggplot2)
+if(!require (mvtnorm)) {install.packages("mvtnorm"); library(mvtnorm)}
+if(!require (ggplot2)) {install.packages("ggplot2"); library(ggplot2)}
 
 source("R/read_ratones.R")
 
@@ -11,11 +11,18 @@ simulateBetaEstimation = function(beta_center, G, beta_var = 0.5) {
   pop = mvrnorm(60, mu = rep(0, 35), Sigma = G)
   G_estimated = cov(pop)
   beta_estimated = solve(G_estimated, delta_Z)
-  #beta_non_noise = solve(ExtendMatrix(G_estimated)[[1]], delta_Z)
-  data.frame("estimated beta" = vectorCor(beta_estimated, beta),
-   #         beta_non_noise = vectorCor(beta_non_noise, beta),
+  beta_non_noise = solve(ExtendMatrix(G_estimated, ret.dim = 10)[[1]], delta_Z)
+  data.frame(beta = vectorCor(beta_estimated, beta),
+             beta_non_noise = vectorCor(beta_non_noise, beta),
              delta_z = vectorCor(delta_Z, beta))
 }
-result = rdply(1000, simulateBetaEstimation(beta, P, 0.8)) 
-m_result = gather(result, estimator, value, estimated.beta:delta_z)
-ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + labs(x = "Correlation with true selection gradient", y = "Density")
+result = rdply(1000, simulateBetaEstimation(beta, delta_Z)) 
+m_result = gather(result, estimator, value, beta:delta_z)
+figure_S7 = ggplot(m_result, aes(value, fill = estimator)) + 
+  geom_density() + labs(x= expression(paste("Vector correlation with the real ", beta)))+
+  scale_fill_brewer(palette = "Greys", "Estimators", labels = c(expression(paste(beta, " - from equation" ), paste( beta, " - non noise"), paste(Delta, "z")) ),
+  guide = guide_legend(
+    label.position = "right",
+    label.hjust = 0))
+figure_S7  
+save_plot("figureS7.png", figure_S7, base_aspect_ratio = 1.3, base_height = 4)

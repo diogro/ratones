@@ -24,7 +24,7 @@ p49_plot = ggplot(p49_full_data, aes(line, value, group = original_line, fill = 
   scale_colour_grey("", start = 0, end = 0.6, guide = "none") +
   theme(legend.position = "bottom")
 
-save_plot("figureS2.png", p49_plot, base_aspect_ratio = 1.7, base_height = 5)
+save_plot("figureS2.png", p49_plot, base_aspect_ratio = 1.7, base_height = 4)
 
 traits = full_data %>% dplyr::select(IS_PM:BA_OPI)
 full_data$gm = apply(traits, 1, gm_mean)
@@ -43,7 +43,7 @@ gm_plot = ggplot(gm_full_data, aes(original_line, value, group = original_line, 
   scale_colour_grey("", start = 0, end = 0.6, guide = "none") +
   theme(legend.position = "bottom")
 
-save_plot("figure1.png", gm_plot, base_aspect_ratio = 1.7, base_height = 5)
+save_plot("figure1.png", gm_plot, base_aspect_ratio = 1.7, base_height = 4)
 
 full_data %>% count(line, selection, SEX) %>% xtable
 full_data %>% count(line, selection, GER) %>% xtable
