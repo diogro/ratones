@@ -9,11 +9,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-Is this document we explore the difficulties in estimating selection gradients from information in evolutionary divergence and extant covariation matrices using the Lande equation. Some of this material is discussed in Marroig et al. (2012).
+Is this document we explore the difficulties in estimating selection gradients from information on evolutionary divergence and extant covariation matrices using the Lande equation. Some of this material is discussed in Marroig, G, D Melo, and G Garcia. 2012. “Modularity, Noise, and Natural Selection.” Evolution 66 (5): 1506–24.
 
 ## Selection gradient estimation
 
-The Lande eq. estates that the evolutionary divergence ($\Delta z$)  in a population will be proportional to the current additive genetic covariation (G-matrix) and the current selection gradient ($\beta$). If we measure evolutionary divergence and the G-matrix we can invert the Lande equation and solve for the selection gradient, reconstructing past selection and infering the direction of selection the population was subjected to. However, this procedure is extremelly sensitive to error in the G-matrix estimate, and this can lead to $\beta$ estimates that are wildly different from the acctual selection gradient. This is easy to see using simulations. 
+The Lande eq. estates that the evolutionary divergence ($\Delta z$)  in a population will be proportional to the current additive genetic covariation (G-matrix) and the current selection gradient ($\beta$). If we measure evolutionary divergence and the G-matrix we can invert the Lande equation and solve for the selection gradient, reconstructing past selection and infering the direction of selection the population was subjected to. However, this procedure is extremelly sensitive to error in the G-matrix estimate, and this can lead to $\beta$ estimates that are wildly different from the actual selection gradient. This is easy to see using simulations. 
 
 ### A known selection gradient
 
@@ -103,7 +103,7 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
   labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
 ```
 
-While this is surprising, it make sense if we understand that $\beta$ estimation is very sensitive to noise in the G-matrix, and that selection in the direction of size (the first eigenvector) will tend to lead to responses also alligned with size. If we increase the variance in the selection gradient generation, and selection is no longer in the size direction, $\Delta z$ becomes a worst estimator:
+While this is surprising, it make sense if we understand that $\beta$ estimation is very sensitive to noise in the G-matrix, and that selection in the direction of size (the first eigenvector) will tend to lead to responses also alligned with size. If we increase the variance in the selection gradient generation, and selection is no longer in the size direction, $\Delta z$ becomes a worst estimator than the selection gradient:
 
 ```{r}
 result = rdply(1000, simulateBetaEstimation(isometric, G, beta_var = 3)) 
@@ -154,9 +154,18 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
   labs(x = "Correlation with true selection gradient", y = "Density")
 ```
 
+For selection that is not size related, the $\beta$ estimator using the extended matrix is almost always the best:
+
+```{r}
+result = rdply(1000, simulateBetaEstimation(isometric, G, 3, Gsample = 100)) 
+m_result = gather(result, estimator, value, estimated.beta:delta_z)
+ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
+  labs(x = "Correlation with true selection gradient", y = "Density")
+```
+
 ## Divergence and variation
 
-In our manuscript we are interested in exploring the anisotropic changes in variation after an event of selection. To do so, we compare variation in the direction of phenotypic divergence and in other direction. Our figure 4 uses the direction of divergence because in order to have a meaningful direction in which to explore the differences in variation we must maximize our power at every step of the way. Using individual $\Delta z$ for each population would require the ancestral population, which we do not have access. We could use the control strain, but we expect this estimate to be very error prone, given the fluctuations due to drift in the control and the number of parameters to be estimated from a limited sample size per strain. We then opted to using the difference between the selected populations. This gives us a widely used quantity that reflects the differences caused by the selectioin regimes, and can plausibably be a better estimator of the direction of selection than the selection gradient (if we accept that selection was size related). Another option that would be resonable given our experiment and sample sizes is to use the divergence and the extended pooled within-groups G- or P-matrix (an estimate of the ancestral matrix) to estimate a single selection gradient, and then use this gradient to explore the directional variation in the covariance matrices. Using this strategy, we get the following version for figure 4:
+In our manuscript we are interested in exploring the anisotropic changes in variation after an event of selection on size. To do so, we compare variation in the direction of phenotypic divergence and in other direction. Our figure 4 uses the direction of divergence between the directions of selection because in order to have a meaningful direction in which to explore the differences in variation we must maximize our power at every step of the way. Using individual $\Delta z$ for each population would require the ancestral population, which we do not have access. We could use the control strain, but we expect this estimate to be very error prone, given the fluctuations due to drift in the control and the number of parameters to be estimated from a limited sample size per strain. We then opted to using the difference between the selected populations. This gives us a widely used quantity that reflects the differences caused by the selectioin regimes, and can plausibly be a better estimator of the direction of selection than the selection gradient (if we accept that selection was size related). Another option that would be resonable given our experiment and sample sizes is to use the divergence and the extended pooled within-groups G- or P-matrix (an estimate of the ancestral matrix) to estimate a single selection gradient, and then use this gradient to explore the directional variation in the covariance matrices. Using this strategy, we get the following version for figure 4:
 
 ```{r, out.width = "400px", echo = FALSE}
 knitr::include_graphics("figure4_beta.png")
