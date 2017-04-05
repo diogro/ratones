@@ -9,11 +9,11 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-Is this document we explore the difficulties in estimating selection gradients from information on evolutionary divergence and extant covariation matrices using the Lande equation. Some of this material is discussed in Marroig, G, D Melo, and G Garcia. 2012. “Modularity, Noise, and Natural Selection.” Evolution 66 (5): 1506–24.
+Is this document we explore the difficulties in estimating selection gradients from information on evolutionary divergence and extant covariation matrices using the Lande equation (Lande, R. 1979 "Quantitative Genetic Analysis of Multivariate Evolution, Applied to Brain: Body Size Allometry" - Evolution 33 (1): 402-416). Some of this material is discussed in Marroig, G.; Melo, D.and Garcia, G. (2012) “Modularity, Noise, and Natural Selection.” - Evolution 66 (5): 1506–24.
 
 ## Selection gradient estimation
 
-The Lande eq. estates that the evolutionary divergence ($\Delta z$)  in a population will be proportional to the current additive genetic covariation (G-matrix) and the current selection gradient ($\beta$). If we measure evolutionary divergence and the G-matrix we can invert the Lande equation and solve for the selection gradient, reconstructing past selection and infering the direction of selection the population was subjected to. However, this procedure is extremelly sensitive to error in the G-matrix estimate, and this can lead to $\beta$ estimates that are wildly different from the actual selection gradient. This is easy to see using simulations. 
+The Lande equation estates that the evolutionary divergence ($\Delta z$) in a population will be proportional to the current additive genetic covariation (G-matrix) and the current selection gradient ($\beta$). If we measure $\Delta z$ and the G-matrix we can invert the Lande equation and solve for $\beta$, infering the direction of selection the population was subjected to. However, this procedure is extremelly sensitive to errors in the G-matrix estimate, which can lead to $\beta$ estimates that are wildly different from the real selection gradient. Here we use a simulation approach to show the effects of inverting the Lande equation to estimate $beta$, discuss alternative methods to acount for errors in the G-matrix, and give a more detailed explanation about the rationale behind using t
 
 ### A known selection gradient
 
@@ -123,7 +123,7 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
 
 ## Noise control methods
 
-Another option is to improve the G-matrix estimate using statistical methods. Marroig et al 2012 showed that the extended covariance matrix estimator could vastly improve selection gradient estimation. Let's try with out simulated example, using the ExtendMatrix function in the EvolQG package:
+Another option is to improve the G-matrix estimate using statistical methods. Marroig et. al. (2012) showed that the extended covariance matrix estimator could vastly improve selection gradient estimation. Let's try with out simulated example, using the ExtendMatrix function in the EvolQG package:
 
 ```{r}
 simulateBetaEstimation = function(beta_center, G, beta_var = 0.5, Gsample = 100) {
