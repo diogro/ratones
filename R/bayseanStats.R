@@ -16,7 +16,7 @@ names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
   global_stats$line <- factor(global_stats$line, levels = lines)
   r2_plot <- ggplot(filter(global_stats, variable == "MeanSquaredCorrelation"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Mean squared correlation", y = "Density") + theme(legend.position = c(0.7, 0.7), text = element_text(size = 20))
   flexibility_plot <- ggplot(filter(global_stats, variable == "flexibility"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Mean flexibility", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
-  pc1.percent_plot <- ggplot(filter(global_stats, variable == "pc1.percent"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Proportion of variation in PC1", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
+  pc1.percent_plot <- ggplot(filter(global_stats, variable == "pc1.percent"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line") + background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Proportion of variation in E1", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
   evolvability_plot <- ggplot(filter(global_stats, variable == "evolvability"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line")+ background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Mean evolvability", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
   cond_evolvability_plot <- ggplot(filter(global_stats, variable == "conditional.evolvability"), aes(value, group = interaction(selection, variable, line), fill = interaction(selection, line))) + geom_density(alpha = 0.5) + scale_fill_manual(values = viridis(5), name = "Line")+ background_grid(major = 'x', minor = "none") +  panel_border() + labs(x = "Mean conditional evolvability", y = "Density") + theme(legend.position = "none", text = element_text(size = 20))
 figure_3 <- ggdraw() +
@@ -78,7 +78,7 @@ DzBeta <- stats_beta %>% dplyr::select(-X1) %>% ggplot(aes(beta, group = .id, fi
 
 DzBetaN <- stats_beta %>% dplyr::select(-X1) %>% ggplot(aes(betaN, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = "Beta x Delta Z", y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = "none", text = element_text(size = 20))
 
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3.png", figure_3, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
+save_plot("figure3.png", figure_3, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
 save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.png", figure_4, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
 
 PCones <- t(laply(g_models, function(x) eigen(x$P)$vectors[,1]))
@@ -102,6 +102,20 @@ xtable(G_comp)
 
 GP = RandomSkewers(Gs, Ps, parallel = TRUE)
 
-control = filter(full_data, LIN == "t") %>% mutate(big = P49 > mean(P49))
-dlply(control, .(big), function(x) CalcR2(CalculateMatrix(lm(as.matrix(select(x, IS_PM:BA_OPI))~x$SEX))))
-dlply(control, .(LIN), function(x) CalcR2(CalculateMatrix(lm(as.matrix(select(x, IS_PM:BA_OPI))~x$SEX))))
+ic.min<-function(x) {
+  t<- length(x)
+  ic<- sort(x)[round(t*c(0.025) )]
+  names(ic) <- c("min")
+  return(ic)
+}
+
+ic.max<-function(x) {
+  t<- length(x)
+  ic<-sort(x)[round(t*c(0.975) )] 
+  names(ic) <- c("max")
+  return(ic)
+}
+
+global_stats %>% group_by(variable, selection, line) %>% summarise_each(funs(ic.min, mean, ic.max), value) %>% xtable %>% print.xtable(type = "latex", include.rownames = FALSE)
+stats %>% dplyr::select(.id, evolDZ, condevolDZ, DZpc1) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.") %>% group_by(variable, selection, line) %>% summarise_each(funs(ic.min, mean, ic.max), value) %>% xtable() %>% print.xtable(type = "latex", include.rownames = FALSE)
+
