@@ -101,30 +101,4 @@ ic.max<-function(x) {
 global_stats %>% group_by(variable, selection, line) %>% summarise_each(funs(ic.min, mean, ic.max), value) %>% xtable %>% print.xtable(type = "latex", include.rownames = FALSE)
 stats %>% dplyr::select(.id, evolDZ, condevolDZ, DZpc1) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.") %>% group_by(variable, selection, line) %>% summarise_each(funs(ic.min, mean, ic.max), value) %>% xtable() %>% print.xtable(type = "latex", include.rownames = FALSE)
 
-m = g_models$control.t$Ps
-
-ic.mean.mx.dist = function(m) 
-  {
-CI.min = matrix(NA, nrow = dim(m)[2], ncol = dim(m)[3]) 
-CI.max = matrix(NA, nrow = dim(m)[2], ncol = dim(m)[3]) 
-Mean = matrix(NA, nrow = dim(m)[2], ncol = dim(m)[3]) 
-for (j in 1:dim(m)[3]) {
-  for (i in 1:dim(m)[2]) { 
-    CI.min[i,j] = ic.min (m[ , i, j])
-    CI.max[i,j] = ic.max (m[ , i, j])
-    Mean[i,j] = mean(m[ , i, j])
-    }
-}
-return(list("CI.min" = CI.min,
-            "CI.max" = CI.max,
-            "Mean" = Mean ))
-}
-
-ic.mean.P.matrices = g_models %>% llply(., function(x) x$Ps ) %>% llply(., ic.mean.mx.dist)
-ic.mean.G.matrices = g_models %>% llply(., function(x) x$Gs ) %>% llply(., ic.mean.mx.dist)
-
-all.lines.P.matrices = g_models %>% llply(., function(x) x$Ps )
-all.lines.G.matrices = g_models %>% llply(., function(x) x$Gs )
-
-save(list = c("ic.mean.P.matrices", "ic.mean.G.matrices", "all.lines.P.matrices", "all.lines.G.matrices"), file = "data/Matrices_dist_info.RData")
 
