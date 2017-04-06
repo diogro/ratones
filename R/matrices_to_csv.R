@@ -80,23 +80,3 @@ write.csv(Stats.sp.G, file = "data/SI_Matrices/G/Stats_upwards_s'_distribuition_
 
 Stats.hp.G = matrices.to.csv2(ic.mean.G.matrices$`upwards.h'`, line.name = "upwards_h'", type = "G" )
 write.csv(Stats.hp.G, file = "data/SI_Matrices/G/Stats_upwards_h'_distribuition_G.csv")
-
-############################################################################################
-#                               P-Matrices                                                 #
-############################################################################################
-
-Stats.t.P = matrices.to.csv2(ic.mean.P.matrices$control.t, line.name = "control_t", type = "P" )
-write.csv(Stats.t.P, file = "data/SI_Matrices/P/Stats_control_t_distribuition_P.csv")
-
-Stats.s.P = matrices.to.csv2(ic.mean.P.matrices$downwards.s, line.name = "downwards_s", type = "P" )
-write.csv(Stats.s.P, file = "data/SI_Matrices/P/Stats_downwards_s_distribuition_P.csv")
-
-Stats.h.P = matrices.to.csv2(ic.mean.P.matrices$downwards.h, line.name = "downwards_h", type = "P" )
-write.csv(Stats.h.P, file = "data/SI_Matrices/P/Stats_downwards_h_distribuition_P.csv")
-
-Stats.sp.P = matrices.to.csv2(ic.mean.P.matrices$`upwards.s'`, line.name = "upwards_s'", type = "P" )
-write.csv(Stats.sp.P, file = "data/SI_Matrices/P/Stats_upwards_s'_distribuition_P.csv")
-
-Stats.hp.P = matrices.to.csv2(ic.mean.P.matrices$`upwards.h'`, line.name = "upwards_h'", type = "P" )
-write.csv(Stats.hp.P, file = "data/SI_Matrices/P/Stats_upwards_h'_distribuition_P.csv")
-
