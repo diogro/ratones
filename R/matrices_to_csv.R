@@ -1,4 +1,9 @@
 trait.names = colnames(raw.data)[10:44]
+
+############################################################################################
+#     Saving a csv file for all posterior matrices distribuition for each line             #
+############################################################################################
+
 g_matrices =llply(g_models, function(x) alply(x$Gs, 1) ) 
 p_matrices =llply(g_models, function(x) alply(x$Ps, 1) ) 
 
@@ -52,6 +57,44 @@ write.csv(All.sp.P, file = "data/SI_Matrices/P/All_upwards_s'_posterior_P.csv")
 
 All.hp.P = matrices.to.csv(p_matrices$`upwards.h'`, line.name = "upwards_h'", type = "P" )
 write.csv(All.hp.P, file = "data/SI_Matrices/P/All_upwards_h'_posterior_P.csv")
+
+############################################################################################
+#             Satatistics for posterior matrices distribuition of each line                #
+############################################################################################
+
+ic.min<-function(x) {
+  t<- length(x)
+  ic<- sort(x)[round(t*c(0.025) )]
+  names(ic) <- c("min")
+  return(ic)
+}
+
+ic.max<-function(x) {
+  t<- length(x)
+  ic<-sort(x)[round(t*c(0.975) )] 
+  names(ic) <- c("max")
+  return(ic)
+}
+
+ic.mean.mx.dist = function(m) 
+{
+  CI.min = matrix(NA, nrow = dim(m)[2], ncol = dim(m)[3]) 
+  CI.max = matrix(NA, nrow = dim(m)[2], ncol = dim(m)[3]) 
+  Mean = matrix(NA, nrow = dim(m)[2], ncol = dim(m)[3]) 
+  for (j in 1:dim(m)[3]) {
+    for (i in 1:dim(m)[2]) { 
+      CI.min[i,j] = ic.min (m[ , i, j])
+      CI.max[i,j] = ic.max (m[ , i, j])
+      Mean[i,j] = mean(m[ , i, j])
+    }
+  }
+  return(list("CI.min" = CI.min,
+              "CI.max" = CI.max,
+              "Mean" = Mean ))
+}
+
+ic.mean.P.matrices = g_models %>% llply(., function(x) x$Ps ) %>% llply(., ic.mean.mx.dist)
+ic.mean.G.matrices = g_models %>% llply(., function(x) x$Gs ) %>% llply(., ic.mean.mx.dist)
 
 matrices.to.csv2 = function(x, line.name, type)  
 {
