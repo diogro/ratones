@@ -13,7 +13,7 @@ Is this document we explore the difficulties in estimating selection gradients f
 
 ## Selection gradient estimation
 
-The Lande equation estates that the evolutionary divergence ($\Delta z$) in a population will be proportional to the current additive genetic covariation (G-matrix) and the current selection gradient ($\beta$). If we measure $\Delta z$ and the G-matrix we can invert the Lande equation and solve for $\beta$, infering the direction of selection the population was subjected to. However, this procedure is extremelly sensitive to errors in the G-matrix estimate, which can lead to $\beta$ estimates that are wildly different from the real selection gradient. Here we use a simulation approach to show the effects of inverting the Lande equation to estimate $beta$, discuss alternative methods to acount for errors in the G-matrix, and give a more detailed explanation about the rationale behind using t
+The Lande equation estates that the evolutionary divergence ($\Delta z$) in a population will be proportional to the current additive genetic covariation (G-matrix) and the current selection gradient ($\beta$). If we measure $\Delta z$ and the G-matrix we can invert the Lande equation and solve for $\beta$, infering the direction of selection the population was subjected to. However, this procedure is extremelly sensitive to errors in the G-matrix estimate, which can lead to $\beta$ estimates that are wildly different from the real selection gradient. Here we use a simulation approach to show the effects of inverting the Lande equation to estimate $beta$, discuss alternative methods to account for errors in the G-matrix, and give a more detailed explanation about the rationale behind using t
 
 ### A known selection gradient
 
@@ -24,7 +24,7 @@ G = readRDS("./G.rds")
 G[1:3, 1:3]
 ```
 
-Now we simualate a know selection gradient which is size related, by perturbing the isometric vector with a small multivariate normal perturbation vector. This is resonable, since we are dealing with size selection. We can control the size of the perturbation via the variance.
+Now we simulate a know selection gradient which is size related, by perturbing the isometric vector with a small multivariate normal perturbation vector. This is reasonable, since we are dealing with size selection. We can control the size of the perturbation via the variance.
 
 ```{r}
 library(mvtnorm)
@@ -57,7 +57,7 @@ all(abs(recons_beta - beta) < 10e-9)
 vectorCor(recons_beta, beta)
 ```
 
-However, if we only have a sample of the population to estimate the G-matrix, things change. Even a resonably large sample of 100 individuals will carry considerable noise, and the $\beta$ estimate will suffer.
+However, if we only have a sample of the population to estimate the G-matrix, things change. Even a reasonably large sample of 100 individuals will carry considerable noise, and the $\beta$ estimate will suffer.
 
 ```{r} 
 ## One hundred individuals sampled from G
@@ -77,7 +77,7 @@ beta_estimated = solve(G_estimated, deltaZ)
 vectorCor(beta, beta_estimated)
 ```
 
-The estimated $\beta$ is completely different from the actual $\beta$, and their correlation is about what we would expect for random vectors in 35 dimentions. If fact, the $\Delta z$ is a better predictor of the direction of $\beta$ than the estimated selection gradient!
+The estimated $\beta$ is completely different from the actual $\beta$, and their correlation is about what we would expect for random vectors in 35 dimensions. If fact, the $\Delta z$ is a better predictor of the direction of $\beta$ than the estimated selection gradient!
 
 ```{r}
 vectorCor(deltaZ, beta)
@@ -103,7 +103,7 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
   labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
 ```
 
-While this is surprising, it make sense if we understand that $\beta$ estimation is very sensitive to noise in the G-matrix, and that selection in the direction of size (the first eigenvector) will tend to lead to responses also alligned with size. If we increase the variance in the selection gradient generation, and selection is no longer in the size direction, $\Delta z$ becomes a worst estimator than the selection gradient:
+While this is surprising, it make sense if we understand that $\beta$ estimation is very sensitive to noise in the G-matrix, and that selection in the direction of size (the first eigenvector) will tend to lead to responses also aligned with size. If we increase the variance in the selection gradient generation, and selection is no longer in the size direction, $\Delta z$ becomes a worst estimator than the selection gradient:
 
 ```{r}
 result = rdply(1000, simulateBetaEstimation(isometric, G, beta_var = 3)) 
@@ -112,7 +112,7 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
   labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
 ```
 
-We can also improve the gradient estimation by having extremelly large sample sizes and well estimated matrices:
+We can also improve the gradient estimation by having extremely large sample sizes and well estimated matrices:
 
 ```{r}
 result = rdply(1000, simulateBetaEstimation(isometric, G, Gsample = 5000)) 
@@ -165,7 +165,7 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
 
 ## Divergence and variation
 
-In our manuscript we are interested in exploring the anisotropic changes in variation after an event of selection on size. To do so, we compare variation in the direction of phenotypic divergence and in other directions. Our figure 4 uses the direction of divergence between the directions of selection because in order to have a meaningful direction in which to explore the differences in variation we must maximize our power at every step of the way. Using individual $\Delta z$ for each population would require the ancestral population, which we do not have access. We could use the control strain, but we expect this estimate to be very error prone, given the fluctuations due to drift in the control and the number of parameters to be estimated from a limited sample size per strain. We then opted to using the difference between the selected populations. This gives us a widely used quantity that reflects the differences caused by the selectioin regimes, and can plausibly be a better estimator of the direction of selection than the selection gradient (if we accept that selection was size related). Another option that would be resonable given our experiment and sample sizes is to use the divergence and the extended pooled within-groups G- or P-matrix (an estimate of the ancestral matrix) to estimate a single selection gradient, and then use this gradient to explore the directional variation in the covariance matrices. Using this strategy, we get the following version for figure 4:
+In our manuscript we are interested in exploring the anisotropic changes in variation after an event of selection on size. To do so, we compare variation in the direction of phenotypic divergence and in other directions. Our figure 4 uses the direction of divergence between the directions of selection because in order to have a meaningful direction in which to explore the differences in variation we must maximize our power at every step of the way. Using individual $\Delta z$ for each population would require the ancestral population, which we do not have access. We could use the control strain, but we expect this estimate to be very error prone, given the fluctuations due to drift in the control and the number of parameters to be estimated from a limited sample size per strain. We then opted to using the difference between the selected populations. This gives us a widely used quantity that reflects the differences caused by the selection regimes, and can plausibly be a better estimator of the direction of selection than the selection gradient (if we accept that selection was size related). Another option that would be reasonable given our experiment and sample sizes is to use the divergence and the extended pooled within-groups G- or P-matrix (an estimate of the ancestral matrix) to estimate a single selection gradient, and then use this gradient to explore the directional variation in the covariance matrices. Using this strategy, we get the following version for figure 4:
 
 ```{r, out.width = "400px", echo = FALSE}
 knitr::include_graphics("figure4_beta.png")
