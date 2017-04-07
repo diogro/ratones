@@ -1,5 +1,6 @@
 ---
 title: "Estimating selection gradients and divergence"
+subtitle: "The Evolution of Phenotypic Integration: How directional selection reshapes covariation in mice  - Supporting Information -"
 output: pdf_document
 ---
 
@@ -7,17 +8,18 @@ output: pdf_document
 knitr::opts_chunk$set(echo = TRUE)
 ```
 
+
 ## Introduction
 
 Is this document we explore the difficulties in estimating selection gradients from information on evolutionary divergence and extant covariation matrices using the Lande equation (Lande, R. 1979 "Quantitative Genetic Analysis of Multivariate Evolution, Applied to Brain: Body Size Allometry" - Evolution 33 (1): 402-416). Some of this material is discussed in Marroig, G.; Melo, D.and Garcia, G. (2012) “Modularity, Noise, and Natural Selection.” - Evolution 66 (5): 1506–24.
 
 ## Selection gradient estimation
 
-The Lande equation estates that the evolutionary divergence ($\Delta z$) in a population will be proportional to the current additive genetic covariation (G-matrix) and the current selection gradient ($\beta$). If we measure $\Delta z$ and the G-matrix we can invert the Lande equation and solve for $\beta$, infering the direction of selection the population was subjected to. However, this procedure is extremelly sensitive to errors in the G-matrix estimate, which can lead to $\beta$ estimates that are wildly different from the real selection gradient. Here we use a simulation approach to show the effects of inverting the Lande equation to estimate $beta$, discuss alternative methods to account for errors in the G-matrix, and give a more detailed explanation about the rationale behind using t
+The Lande equation estates that the evolutionary divergence ($\Delta z$) in a population will be proportional to the current additive genetic covariation (G-matrix) and the current selection gradient ($\beta$). If we measure $\Delta z$ and the G-matrix we can invert the Lande equation and solve for $\beta$, infering the direction of selection the population was subjected to. However, this procedure is extremelly sensitive to errors in the G-matrix estimate, which can lead to $\beta$ estimates that are wildly different from the real selection gradient. Here we use a simulation approach to show the effects of inverting the Lande equation to estimate $\beta$, discuss alternative methods to account for errors in the G-matrix, and give a more detailed explanation about the rationale behind using t
 
 ### A known selection gradient
 
-First, let's set up a simulated example using the mean pooled within-groups G-matrix from our experiment:
+First, let's set up a simulated example using the mean pooled within-groups G-matrix from our experiment. This matrix was obtained from the BSFG model using all of the individuals and controlling for differences in means between the lines.
 
 ```{r}
 G = readRDS("./G.rds")
