@@ -1,7 +1,7 @@
 if(!require(doMC)) {install.packages('doMC'); library(doMC)}
 if(!require(viridis)) install.packages("viridis")
 library(viridis)
-registerDoMC(3)
+registerDoMC(2)
 
 #source("R/run_ratones_MCMCglmm_P.R")
 source("R/read_ratones.R")
@@ -10,7 +10,7 @@ g_mcmc_stats = tbl_df(ldply(g_models, function(x) adply(x$Gs, 1, MeanMatrixStati
 
 mcmc_stats = g_mcmc_stats
 # save(mcmc_stats, file = "./Rdatas/P_mcmc_stats")
-load("./Rdatas/P_mcmc_stats")
+load("./data/G_mcmc_stats")
 names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
 
 global_stats <- mcmc_stats %>% dplyr::select(.id, MeanSquaredCorrelation, flexibility, pc1.percent, evolvability, conditional.evolvability) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
