@@ -1,7 +1,7 @@
 if(!require(doMC)) {install.packages('doMC'); library(doMC)}
 if(!require(viridis)) install.packages("viridis")
 library(viridis)
-registerDoMC(2)
+registerDoMC(5)
 
 #source("R/run_ratones_MCMCglmm_P.R")
 source("R/read_ratones.R")
@@ -44,7 +44,7 @@ directionalVariation <- function(cov.matrix, line){
              BetaPC1 = abs(vectorCor(beta_NN, eigen(cov.matrix)$vector[,1])))
 }
 
-stats <- ldply(g_models, function(model) adply(model$Ps, 1,
+stats <- ldply(g_models, function(model) adply(model$Gs, 1,
                                                directionalVariation,
                                                model$line), .parallel = TRUE)
 
@@ -65,7 +65,7 @@ figure_4 <- ggdraw() +
   draw_plot(condevolDZ, 0.5, 0.5, 0.5, 0.5) +
   draw_plot(DzPC1, 0, 0, 0.5, 0.5) +
   draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0), c(1, 1, 0.5), size = 20)
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4.png", figure_4, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure4_SIversion.png.png", figure_4, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
 
 BetaPC1 <- stats %>% dplyr::select(-X1) %>% ggplot(aes(BetaPC1, group = .id, fill = .id)) + 
   geom_density(alpha = 0.5) + 

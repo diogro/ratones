@@ -1,6 +1,6 @@
 library(coda)
 library(MCMCglmm)
-library(MasterBayes)
+if(!require(MasterBayes)){install.packages("MasterBayes"); library(MasterBayes)}
 
 source("R/read_ratones.R")
 
@@ -16,7 +16,7 @@ g_matrices = aperm(g_matrices, c(3, 4, 1, 2))
 dimnames(g_matrices)[[3]] <- names(g_models)
 
 p_matrices = laply(g_models, function(x) x$Ps)
-p_matrices = aperm(g_matrices, c(3, 4, 1, 2))
+p_matrices = aperm(p_matrices, c(3, 4, 1, 2))
 dimnames(p_matrices)[[3]] <- names(g_models)
 
 Hs = alply(g_matrices, 4, function(x) alply(x, 3)) %>% llply(function(x) KrzSubspace(x)$H)
@@ -46,11 +46,11 @@ IDs = llply(main.data, function(x) x$info$ID)
 n_IDs = laply(IDs, length)
 filter_ped = function(x, i) x[rownames(x) %in% IDs[[i]],]
 for (i in 1:MCMCsamp){
-  ct.bv <- filter_ped(rbv(ped, g_models[[1]]$Ps[i,,]), 1)
-  dh.bv <- filter_ped(rbv(ped, g_models[[2]]$Ps[i,,]), 2)
-  ds.bv <- filter_ped(rbv(ped, g_models[[3]]$Ps[i,,]), 3)
-  uh.bv <- filter_ped(rbv(ped, g_models[[4]]$Ps[i,,]), 4)
-  us.bv <- filter_ped(rbv(ped, g_models[[5]]$Ps[i,,]), 5)
+  ct.bv <- filter_ped(rbv(ped, g_models[[1]]$Gs[i,,]), 1)
+  dh.bv <- filter_ped(rbv(ped, g_models[[2]]$Gs[i,,]), 2)
+  ds.bv <- filter_ped(rbv(ped, g_models[[3]]$Gs[i,,]), 3)
+  uh.bv <- filter_ped(rbv(ped, g_models[[4]]$Gs[i,,]), 4)
+  us.bv <- filter_ped(rbv(ped, g_models[[5]]$Gs[i,,]), 5)
   a.pop <- cumsum(n_IDs)
   pop.bv <- rbind(ct.bv,dh.bv,ds.bv,uh.bv,us.bv)
   rand.pop.bv <- pop.bv[sample(dim(pop.bv)[1],replace=F),]
@@ -84,7 +84,7 @@ rs_projection = RSProjection(p_matrices)
 rs_projection_plot_full = PlotRSprojection_rata(rs_proj = rs_projection, cov.matrix.array = p_matrices, num_pc = 35, p = 0.95, ncols = 5)
 rs_projection_plot_full
 
-PlotRSprojection_rata <- function( rs_proj = rs_projection, cov.matrix.array = p_matrices, num_pc = 8, p = 0.95, ncols = 5, label = "Phenotypic Variance")
+PlotRSprojection_rata <- function( rs_proj = rs_projection, cov.matrix.array = g_matrices, num_pc = 8, p = 0.95, ncols = 5, label = "Phenotypic Variance")
 {
 n <- dim(cov.matrix.array)[[1]]
 evecs = t(rs_proj$eig.R$vectors)
@@ -123,11 +123,11 @@ plot = ggplot(dat, aes_string( colour= "Population", x = "Population", y = "mean
 return(plot)
 }
 
-rs_projection_plot = PlotRSprojection_rata(rs_proj = rs_projection, p_matrices, p = 0.95, num_pc = 8, ncols = 3)
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/rs_projection_(figure2?).png", rs_projection_plot, base_aspect_ratio = 1.3, base_height = 4.8)
+rs_projection_plot = PlotRSprojection_rata(rs_proj = rs_projection, g_matrices, p = 0.95, num_pc = 8, ncols = 3)
+save_plot("~/Dropbox/labbio/articles/Ratones-article/figures/SI/rs_projection_g.png", rs_projection_plot, base_aspect_ratio = 1.3, base_height = 4.8)
 
 figure_2_review = plot_grid(krz_subspace_plot, rs_projection_plot, labels = c("A", "B"), ncol = 2, rel_widths = c(1,1.3))
-save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure2_review.png", figure_2_review, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 2)
+save_plot("~/Dropbox/labbio/articles/Ratones-article/figures/SI/figure2_SIversion_G.png", figure_2_review, base_aspect_ratio = 1.3, base_height = 4.8, ncol = 2)
 
 #Gmatrix
 

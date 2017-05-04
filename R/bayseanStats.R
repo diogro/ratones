@@ -1,16 +1,16 @@
 if(!require(doMC)) {install.packages('doMC'); library(doMC)}
 if(!require(viridis)) install.packages("viridis")
 library(viridis)
-registerDoMC(2)
+registerDoMC(5)
 
 #source("R/run_ratones_MCMCglmm_P.R")
 source("R/read_ratones.R")
-p_mcmc_stats = tbl_df(ldply(g_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
-g_mcmc_stats = tbl_df(ldply(g_models, function(x) adply(x$Gs, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))g_mcmc_stats = tbl_df(ldply(g_models, function(x) adply(x$Gs, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
+#p_mcmc_stats = tbl_df(ldply(g_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
+g_mcmc_stats = tbl_df(ldply(g_models, function(x) adply(x$Gs, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
 
 mcmc_stats = g_mcmc_stats
 # save(mcmc_stats, file = "./Rdatas/P_mcmc_stats")
-load("./data/G_mcmc_stats")
+load("./Rdatas/G_mcmc_stats")
 names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
 
 global_stats <- mcmc_stats %>% dplyr::select(.id, MeanSquaredCorrelation, flexibility, pc1.percent, evolvability, conditional.evolvability) %>% melt %>% separate(.id, c('selection', 'line'), sep = "\\.")
@@ -49,7 +49,7 @@ p_stats <- ldply(g_models, function(model) adply(model$Ps, 1,
 g_stats <- ldply(g_models, function(model) adply(model$Gs, 1,
                                                  directionalVariation,
                                                  model$line), .parallel = TRUE)
-stast = g_stats
+stats = p_stats
 
 DzPC1 <- stats %>% dplyr::select(-X1) %>% ggplot(aes(DZpc1, group = .id, fill = .id)) + geom_density(alpha = 0.5) + labs(x = expression(paste("Vector correlation of ", delta, "z and E1")), y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = c(1.25, 0.5), text = element_text(size = 20))
 evolDZ <- stats %>% dplyr::select(-X1) %>% ggplot(aes(evolDZ, group = .id, fill = .id)) + geom_density(alpha = 0.5) +  labs(x = "Scaled directional\n evolvability", y = "Density") + scale_fill_manual(values = viridis(5), name = "Line", labels = c("Control t", "Upwards h'", "Upwards s'", "Downwards h", "Downwards s")) + background_grid(major = 'x', minor = "none") +  panel_border()+ theme(legend.position = "none", text = element_text(size = 20))
@@ -61,7 +61,7 @@ figure_4 <- ggdraw() +
   draw_plot(DzPC1, 0.2, 0, 0.5, 0.5) +
   draw_plot_label(c("A", "B", "C"), c(0, 0.5, 0.2), c(1, 1, 0.5), size = 20)
 
-save_plot("figure4.png", figure_4, ncol = 2, nrow = 2, base_aspect_ratio = 1.5, base_height = 4)
+save_plot("~/Dropbox/labbio/articles/Ratones-article/madoko/images/figure4.png", figure_4, ncol = 2, nrow = 2, base_aspect_ratio = 1.5, base_height = 4)
 
 PCones <- t(laply(g_models, function(x) eigen(x$P)$vectors[,1]))
 colnames(PCones) <- c("Control t", "Downwards h", "Downwards s", "Upwards h'", "Upwards s'")
