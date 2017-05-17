@@ -71,7 +71,7 @@ runMCMCmodelsRatones <- function (x) {
                             data = full_data_scaled,
                             rcov = ~us(trait):units,
                             family = rep("gaussian", num.traits),
-                            nitt=10300, thin = 10, burnin = 300,
+                            nitt=103000, thin = 100, burnin = 3000,
                             prior = prior,
                             verbose = TRUE)
   corrPs = array(ratones_model_corr$VCV, dim = c(1000, num.traits, num.traits))

@@ -5,10 +5,10 @@ registerDoMC(5)
 
 #source("R/run_ratones_MCMCglmm_P.R")
 source("R/read_ratones.R")
-#p_mcmc_stats = tbl_df(ldply(g_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
+#p_mcmc_stats = tbl_df(ldply(r_models, function(x) adply(x$Ps, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
 g_mcmc_stats = tbl_df(ldply(g_models, function(x) adply(x$Gs, 1, MeanMatrixStatistics, .progress = "text"), .parallel = TRUE))
 
-mcmc_stats = g_mcmc_stats
+mcmc_stats = p_mcmc_stats
 # save(mcmc_stats, file = "./Rdatas/P_mcmc_stats")
 load("./Rdatas/G_mcmc_stats")
 names(mcmc_stats) <- gsub("pc1%", "pc1.percent", names(mcmc_stats))
@@ -29,7 +29,7 @@ figure_3 <- ggdraw() +
   draw_plot(flexibility_plot, 0, 0, 0.5, 0.5) +
   draw_plot(evolvability_plot, 0.5, 0, 0.5, 0.5) +
   draw_plot_label(c("A", "B", "C", "D"), c(0, 0.5, 0, 0.5), c(1, 1, 0.5, 0.5), size = 20)
-save_plot("figure3.png", figure_3, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
+save_plot("~/Dropbox/labbio/Shared Lab/Ratones_shared/figure3_with_P49.png", figure_3, ncol = 2, nrow = 2, base_aspect_ratio = 1.3, base_height = 4)
 
 directionalVariation <- function(cov.matrix, line){
   beta_s <- solve(cov.matrix, delta_Z)

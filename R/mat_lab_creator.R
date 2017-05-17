@@ -1,6 +1,7 @@
 source('./R/read_ratones.R')
 library(R.matlab)
-library(MasterBayes)
+if(!require(R.matlab)){install.packages("R.matlab"); library(R.matlab)}
+if(!require(MasterBayes)){install.packages("MasterBayes"); library(MasterBayes)}
  
 ped <- unique(read.csv("./data/pedigree.csv"))
 #fixing pedigree so ID are not repeated
@@ -8,7 +9,7 @@ count_ID <- table(ped[,1])
 ped <- ped[!(ped[,1] %in% names(which(count_ID > 1)) & is.na(ped[,2])),]
 ped = orderPed(ped)
 
-if(!require(pedRSP)) install_github("jraffa/pedRSP");
+if(!require(pedRSP)) devtools::install_github("jraffa/pedRSP");
 library(pedRSP)
 A = solve(Ainv[pos, pos])
 rsp = computeRSPs(kmat = A, thre = 0.5)
@@ -20,28 +21,26 @@ Z = matrix(0, nrow(ped), nrow(Y))
 for(col in 1:nrow(Y))
   Z[pos[col], col] = 1
 
-Y = as.matrix(dplyr::select(full_data, IS_PM:BA_OPI))
+Y = as.matrix(dplyr::select(full_data, P49, IS_PM:BA_OPI) %>% mutate(P49 = log(P49)))
 X = model.matrix(lm(Y ~ full_data$SEX + full_data$LIN + full_data$AGE))
 
-writeMat("./Gmatlab/ratones/setup.mat", A = solve(Ainv), X = t(X), Y = Y, Z_1 = Z)
+writeMat("./data/GmatlabWW/ratones/setup.mat", A = solve(Ainv), X = t(X), Y = Y, Z_1 = Z)
 
-######
+#########
 # Control
-#####
+#########
 
 strain = "h'"
 for(strain in unique(full_data$line)){
     current_data = full_data %>% filter(line == strain)
-    Y = as.matrix(current_data %>% dplyr::select(IS_PM:BA_OPI))
+    Y = as.matrix(current_data %>% dplyr::select(P49, IS_PM:BA_OPI) %>% mutate(P49 = log(P49)))
     pos = aaply(current_data$ID, 1, function(x) which(x == ped$ID))
     Z = matrix(0, nrow(ped), nrow(Y))
     for(col in 1:nrow(Y))
         Z[pos[col], col] = 1
     X = model.matrix(lm(Y ~ current_data$SEX + current_data$AGE))
-    writeMat(paste0("./Gmatlab/", strain, "/setup.mat"), A = solve(Ainv), X = t(X), Y = Y, Z_1 = Z)
+    writeMat(paste0("./data/GmatlabWW/", strain, "/setup.mat"), A = solve(Ainv), X = t(X), Y = Y, Z_1 = Z)
 }
-
-
 
 library(ggplot2)
 library(reshape2)
