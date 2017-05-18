@@ -1,7 +1,10 @@
 ---
 title: "Estimating selection gradients and divergence"
-subtitle: "The Evolution of Phenotypic Integration: \\ How directional selection reshapes covariation in mice  - Supporting Information -"
-output: pdf_document
+subtitle: 'The Evolution of Phenotypic Integration: \ How directional selection reshapes
+  covariation in mice  - Supporting Information -'
+output:
+  pdf_document: default
+  html_document: default
 ---
 
 ```{r setup, include=FALSE}
@@ -89,7 +92,7 @@ vectorCor(DeltaZ, beta)
 ```
 
 We can repeat this many times and see if this was a fluke:
-```{r}
+```{r, out.width = "400px"}
 library(tidyr)
 library(plyr)
 library(ggplot2)
@@ -110,7 +113,7 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
 
 While this is surprising, it make sense if we understand that $\beta$ estimation is very sensitive to noise in the G-matrix, and that selection in the direction of size (the first eigenvector) will tend to lead to responses also aligned with size. If we increase the variance in the selection gradient simulation, and selection is no longer in the size direction, $\Delta z$ becomes a worst estimator than the selection gradient:
 
-```{r}
+```{r, out.width = "300px"}
 result = rdply(1000, simulateBetaEstimation(isometric, G, beta_var = 3)) 
 m_result = gather(result, estimator, value, beta_estimated:Delta_z)
 ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
@@ -119,8 +122,8 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
 
 We can also improve the estimation of the selection gradient by having extremely large sample sizes and well estimated matrices:
 
-```{r}
-result = rdply(1000, simulateBetaEstimation(isometric, G, Gsample = 5000)) 
+```{r, out.width = "300px"}
+result = rdply(1000, simulateBetaEstimation(isometric, G, Gsample = 100)) 
 m_result = gather(result, estimator, value, beta_estimated:Delta_z)
 ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
   labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
@@ -130,7 +133,7 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
 
 Another option is to improve the G-matrix estimate using statistical methods. Marroig et. al. (2012) showed that the extended covariance matrix estimator could vastly improve selection gradient estimation. Let's try with our simulated example, using the ExtendMatrix function from the EvolQG package:
 
-```{r}
+```{r, out.width = "300px"}
 simulateBetaEstimation = function(beta_center, G, beta_var = 0.5, Gsample = 100) {
   beta = beta_center + rnorm(35, 0, beta_var)
   Delta_z = G %*% beta
@@ -153,7 +156,7 @@ With a sample of 100 for the G-matrix, $\Delta z$ is a better estimator of $\bet
 
 With a larger sample, the extended $\beta$ is about the same as $\Delta z$, even for size selection.
 
-```{r}
+```{r, out.width = "300px"}
 result = rdply(1000, simulateBetaEstimation(isometric, G, 0.5, Gsample = 350)) 
 m_result = gather(result, estimator, value, beta_estimated:Delta_z)
 ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
@@ -162,7 +165,7 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
 
 For selection that is not size related, the $\beta$ estimator using the extended matrix is almost always the best:
 
-```{r}
+```{r, out.width = "300px"}
 result = rdply(1000, simulateBetaEstimation(isometric, G, 3, Gsample = 100)) 
 m_result = gather(result, estimator, value, beta_estimated:Delta_z)
 ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
@@ -175,7 +178,7 @@ In our manuscript we are interested in exploring the non-isotropic changes in va
 
 We can simulate the direction of divergence $\delta z$ between two populations that were subject to opposite selection gradients (both related to overall size) and compare its alignment with the actual $\beta$:
 
-```{r}
+```{r, out.width = "300px"}
 simulateBetaEstimation = function(beta_center, G, beta_var = 0.5, Gsample = 150) {
   pop = rmvnorm(Gsample, mean = rep(0, 35), sigma = G)
   G_estimated = cov(pop)
