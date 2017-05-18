@@ -14,7 +14,7 @@ knitr::opts_chunk$set(echo = TRUE)
 
 ## Introduction
 
-Is this document we explore the difficulties in estimating selection gradients from information on evolutionary divergence and extant covariation matrices using the Lande equation (Lande, R. 1979 "Quantitative Genetic Analysis of Multivariate Evolution, Applied to Brain: Body Size Allometry" - Evolution 33 (1): 402-416). Some of this material is discussed in Marroig, G.; Melo, D.and Garcia, G. (2012) “Modularity, Noise, and Natural Selection.” - Evolution 66 (5): 1506–24.
+In this document, we explore the difficulties in estimating selection gradients from information on evolutionary divergence and extant covariation matrices using the Lande equation (Lande, R. 1979 "Quantitative Genetic Analysis of Multivariate Evolution, Applied to Brain: Body Size Allometry" - Evolution 33 (1): 402-416). Some of this material is discussed in Marroig, G.; Melo, D. and Garcia, G. (2012) “Modularity, Noise, and Natural Selection.” - Evolution 66 (5): 1506–24.
 
 ## Selection gradient estimation
 
@@ -29,7 +29,7 @@ G = readRDS("./G.rds")
 G[1:3, 1:3]
 ```
 
-Now we simulate a know selection gradient which is highly related with overall size, by perturbing the isometric vector with a small multivariate normal perturbation vector. This is reasonable, since we are dealing with overall size selection. We can control the size of the perturbation via the variance.
+Now we simulate a known selection gradient which is highly correlated with cranial size, by perturbing the isometric vector with a small multivariate normal perturbation vector. This is reasonable, since we are dealing with overall size selection. We can control the size of the perturbation via the variance of the perturbation.
 
 ```{r}
 library(mvtnorm)
@@ -44,14 +44,14 @@ beta = isometric + rnorm(35, 0, beta_var)
 beta
 ```
 
-Now we can use this selection gradient to obtain a response to selection
+Now we can use this selection gradient to obtain a response to selection:
 
 ```{r} 
 DeltaZ = G %*% beta
 DeltaZ[1:3]
 ```
 
-Now, if we have an error-free estimate of the G-matrix, we can use the $\Delta z$ to reconstruct $\beta$ exactly:
+If we have an error-free estimate of the G-matrix, we can use the $\Delta z$ to reconstruct $\beta$ exactly:
 
 ```{r}
 recons_beta = solve(G, DeltaZ)
@@ -85,13 +85,14 @@ beta_estimated = solve(G_estimated, DeltaZ)
 vectorCor(beta, beta_estimated)
 ```
 
-The estimated $\beta$ is completely different from the actual $\beta$, and their correlation is about what we would expect for random vectors in 35 dimensions. If fact, the $\Delta z$ is a better predictor of the direction of the actual $\beta$ than the estimated selection gradient solving for the Lande equation.
+The estimated $\beta$ is completely different from the actual $\beta$, and their correlation is about what we would expect for random vectors in 35 dimensions. If fact, the $\Delta z$ is a better predictor of the direction of the actual $\beta$ than the estimated selection gradient we obtain from solving the Lande equation.
 
 ```{r}
 vectorCor(DeltaZ, beta)
 ```
 
 We can repeat this many times and see if this was a fluke:
+
 ```{r, out.width = "400px"}
 library(tidyr)
 library(plyr)
@@ -111,7 +112,7 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
   labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
 ```
 
-While this is surprising, it make sense if we understand that $\beta$ estimation is very sensitive to noise in the G-matrix, and that selection in the direction of size (the first eigenvector) will tend to lead to responses also aligned with size. If we increase the variance in the selection gradient simulation, and selection is no longer in the size direction, $\Delta z$ becomes a worst estimator than the selection gradient:
+While this is surprising, it make sense if we understand that $\beta$ estimation is very sensitive to noise in the G-matrix, and that selection in the direction of size (the first eigenvector) will tend to lead to responses also aligned with size. If we increase the variance in the selection gradient simulation, and selection is no longer in the size direction, $\Delta z$ becomes an estimator that is frequently worst than the selection gradient:
 
 ```{r, out.width = "350px"}
 result = rdply(1000, simulateBetaEstimation(isometric, G, beta_var = 3)) 
@@ -120,10 +121,10 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
   labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
 ```
 
-We can also improve the estimation of the selection gradient by having extremely large sample sizes and well estimated matrices:
+We can also improve the estimation of the selection gradient by having extremely large sample sizes and, consequently, well estimated matrices:
 
 ```{r, out.width = "350px"}
-result = rdply(1000, simulateBetaEstimation(isometric, G, Gsample = 100)) 
+result = rdply(1000, simulateBetaEstimation(isometric, G, Gsample = 5000)) 
 m_result = gather(result, estimator, value, beta_estimated:Delta_z)
 ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) + 
   labs(x = "Correlation with true selection gradient", y = "Density") + theme_bw()
@@ -176,10 +177,10 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
 
 In our manuscript we are interested in exploring the non-isotropic changes in variation after an event of selection on overall size. To do so, we identify the direction that describes the divergence between the two-way selection $\delta z$ and examine the amount of variation in this direction. 
 
-We can simulate the direction of divergence $\delta z$ between two populations that were subject to opposite selection gradients (both related to overall size) and compare its alignment with the actual $\beta$:
+We can simulate the direction of divergence $\delta z$ between two populations that were subject to opposite selection gradients (both related to overall size) and compare its alignment with the actual $\beta$. We use independent errors in both selection  gradients, with a larger variance than in the other examples, to account for the fact that selection is not completely symmetrical:
 
-```{r, out.width = "350px"}
-simulateBetaEstimation = function(beta_center, G, beta_var = 0.5, Gsample = 150) {
+```{r, out.width = "330px"}
+simulateBetaEstimation = function(beta_center, G, beta_var = 1, Gsample = 150) {
   pop = rmvnorm(Gsample, mean = rep(0, 35), sigma = G)
   G_estimated = cov(pop)
   ancestral_mean = colMeans(pop)
@@ -195,8 +196,7 @@ simulateBetaEstimation = function(beta_center, G, beta_var = 0.5, Gsample = 150)
   beta_estimated = solve(G_estimated, Delta_z)
   data.frame(beta_estimated = vectorCor(beta_estimated, beta),
              divergence = vectorCor(divergence, beta),
-             Delta_z = vectorCor(Delta_z, beta)
-             )
+             Delta_z = vectorCor(Delta_z, beta))
 }
 result = rdply(1000, simulateBetaEstimation(isometric, G)) 
 m_result = gather(result, estimator, value, beta_estimated:Delta_z)
@@ -206,13 +206,13 @@ ggplot(m_result, aes(value, fill = estimator)) + geom_density(alpha = 0.7) +
 
 ```
 
-The direction of divergence $\delta z$ describes the same direction as $\Delta z$, and when the selection gradient is related to overall size, it is also a better predictor of the actual direction of selection than the estimated $\beta$.
+The direction of divergence $\delta z$ describes the same direction as $\Delta z$, and when the selection gradient is related to  size, it is also a better predictor of the actual direction of selection than the estimated $\beta$.
 
 In our figure 4, we used the direction of phenotypic divergence between the upward and downward selected lines (instead of estimating beta) because in order to have a meaningful direction in which to explore the differences in variation we must maximize our power at every step of the way. Our approach (i.e., calculate the difference between the means of selected lines) is based on the fact that the lines started at the same point, changed in opposite directions (as shown in figures S1 and S3), and this direction is highly correlated with overall size (correlation of $0.82$ with the isometric vector). Using the difference between variant lines is a common practice in studies where there is no data about the ancestral population (e.g. Bolstad et al., 2014 - doi:10.1098/rstb.2013.0255), which is the case here. Thus, $\delta z$ gives us a widely used quantity that reflects the differences caused by the selective regimes, and can plausibly be a better estimator of the direction of selection than the selection gradient, as shown here. Moreover, estimating each of the four directions of divergence ($\Delta z$ for each individual line) would substantially reduce our sample sizes, impairing estimates due to increased noise. Furthermore, our control t line does not correspond to the ancestral population (i.e., it was sampled in generation 55), and therefore may already have accumulated changes due to drift.
 
 Another option that would be reasonable given our experiment and sample sizes would be to use the direction of divergence and the extended pooled within-groups G- or P-matrix (an estimate of the ancestral matrix) to estimate a single selection gradient, and then use this gradient to explore the directional variation in the covariance matrices. Using this approach, we get the following version for figure 4:
 
-```{r, out.width = "400px", echo = FALSE}
+```{r, out.width = "450px", echo = FALSE}
 knitr::include_graphics("figure4_beta.png")
 ```
 
