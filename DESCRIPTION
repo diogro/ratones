@@ -1,0 +1,24 @@
+Package: ratones
+Title: Data and analysis for _The Evolution of Phenotypic Integration: How directional selection reshapes covariation in mice_
+Version: 1.0
+Date: 2017-06-12
+Author: Anna Penna, Diogo Melo
+Maintainer: Diogo Melo <diogro@usp.br>
+Description: What the package does (one paragraph).
+Depends: 
+  R (>= 3.4.0),
+  evolqg
+Imports:
+  ggplot2,
+  cowplot,
+  plyr,
+  dplyr,
+  tidyr,
+  MCMCglmm,
+  R.matlab,
+  viridis
+License: MIT + file LICENSE
+Encoding: UTF-8
+BugReports: https://github.com/diogro/ratones/issues
+LazyData: true
+RoxygenNote: 6.0.1
