@@ -7,16 +7,20 @@ Maintainer: Diogo Melo <diogro@usp.br>
 Description: What the package does (one paragraph).
 Depends: 
   R (>= 3.4.0),
-  evolqg
+  evolqg,
+  plyr
 Imports:
   ggplot2,
   cowplot,
-  plyr,
   dplyr,
   tidyr,
   MCMCglmm,
+  coda,
   R.matlab,
   viridis
+Suggests:
+  pedRSP,
+  devtools
 License: MIT + file LICENSE
 Encoding: UTF-8
 BugReports: https://github.com/diogro/ratones/issues

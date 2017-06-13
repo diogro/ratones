@@ -1,3 +1,11 @@
+#' Ratones
+#'
+#' Companion package for the Evolt... manuscript.
+#'
+#' @name ratones
+#' @docType package
+NULL
+
 #' Linear distances for five mouse lines
 #'
 #' Skull distances measured from landmarks in 5 lines.
@@ -69,9 +77,7 @@
 #' data(ratones_ped)
 #' if(!require(pedRSP)) devtools::install_github("jraffa/pedRSP");
 #' library(pedRSP)
-#' A = solve(Ainv)[pos, pos]
-#' rownames(A) = colnames(A)
-#' rsp = computeRSPs(kmat = x$A, thre = 0.5)
+#' rsp = computeRSPs(kmat = ratones_ped$A, thre = 0.5)
 "ratones_ped"
 
 #' Posterior draws for BSFG models

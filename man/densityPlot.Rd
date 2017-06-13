@@ -21,6 +21,8 @@ Generate denisty plot for some matrix statistic
 }
 \examples{
 data(P_stats)
+library(ggplot2)
+library(cowplot)
 r2_plot = densityPlot(P_stats, "MeanSquaredCorrelation",
                       "Mean squared correlation")
 pc1.percent_plot = densityPlot(P_stats, "pc1.percent",

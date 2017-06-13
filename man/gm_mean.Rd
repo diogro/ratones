@@ -11,7 +11,7 @@ gm_mean(x, na.rm = TRUE, zero.propagate = FALSE)
 
 \item{na.rm}{logical. If true, NA are removed before calculation}
 
-\item{zero.propagete}{logical. If TRUE, checks the vector for zeros and skips calculation}
+\item{zero.propagate}{logical. If TRUE, checks the vector for zeros and skips calculation}
 }
 \value{
 returns the geometric mean
@@ -22,4 +22,6 @@ Calculates the geometric mean of a vector
 \examples{
 x = runif(10, 1, 5)
 gm_mean(x)
+gm_mean(c(1, 2, NA, 0), na.rm = FALSE)
+gm_mean(c(1, 2, NA, 0), na.rm = FALSE, zero.propagate = TRUE)
 }

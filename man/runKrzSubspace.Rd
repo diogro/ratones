@@ -5,7 +5,7 @@
 \title{Run the Krzanowski subspace comparison}
 \usage{
 runKrzSubspace(matrix_array = NULL, models = NULL, type = c("P", "G"),
-  ped = NULL, IDs = llply(ratones, function(x) x$info$ID), prob = 0.95)
+  ped = NULL, IDs, prob = 0.95)
 }
 \arguments{
 \item{matrix_array}{array of posterior matrices with dimensions traits x traits x populations x MCMCsamples}
@@ -29,13 +29,17 @@ using simulated beeding values from the pedigree.
 }
 \examples{
 \dontrun{
-out = runKrzSubspace(models = ratones_models, type = "P", ped = ratones_ped$ped)
-#figure 2, Panel A
+out = runKrzSubspace(models = ratones_models, type = "P",
+                     ped = ratones_ped$ped,
+                     IDs = llply(ratones, function(x) x$info$ID))
+#figure 2, Panel A:
 krz_subspace_plot = ggplot(out, aes(x = rank, y = mean, linetype = type, color = type)) +
   geom_point(position = position_dodge(width = 0.5)) +
   geom_linerange(aes(ymin = lower, ymax = upper), position = position_dodge(width = 0.5)) +
-  labs(y = "Eigenvalues of H", x = "Eigenvectors of H") + background_grid(major = 'x', minor = "none") +
-  panel_border() + theme(panel.grid.minor = element_line(colour = "grey", linetype = "dotted", size =0.2))+
+  labs(y = "Eigenvalues of H", x = "Eigenvectors of H") +
+  background_grid(major = 'x', minor = "none") +
+  panel_border() +
+  theme(panel.grid.minor = element_line(colour = "grey", linetype = "dotted", size =0.2)) +
   theme(legend.position = c(0.75, 0.9), text = element_text(size = 18)) +
   scale_colour_grey("", start = 0, end = 0.6) + scale_linetype(guide = "none")
 #Panel B can be created in evolqg (but will take a long time!!):
@@ -45,4 +49,8 @@ dimnames(matrix_array)[[3]] = names(ratones_models)
 rs_projection = RSProjection(matrix_array)
 PlotRSprojection(rs_proj = rs_projection, cov.matrix.array = matrix_array)
 }
+}
+\references{
+Aguirre, J. D., E. Hine, K. McGuigan, and M. W. Blows. 2014. "Comparing G: Multivariate Analysis of Genetic Variation in Multiple Populations." Heredity 112 (1): 21-29.
+Melo, D., G. Garcia, A. Hubbe, A. P. Assis, and G. Marroig. 2016. "EvolQG - An R Package for Evolutionary Quantitative Genetics [version 3; Referees: 2 Approved, 1 Approved with Reservations]." F1000Research 4: 925.
 }

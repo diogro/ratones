@@ -19,7 +19,7 @@
 #'                 collapse = ", "), ") ~ SEX + AGE")
 #' animal_model_data = generateAnimalModelInput(formula, ratonesdf,
 #'                                              ratones_ped$A,
-#'                                              line = "all", out_foldel = "./")
+#'                                              line = "all", out_folder = "./")
 generateAnimalModelInput <- function(formula, data, A,
                                      line = c("all", "t", "h", "hp", "s", "sp"),
                                      IDcol = "ID", out_folder = NULL){
