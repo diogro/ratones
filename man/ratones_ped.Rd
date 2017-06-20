@@ -4,15 +4,22 @@
 \name{ratones_ped}
 \alias{ratones_ped}
 \title{Pedigree information for five mouse lines}
-\format{list}
+\format{List}
 \source{
-\href{http://dryad_link.com}{Dryad Archive}
+Data from: The evolution of phenotypic integration: how directional selection reshapes covariation in mice. \href{http://dx.doi.org/10.5061/dryad.5gr8r}{Dryad Archive} doi:10.5061/dryad.5gr8r.
 }
 \usage{
 data(ratones_ped)
 }
 \description{
-List with the pedigree for full experiment and relationship matrix for all measured animals
+List with the pedigree for full experiment and relationship matrix for all measured animals.
+}
+\details{
+\itemize{
+          \item ID: individual catalog number,
+          \item MADRE: pedigree Dam,
+          \item PADRE: pedigree Sire.
+          }
 }
 \examples{
 data(ratones_ped)

@@ -6,15 +6,15 @@
 \title{Posterior draws for BSFG models}
 \format{list}
 \source{
-\href{http://dryad_link.com}{Dryad Archive}
+Data from: The evolution of phenotypic integration: how directional selection reshapes covariation in mice. \href{http://dx.doi.org/10.5061/dryad.5gr8r}{Dryad Archive} doi:10.5061/dryad.5gr8r.
 }
 \usage{
 data(ratones_models)
 }
 \description{
-G and P matrices for the skull distances for all 5 lines obtained from the BSFG model.
+G and P matrices for the cranial distances for all 5 lines obtained from the BSFG model.
 The generateAnimalModelInput function will create the inputs for the MATLAB code available in
-http://www2.stat.duke.edu/~sayan/bfgr/index.shtml it you wish to generate these yourself.
+http://www2.stat.duke.edu/~sayan/bfgr/index.shtml if you wish to generate these yourself.
 }
 \examples{
 data(ratones_models)

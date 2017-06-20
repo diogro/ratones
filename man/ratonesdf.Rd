@@ -3,16 +3,33 @@
 \docType{data}
 \name{ratonesdf}
 \alias{ratonesdf}
-\title{Linear distances for five mouse lines}
+\title{Information and cranial euclidean distances for five mouse lines}
 \format{data.frame}
 \source{
-\href{http://dryad_link.com}{Dryad Archive}
+Data from: The evolution of phenotypic integration: how directional selection reshapes covariation in mice. \href{http://dx.doi.org/10.5061/dryad.5gr8r}{Dryad Archive} doi:10.5061/dryad.5gr8r.
 }
 \usage{
 data(ratonesdf)
 }
 \description{
-Skull distances measured from landmarks in 5 lines.
+Database for all individuals information and cranial euclidean distances mean between replicas.
+}
+\details{
+\itemize{
+          \item .id: selection and line combined information.
+          \item ID: individual catalog number,
+          \item SEX: sex (F: female, M: male),
+          \item GER: generation of the long term experiment,
+          \item LIN: experimental line (control t, downwards s, downwards h, upwards sp and upwards hp),
+          \item MADRE: pedigree Dam,
+          \item PADRE: pedigree Sire,
+          \item AGE: age at sacrifice,
+          \item P49: weight at 49 days of age,
+          \item line: experimental line,
+          \item TAKE: paired individual replicas (1 and 2),
+          \item selection: direction of selection (downwards, upwards or control),
+          \item IS_PM-BA_OPI: set of 35 cranial euclidean distances, as indicated in the manuscript figure S3.
+           }
 }
 \examples{
 data(ratonesdf)

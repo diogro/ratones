@@ -6,7 +6,7 @@
 \title{Posterior draws for BSFG within-groups model, including all 5 lines}
 \format{list}
 \source{
-\href{http://dryad_link.com}{Dryad Archive}
+Data from: The evolution of phenotypic integration: how directional selection reshapes covariation in mice. \href{http://dx.doi.org/10.5061/dryad.5gr8r}{Dryad Archive} doi:10.5061/dryad.5gr8r.
 }
 \usage{
 data(ratones_Wmodel)

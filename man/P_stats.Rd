@@ -3,16 +3,16 @@
 \docType{data}
 \name{P_stats}
 \alias{P_stats}
-\title{Posterior draws for P matrix statistics}
+\title{Posterior draws for P matrix evolutionary statistics}
 \format{list}
 \source{
-\href{http://dryad_link.com}{Dryad Archive}
+Data from: The evolution of phenotypic integration: how directional selection reshapes covariation in mice. \href{http://dx.doi.org/10.5061/dryad.5gr8r}{Dryad Archive} doi:10.5061/dryad.5gr8r.
 }
 \usage{
 data(P_stats)
 }
 \description{
-P matrix statistics for all lines.
+P matrix evolutionary statistics for all lines.
 }
 \examples{
 data(P_stats)
@@ -29,5 +29,9 @@ data(P_stats)
 \references{
 Penna et al. (2017) Evolution
 (\href{http://www.ncbi.nlm.nih.gov/pubmed/**********}{PubMed})
+
+Melo, D., G. Garcia, A. Hubbe, A. P. Assis, and G. Marroig. 2016. "EvolQG - An R Package for Evolutionary Quantitative Genetics [version 3; Referees: 2 Approved, 1 Approved with Reservations]." F1000Research 4: 925.
+
+Hansen, T. F., and Houle, D. (2008). Measuring and comparing evolvability and constraint in multivariate characters. Journal of evolutionary biology, 21(5), 1201-19. doi:10.1111/j.1420-9101.2008.01573.x
 }
 \keyword{datasets}
