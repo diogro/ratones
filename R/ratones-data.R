@@ -26,7 +26,7 @@ NULL
 #'           \item line: experimental line (control t, downwards s, downwards h, upwards s' and upwards h'),
 #'           \item TAKE: paired individual replicas,
 #'           \item selection: direction of selection (downwards, upwards or control),
-#'           \item IS_PM-BA_OPI: set of 35 cranial euclidean distances, as indicated in the manuscript figure S3.
+#'           \item IS_PM-BA_OPI: set of 35 cranial euclidean distances, as indicated in the manuscript figure S4.
 #'            }
 #'  \item ed.raw: complete set of euclidean distances for all measured individuals, including replicas.
 #'  \item info: information for all measured individuals.
@@ -73,7 +73,7 @@ NULL
 #'           \item P49: weight at 49 days of age,
 #'           \item line: experimental line,
 #'           \item selection: direction of selection (downwards, upwards or control),
-#'           \item IS_PM-BA_OPI: set of 35 cranial euclidean distances, as indicated in the manuscript figure S3.
+#'           \item IS_PM-BA_OPI: set of 35 cranial euclidean distances, as indicated in the manuscript figure S4.
 #'            }
 #'
 #' @name ratonesdf
@@ -115,7 +115,7 @@ NULL
 #'           \item line: experimental line,
 #'           \item TAKE: paired individual replicas (1 and 2),
 #'           \item selection: direction of selection (downwards, upwards or control),
-#'           \item IS_PM-BA_OPI: set of 35 cranial euclidean distances, as indicated in the manuscript figure S3.
+#'           \item IS_PM-BA_OPI: set of 35 cranial euclidean distances, as indicated in the manuscript figure S4.
 #'            }
 #'
 #' @name ratonesdf_raw
