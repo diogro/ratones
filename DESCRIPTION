@@ -1,10 +1,10 @@
 Package: ratones
-Title: Data and analysis for _The Evolution of Phenotypic Integration: How directional selection reshapes covariation in mice_
+Title: Data and analysis for "The Evolution of Phenotypic Integration: How directional selection reshapes covariation in mice"
 Version: 1.0
 Date: 2017-06-12
 Author: Anna Penna, Diogo Melo
 Maintainer: Diogo Melo <diogro@usp.br>
-Description: What the package does (one paragraph).
+Description: Provides data and functions for replicating the results found in the manuscript.
 Depends: 
   R (>= 3.4.0),
   evolqg,
