@@ -72,7 +72,6 @@ NULL
 #'           \item AGE: age at sacrifice,
 #'           \item P49: weight at 49 days of age,
 #'           \item line: experimental line,
-#'           \item TAKE: paired individual replicas (1 and 2),
 #'           \item selection: direction of selection (downwards, upwards or control),
 #'           \item IS_PM-BA_OPI: set of 35 cranial euclidean distances, as indicated in the manuscript figure S3.
 #'            }
@@ -97,6 +96,48 @@ NULL
 #' delta_Z = colMeans(dplyr::select(ratonesdf[ratonesdf$selection == "upwards",], IS_PM:BA_OPI)) -
 #'           colMeans(dplyr::select(ratonesdf[ratonesdf$selection == "downwards",], IS_PM:BA_OPI))
 "ratonesdf"
+
+
+#' Information and cranial euclidean distances for five mouse lines
+#'
+#' Database for all individuals information and cranial euclidean distances for both replicas.
+#'
+#' \itemize{
+#'           \item .id: selection and line combined information.
+#'           \item ID: individual catalog number,
+#'           \item SEX: sex (F: female, M: male),
+#'           \item GER: generation of the long term experiment,
+#'           \item LIN: experimental line (control t, downwards s, downwards h, upwards sp and upwards hp),
+#'           \item MADRE: pedigree Dam,
+#'           \item PADRE: pedigree Sire,
+#'           \item AGE: age at sacrifice,
+#'           \item P49: weight at 49 days of age,
+#'           \item line: experimental line,
+#'           \item TAKE: paired individual replicas (1 and 2),
+#'           \item selection: direction of selection (downwards, upwards or control),
+#'           \item IS_PM-BA_OPI: set of 35 cranial euclidean distances, as indicated in the manuscript figure S3.
+#'            }
+#'
+#' @name ratonesdf_raw
+#'
+#' @docType data
+#'
+#' @usage data(ratonesdf_raw)
+#'
+#' @format data.frame
+#'
+#' @keywords datasets
+#'
+#' @references Penna et al. (2017) Evolution
+#' (\href{http://www.ncbi.nlm.nih.gov/pubmed/**********}{PubMed})
+#'
+#' @source  Data from: The evolution of phenotypic integration: how directional selection reshapes covariation in mice. \href{http://dx.doi.org/10.5061/dryad.5gr8r}{Dryad Archive} doi:10.5061/dryad.5gr8r.
+#'
+#' @examples
+#' data(ratonesdf)
+#' delta_Z = colMeans(dplyr::select(ratonesdf[ratonesdf$selection == "upwards",], IS_PM:BA_OPI)) -
+#'           colMeans(dplyr::select(ratonesdf[ratonesdf$selection == "downwards",], IS_PM:BA_OPI))
+"ratonesdf_raw"
 
 #' Pedigree information for five mouse lines
 #'
