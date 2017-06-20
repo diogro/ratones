@@ -24,7 +24,7 @@ generateAnimalModelInput <- function(formula, data, A,
                                      line = c("all", "t", "h", "hp", "s", "sp"),
                                      IDcol = "ID", out_folder = NULL){
   line = match.arg(line)
-  if(line != "all") data = data[data$LIN == "h",]
+  if(line != "all") data = data[data$LIN == line,]
   model = lm(as.formula(formula), data = data)
   Y = model$model[[1]]
   X = model.matrix(model)
